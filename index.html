@@ -2,70 +2,57 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ComunicaTec • Gestão de Turmas e Atividades</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComunicaTec • Sistema Multiusuário</title>
 <style>
 :root{
-  --primary:#176b3a;--primary2:#0d4f2a;--bg:#f4f6f8;--card:#fff;
-  --text:#1f2937;--muted:#667085;--line:#dfe3e8;
-  --ok:#16834a;--warn:#a16207;--danger:#b42318;--blue:#155eef;
+  --primary:#176b3a;--primary2:#0f512c;--bg:#f4f6f8;--card:#fff;
+  --text:#1f2937;--muted:#6b7280;--line:#d9dee5;
+  --ok:#16834a;--warn:#b7791f;--danger:#b42318;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
-.topbar{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:15px;box-shadow:0 2px 10px #0002}
-.brand{font-weight:900;font-size:19px;letter-spacing:.4px}.topbar small{opacity:.86}
-.container{max-width:1220px;margin:26px auto;padding:0 18px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 4px 18px #0000000a}
-.login{max-width:440px;margin:65px auto}.login h1{text-align:center;font-size:25px}
-.logo{width:76px;height:76px;border-radius:22px;background:#e8f5ed;color:var(--primary);margin:0 auto 15px;display:grid;place-items:center;font-size:36px}
+.topbar{background:var(--primary);color:white;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{font-weight:800;font-size:18px}.topbar small{opacity:.85}
+.container{max-width:1180px;margin:28px auto;padding:0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05)}
+.login{max-width:430px;margin:70px auto}
+.login h1{text-align:center;font-size:25px}
+.logo{width:70px;height:70px;border-radius:50%;background:#e9f4ed;margin:0 auto 15px;display:grid;place-items:center;font-size:35px}
 label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
-input,textarea,select{width:100%;padding:11px 12px;border:1px solid #cbd2da;border-radius:9px;background:#fff;outline:none}
-input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #176b3a18}
+input,textarea,select{width:100%;padding:11px 12px;border:1px solid #cbd2da;border-radius:9px;background:white}
 textarea{min-height:100px;resize:vertical}
-.btn{border:0;border-radius:9px;padding:10px 14px;font-weight:750;transition:.15s}
-.btn:hover{transform:translateY(-1px)}
-.primary{background:var(--primary);color:#fff}.secondary{background:#eef2f5;color:#24313d}
-.danger{background:#feeceb;color:var(--danger)}.blue{background:#eaf1ff;color:#155eef}
+.btn{border:0;border-radius:9px;padding:10px 14px;font-weight:700}
+.primary{background:var(--primary);color:white}.secondary{background:#eef2f5;color:#24313d}
+.danger{background:#feeceb;color:var(--danger)}
 .full{width:100%;margin-top:18px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.stat{padding:18px}.stat .num{font-size:28px;font-weight:900;margin-top:7px}
+.stat{padding:18px}.stat .num{font-size:28px;font-weight:800;margin-top:7px}
 .muted{color:var(--muted)}.section{margin-top:18px}
-table{width:100%;border-collapse:collapse;background:#fff}
+table{width:100%;border-collapse:collapse;background:white}
 th,td{border:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}
-th{background:#f0f2f4;font-size:13px}
-.badge{display:inline-block;border-radius:99px;padding:4px 9px;font-size:12px;font-weight:750;white-space:nowrap}
+th{background:#eef0f2;font-size:13px}
+.badge{display:inline-block;border-radius:99px;padding:4px 9px;font-size:12px;font-weight:700}
 .ok{background:#e7f6ed;color:#126b3c}.pending{background:#fff5db;color:#8a5a00}
-.absent{background:#feeceb;color:#b42318}.future{background:#edf2f7;color:#475569}
-.info{background:#eef6ff;border:1px solid #cfe0ff;border-radius:10px;padding:12px;font-size:13px}
-.toast{position:fixed;right:20px;bottom:20px;background:#17212b;color:#fff;padding:13px 17px;border-radius:10px;display:none;z-index:50;box-shadow:0 6px 20px #0003}
-.modal{position:fixed;inset:0;background:#0008;display:grid;place-items:center;padding:18px;z-index:40}
-.modal .card{width:min(760px,100%);max-height:92vh;overflow:auto}
-.empty{padding:25px;text-align:center;color:var(--muted)}
+.future{background:#edf2f7;color:#475569}
+.toast{position:fixed;right:20px;bottom:20px;background:#1f2937;color:white;padding:13px 17px;border-radius:10px;display:none;z-index:20}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:18px;z-index:10}
+.modal .card{width:min(680px,100%);max-height:90vh;overflow:auto}
+.hidden{display:none!important}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
 .tabs button.active{background:var(--primary);color:#fff}
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.kpi{display:flex;gap:8px;flex-wrap:wrap}
-.report-page{background:#fff;padding:30px;max-width:900px;margin:auto}
-.report-head{text-align:center;font-size:12px;line-height:1.35}
-.report-title{text-align:center;font-weight:900;font-size:16px;margin:25px 0 12px}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+.report-page{background:white;padding:30px;max-width:850px;margin:auto}
+.report-head{text-align:center;font-size:12px;line-height:1.3}
+.report-title{text-align:center;font-weight:800;font-size:16px;margin:25px 0 12px}
 .sign{display:flex;justify-content:space-around;margin-top:70px;text-align:center;font-size:12px}
 .sign div{width:40%;border-top:1px solid #555;padding-top:8px}
-.check-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eee}
-.check-row input{width:auto}
-.att-grid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.status-select{min-width:150px}
-.hidden{display:none!important}
-@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){
- .grid{grid-template-columns:1fr 1fr}.container{padding:0 12px}.topbar{padding:12px 14px}
- .actions .btn{width:100%}th,td{font-size:12px;padding:7px}.modal{padding:8px}
-}
-@media print{
- body{background:#fff}.no-print{display:none!important}.report-page{box-shadow:none;border:0;margin:0;padding:10mm;max-width:none}
-}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.container{margin-top:18px}.topbar{padding:12px 15px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr 1fr}.actions .btn{width:100%}th,td{font-size:12px;padding:7px}}
+@media print{body{background:white}.no-print{display:none!important}.report-page{box-shadow:none;border:0;margin:0;padding:12mm;max-width:none}}
 </style>
 </head>
 <body>
@@ -73,504 +60,738 @@ th{background:#f0f2f4;font-size:13px}
 <div id="toast" class="toast"></div>
 
 <script>
-/* ==========================================================
-   COMUNICATEC — PROTÓTIPO MULTIUSUÁRIO
-   Perfis:
-   ADMIN       = administra usuários, turmas e aulas
-   COORDENADOR = acompanha turmas sob sua coordenação
-   INSTRUTOR   = responsável pelas atividades/frequência das aulas
-   ALUNO       = registra sua atividade e vê somente sua própria área
+/* =========================================================
+   COMUNICATEC - VERSÃO MULTIUSUÁRIO COM LOCALSTORAGE
+   Dados salvos somente neste navegador/dispositivo.
+   Perfis: ADMIN, COORDENADOR, INSTRUTOR, ALUNO
+   ========================================================= */
 
-   Persistência: localStorage deste navegador.
-   Para multiusuário real entre aparelhos, é necessário backend/API.
-   ========================================================== */
+const DB_KEY = "comunicatec_multi_v1";
 
-const DB_KEY="comunicatec_multi_v2";
-
-const initialDB={
- users:[
-  {id:"u-admin",name:"Administrador",email:"admin@comunicatec.com",password:"123456",role:"ADMIN",func:"Administrador",phone:"",active:true},
-  {id:"u-coord",name:"Prof. André Martins",email:"coordenador@comunicatec.com",password:"123456",role:"COORDENADOR",func:"Coordenador",phone:"",active:true},
-  {id:"u-inst",name:"Prof. Carlos Silva",email:"instrutor@comunicatec.com",password:"123456",role:"INSTRUTOR",func:"Instrutor",phone:"",active:true},
-  {id:"u-aluno",name:"Aluno Demonstração",email:"aluno@comunicatec.com",password:"123456",role:"ALUNO",func:"Aluno",phone:"(96) 99999-9999",active:true}
- ],
- classes:[
-  {id:"turma-santana",name:"Agência Santana",coordinatorId:"u-coord",instructorId:"u-inst",description:"Turma de demonstração do Projeto ComunicaTec",active:true}
- ],
- enrollments:[
-  {userId:"u-aluno",classId:"turma-santana"}
- ],
- lessons:[
-  {id:"a1",classId:"turma-santana",date:"2026-09-01",time:"19:00",hours:2,type:"Aula",title:"Aula / atividade do programa"},
-  {id:"a2",classId:"turma-santana",date:"2026-09-04",time:"19:00",hours:2,type:"Aula / atividade do programa"},
-  {id:"a3",classId:"turma-santana",date:"2026-09-08",time:"19:00",hours:2,type:"Aula / atividade do programa"},
-  {id:"a4",classId:"turma-santana",date:"2026-09-11",time:"19:00",hours:2,type:"Aula / atividade do programa"},
-  {id:"a5",classId:"turma-santana",date:"2026-09-15",time:"19:00",hours:2,type:"Aula / atividade do programa"},
-  {id:"a6",classId:"turma-santana",date:"2026-09-18",time:"19:00",hours:2,type:"Aula / atividade do programa"},
-  {id:"a7",classId:"turma-santana",date:"2026-09-22",time:"19:00",hours:2,type:"Aula / atividade do programa"},
-  {id:"a8",classId:"turma-santana",date:"2026-09-25",time:"19:00",hours:2,type:"Aula / atividade do programa"},
-  {id:"a9",classId:"turma-santana",date:"2026-09-29",time:"19:00",hours:2,type:"Aula / atividade do programa"}
- ],
- attendance:[],
- activities:[]
+const initialDB = {
+  users: [
+    {
+      id:"u-admin",
+      name:"Administrador",
+      email:"admin@comunicatec.com",
+      password:"123456",
+      role:"ADMIN",
+      func:"Administrador",
+      phone:"",
+      active:true
+    },
+    {
+      id:"u-coord",
+      name:"Prof. André Martins",
+      email:"coordenador@comunicatec.com",
+      password:"123456",
+      role:"COORDENADOR",
+      func:"Coordenador",
+      phone:"",
+      active:true
+    },
+    {
+      id:"u-instrutor",
+      name:"Prof. Magno Aires",
+      email:"instrutor@comunicatec.com",
+      password:"123456",
+      role:"INSTRUTOR",
+      func:"Instrutor",
+      phone:"",
+      active:true
+    },
+    {
+      id:"u-aluno",
+      name:"Aluno Demonstração",
+      email:"aluno@comunicatec.com",
+      password:"123456",
+      role:"ALUNO",
+      func:"Aluno",
+      phone:"(96) 99999-9999",
+      active:true
+    }
+  ],
+  classes:[
+    {
+      id:"turma-santana",
+      name:"Agência Santana",
+      coordinatorId:"u-coord",
+      instructorId:"u-instrutor",
+      description:"Turma de demonstração do Projeto ComunicaTec",
+      active:true
+    }
+  ],
+  enrollments:[
+    {userId:"u-aluno",classId:"turma-santana"}
+  ],
+  lessons:[
+    {id:"a1",classId:"turma-santana",date:"2026-09-01",time:"19:00",hours:2,type:"Aula",title:"Aula / atividade do programa"},
+    {id:"a2",classId:"turma-santana",date:"2026-09-04",time:"19:00",hours:2,type:"Aula",title:"Aula / atividade do programa"},
+    {id:"a3",classId:"turma-santana",date:"2026-09-08",time:"19:00",hours:2,type:"Aula",title:"Aula / atividade do programa"},
+    {id:"a4",classId:"turma-santana",date:"2026-09-11",time:"19:00",hours:2,type:"Aula",title:"Aula / atividade do programa"},
+    {id:"a5",classId:"turma-santana",date:"2026-09-15",time:"19:00",hours:2,type:"Aula / atividade do programa"},
+    {id:"a6",classId:"turma-santana",date:"2026-09-18",time:"19:00",hours:2,type:"Aula / atividade do programa"},
+    {id:"a7",classId:"turma-santana",date:"2026-09-22",time:"19:00",hours:2,type:"Aula / atividade do programa"},
+    {id:"a8",classId:"turma-santana",date:"2026-09-25",time:"19:00",hours:2,type:"Aula / atividade do programa"},
+    {id:"a9",classId:"turma-santana",date:"2026-09-29",time:"19:00",hours:2,type:"Aula / atividade do programa"}
+  ],
+  activities:[],
+  absences:[]
 };
 
-let db=loadDB();
-let currentUserId=sessionStorage.getItem("ct_user_id")||null;
+let db = loadDB();
+let currentUserId = sessionStorage.getItem("ct_user_id") || null;
 
 function loadDB(){
- try{
-  const saved=localStorage.getItem(DB_KEY);
-  if(!saved)return structuredClone(initialDB);
-  const d=JSON.parse(saved);
-  d.users??=[];d.classes??=[];d.enrollments??=[];d.lessons??=[];d.attendance??=[];d.activities??=[];
-  return d;
- }catch(e){return structuredClone(initialDB)}
+  try{
+    const saved=localStorage.getItem(DB_KEY);
+    const data=saved ? JSON.parse(saved) : structuredClone(initialDB);
+    data.users ||= []; data.classes ||= []; data.enrollments ||= []; data.lessons ||= []; data.activities ||= []; data.absences ||= [];
+    if(!data.users.some(u=>u.role==="INSTRUTOR")) data.users.push(structuredClone(initialDB.users.find(u=>u.role==="INSTRUTOR")));
+    const demoClass=data.classes.find(c=>c.id==="turma-santana");
+    if(demoClass && !demoClass.instructorId) demoClass.instructorId="u-instrutor";
+    return data;
+  }catch(e){
+    return structuredClone(initialDB);
+  }
 }
 function saveDB(){localStorage.setItem(DB_KEY,JSON.stringify(db))}
 function uid(prefix="id"){return prefix+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,8)}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function fmtDate(d){return d?new Date(d+"T12:00:00").toLocaleDateString("pt-BR"):"—"}
-function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(d){return new Date(d+"T12:00:00").toLocaleDateString("pt-BR")}
 function toast(msg){
- const t=document.getElementById("toast");if(!t)return;
- t.textContent=msg;t.style.display="block";clearTimeout(window.toastTimer);
- window.toastTimer=setTimeout(()=>t.style.display="none",2600);
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.style.display="block";
+  clearTimeout(window.toastTimer);
+  window.toastTimer=setTimeout(()=>t.style.display="none",2500);
 }
 function currentUser(){return db.users.find(u=>u.id===currentUserId)||null}
-function roleLabel(r){
- return {ADMIN:"Administrador",COORDENADOR:"Coordenador",INSTRUTOR:"Instrutor",ALUNO:"Aluno"}[r]||r;
+function classIdsForUser(userId){
+  return db.enrollments.filter(e=>e.userId===userId).map(e=>e.classId);
 }
-function classIdsForUser(userId){return db.enrollments.filter(e=>e.userId===userId).map(e=>e.classId)}
-function classesForUser(userId){return db.classes.filter(c=>classIdsForUser(userId).includes(c.id))}
+function classesForUser(userId){
+  return db.classes.filter(c=>classIdsForUser(userId).includes(c.id));
+}
+function classesForInstructor(userId){
+  return db.classes.filter(c=>c.instructorId===userId);
+}
+function classesForCoordinator(userId){
+  return db.classes.filter(c=>c.coordinatorId===userId);
+}
+function studentsForClass(classId){
+  const ids=db.enrollments.filter(e=>e.classId===classId).map(e=>e.userId);
+  return db.users.filter(u=>u.role==="ALUNO"&&ids.includes(u.id)&&u.active);
+}
+function hasAbsence(lessonId,userId){
+  return db.absences.some(a=>a.lessonId===lessonId&&a.userId===userId);
+}
 function userClass(userId){
- const ids=classIdsForUser(userId);return db.classes.find(c=>ids.includes(c.id))||null;
+  const ids=classIdsForUser(userId);
+  return db.classes.find(c=>ids.includes(c.id))||null;
 }
-function studentsOfClass(classId){
- const ids=db.enrollments.filter(e=>e.classId===classId).map(e=>e.userId);
- return db.users.filter(u=>ids.includes(u.id)&&u.role==="ALUNO");
-}
-function instructorClasses(userId){return db.classes.filter(c=>c.instructorId===userId)}
-function coordinatorClasses(userId){return db.classes.filter(c=>c.coordinatorId===userId)}
-function attendanceFor(lessonId,userId){return db.attendance.find(a=>a.lessonId===lessonId&&a.userId===userId)}
-function activityFor(lessonId,userId){return db.activities.find(a=>a.lessonId===lessonId&&a.userId===userId)}
-function lessonStatus(lesson){
- const now=new Date();const d=new Date(lesson.date+"T"+(lesson.time||"00:00"));
- return d>now?"FUTURA":"REALIZADA";
+function roleLabel(r){
+  return r==="ADMIN"?"Administrador":r==="COORDENADOR"?"Coordenador":r==="INSTRUTOR"?"Instrutor":"Aluno";
 }
 function render(){
- const u=currentUser();
- if(!u){renderLogin();return}
- if(u.role==="ADMIN")renderAdmin();
- else if(u.role==="COORDENADOR")renderCoordinator();
- else if(u.role==="INSTRUTOR")renderInstructor();
- else renderStudent();
+  if(!currentUser()) return renderLogin();
+  const u=currentUser();
+  if(u.role==="ADMIN") renderAdmin();
+  else if(u.role==="COORDENADOR") renderCoordinator();
+  else if(u.role==="INSTRUTOR") renderInstructor();
+  else renderStudent();
 }
-function logout(){currentUserId=null;sessionStorage.removeItem("ct_user_id");render()}
 
 /* ================= LOGIN ================= */
 function renderLogin(){
- document.getElementById("app").innerHTML=`
- <div class="container"><div class="card login">
-  <div class="logo">🎓</div><h1>Projeto ComunicaTec</h1>
-  <p class="muted" style="text-align:center">Gestão de turmas, frequência e atividades</p>
-  <label>E-mail</label><input id="loginEmail" type="email" placeholder="Digite seu e-mail">
-  <label>Senha</label><input id="loginPassword" type="password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')login()">
-  <button class="btn primary full" onclick="login()">Entrar</button>
-  <div class="info" style="margin-top:15px">
-   <b>Acessos de demonstração</b><br>
-   Administrador: admin@comunicatec.com / 123456<br>
-   Coordenador: coordenador@comunicatec.com / 123456<br>
-   Instrutor: instrutor@comunicatec.com / 123456<br>
-   Aluno: aluno@comunicatec.com / 123456
-  </div>
- </div></div>`;
+  document.getElementById("app").innerHTML=`
+  <div class="container">
+    <div class="card login">
+      <div class="logo">🎓</div>
+      <h1>Projeto ComunicaTec</h1>
+      <p class="muted" style="text-align:center">Sistema de registro e acompanhamento de atividades</p>
+      <label>E-mail</label>
+      <input id="loginEmail" type="email" placeholder="Digite seu e-mail">
+      <label>Senha</label>
+      <input id="loginPassword" type="password" placeholder="Digite sua senha"
+             onkeydown="if(event.key==='Enter') login()">
+      <button class="btn primary full" onclick="login()">Entrar</button>
+      <div class="card" style="margin-top:15px;background:#f8fafb">
+        <b>Acessos de demonstração</b>
+        <p style="margin:8px 0;font-size:13px">
+          Administrador: admin@comunicatec.com / 123456<br>
+          Coordenador: coordenador@comunicatec.com / 123456<br>
+          Instrutor: instrutor@comunicatec.com / 123456<br>
+          Aluno: aluno@comunicatec.com / 123456
+        </p>
+      </div>
+    </div>
+  </div>`;
 }
 function login(){
- const email=document.getElementById("loginEmail").value.trim().toLowerCase();
- const password=document.getElementById("loginPassword").value;
- const u=db.users.find(x=>x.email.toLowerCase()===email&&x.password===password&&x.active);
- if(!u){toast("E-mail, senha inválidos ou usuário inativo.");return}
- currentUserId=u.id;sessionStorage.setItem("ct_user_id",u.id);render();
+  const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+  const password=document.getElementById("loginPassword").value;
+  const u=db.users.find(x=>x.email.toLowerCase()===email && x.password===password && x.active);
+  if(!u){toast("E-mail, senha inválidos ou usuário inativo.");return}
+  currentUserId=u.id;
+  sessionStorage.setItem("ct_user_id",u.id);
+  toast("Login realizado com sucesso.");
+  render();
 }
-
-/* ================= CABEÇALHO ================= */
-function header(subtitle){
- const u=currentUser();
- return `<div class="topbar">
-  <div><div class="brand">COMUNICATEC</div><small>${esc(subtitle)}</small></div>
-  <div class="actions">
-   <span style="font-size:13px">${esc(u.name)} • ${roleLabel(u.role)}</span>
-   <button class="btn secondary" onclick="logout()">Sair</button>
-  </div>
- </div>`;
+function logout(){
+  currentUserId=null;
+  sessionStorage.removeItem("ct_user_id");
+  render();
 }
 
 /* ================= ADMIN ================= */
 function renderAdmin(){
- const alunos=db.users.filter(u=>u.role==="ALUNO");
- const coords=db.users.filter(u=>u.role==="COORDENADOR");
- const inst=db.users.filter(u=>u.role==="INSTRUTOR");
- const totalHours=db.activities.reduce((s,a)=>s+Number(a.hours||0),0);
+  const alunos=db.users.filter(u=>u.role==="ALUNO");
+  const coords=db.users.filter(u=>u.role==="COORDENADOR");
+  const totalHours=db.activities.reduce((s,a)=>s+Number(a.hours||0),0);
 
- document.getElementById("app").innerHTML=header("Painel administrativo")+`
- <div class="container">
-  <div class="toolbar">
-   <div><h1>Administração</h1><p class="muted">Gerencie usuários, turmas, instrutores, aulas, frequência e atividades.</p></div>
-   <div class="actions">
-    <button class="btn primary" onclick="openUserModal()">+ Usuário</button>
-    <button class="btn secondary" onclick="openClassModal()">+ Turma</button>
-    <button class="btn secondary" onclick="openBackupModal()">Backup</button>
-   </div>
+  document.getElementById("app").innerHTML=`
+  <div class="topbar">
+    <div><div class="brand">COMUNICATEC</div><small>Painel do Administrador</small></div>
+    <button class="btn secondary" onclick="logout()">Sair</button>
   </div>
-  <div class="grid section">
-   <div class="card stat"><div class="muted">Usuários</div><div class="num">${db.users.length}</div></div>
-   <div class="card stat"><div class="muted">Alunos</div><div class="num">${alunos.length}</div></div>
-   <div class="card stat"><div class="muted">Instrutores</div><div class="num">${inst.length}</div></div>
-   <div class="card stat"><div class="muted">Horas registradas</div><div class="num">${totalHours}h</div></div>
-  </div>
-  <div class="tabs">
-   <button id="tabUsers" class="btn primary active" onclick="adminTab('users')">Usuários</button>
-   <button id="tabClasses" class="btn secondary" onclick="adminTab('classes')">Turmas</button>
-   <button id="tabLessons" class="btn secondary" onclick="adminTab('lessons')">Aulas</button>
-   <button id="tabActivities" class="btn secondary" onclick="adminTab('activities')">Atividades</button>
-   <button id="tabAttendance" class="btn secondary" onclick="adminTab('attendance')">Frequência</button>
-   <button id="tabReports" class="btn secondary" onclick="adminTab('reports')">Relatórios</button>
-  </div>
-  <div id="adminContent"></div>
- </div>`;
- adminTab("users");
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap">
+      <div><h1>Olá, ${esc(currentUser().name)}!</h1><p class="muted">Gerencie usuários, turmas, aulas e atividades.</p></div>
+      <div class="actions">
+        <button class="btn primary" onclick="openUserModal()">+ Novo usuário</button>
+        <button class="btn secondary" onclick="openClassModal()">+ Nova turma</button>
+        <button class="btn secondary" onclick="openBackupModal()">Backup</button>
+      </div>
+    </div>
+
+    <div class="grid section">
+      <div class="card stat"><div class="muted">Usuários</div><div class="num">${db.users.length}</div></div>
+      <div class="card stat"><div class="muted">Alunos</div><div class="num">${alunos.length}</div></div>
+      <div class="card stat"><div class="muted">Turmas</div><div class="num">${db.classes.length}</div></div>
+      <div class="card stat"><div class="muted">Horas registradas</div><div class="num">${totalHours}h</div></div>
+    </div>
+
+    <div class="tabs">
+      <button id="tabUsers" class="btn primary active" onclick="adminTab('users')">Usuários</button>
+      <button id="tabClasses" class="btn secondary" onclick="adminTab('classes')">Turmas</button>
+      <button id="tabLessons" class="btn secondary" onclick="adminTab('lessons')">Aulas</button>
+      <button id="tabActivities" class="btn secondary" onclick="adminTab('activities')">Atividades</button>
+      <button id="tabReports" class="btn secondary" onclick="adminTab('reports')">Relatórios</button>
+    </div>
+
+    <div id="adminContent"></div>
+  </div>`;
+  adminTab("users");
 }
 function adminTab(tab){
- document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
- const el=document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.classList.add("active");
- const c=document.getElementById("adminContent");
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  const el=document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));
+  if(el) el.classList.add("active");
+  const c=document.getElementById("adminContent");
 
- if(tab==="users"){
-  c.innerHTML=`<div class="card"><div class="toolbar"><h2>Usuários cadastrados</h2><button class="btn primary" onclick="openUserModal()">+ Novo usuário</button></div>
-  <div style="overflow:auto"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Turma</th><th>Status</th><th>Ações</th></tr></thead><tbody>
-  ${db.users.map(u=>{const cls=userClass(u.id);return `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${roleLabel(u.role)}</td><td>${esc(cls?.name||"—")}</td>
-  <td><span class="badge ${u.active?"ok":"pending"}">${u.active?"Ativo":"Inativo"}</span></td>
-  <td><div class="actions"><button class="btn secondary" onclick="openUserModal('${u.id}')">Editar</button>
-  <button class="btn ${u.active?"danger":"primary"}" onclick="toggleUser('${u.id}')">${u.active?"Desativar":"Ativar"}</button></div></td></tr>`}).join("")}
-  </tbody></table></div></div>`;
- }
- if(tab==="classes"){
-  c.innerHTML=`<div class="card"><div class="toolbar"><h2>Turmas / Agências</h2><button class="btn primary" onclick="openClassModal()">+ Nova turma</button></div>
-  <div style="overflow:auto"><table><thead><tr><th>Turma</th><th>Coordenador</th><th>Instrutor</th><th>Alunos</th><th>Status</th><th>Ações</th></tr></thead><tbody>
-  ${db.classes.map(cl=>{const co=db.users.find(u=>u.id===cl.coordinatorId),ins=db.users.find(u=>u.id===cl.instructorId),qtd=studentsOfClass(cl.id).length;
-  return `<tr><td>${esc(cl.name)}</td><td>${esc(co?.name||"—")}</td><td>${esc(ins?.name||"—")}</td><td>${qtd}</td>
-  <td><span class="badge ${cl.active?"ok":"pending"}">${cl.active?"Ativa":"Inativa"}</span></td>
-  <td><div class="actions"><button class="btn secondary" onclick="openClassModal('${cl.id}')">Editar</button>
-  <button class="btn primary" onclick="manageEnrollments('${cl.id}')">Alunos</button></div></td></tr>`}).join("")}</tbody></table></div></div>`;
- }
- if(tab==="lessons"){
-  const sorted=[...db.lessons].sort((a,b)=>a.date.localeCompare(b.date));
-  c.innerHTML=`<div class="card"><div class="toolbar"><h2>Aulas programadas</h2><button class="btn primary" onclick="openLessonModal()">+ Nova aula</button></div>
-  <div style="overflow:auto"><table><thead><tr><th>Data</th><th>Horário</th><th>Turma</th><th>Instrutor</th><th>Carga</th><th>Status</th><th>Ações</th></tr></thead><tbody>
-  ${sorted.map(l=>{const cl=db.classes.find(x=>x.id===l.classId),ins=db.users.find(u=>u.id===cl?.instructorId);
-  return `<tr><td>${fmtDate(l.date)}</td><td>${esc(l.time)}</td><td>${esc(cl?.name||"—")}</td><td>${esc(ins?.name||"—")}</td><td>${l.hours}h</td><td><span class="badge ${lessonStatus(l)==="FUTURA"?"future":"ok"}">${lessonStatus(l)==="FUTURA"?"Futura":"Realizada"}</span></td>
-  <td><div class="actions"><button class="btn secondary" onclick="openLessonModal('${l.id}')">Editar</button><button class="btn danger" onclick="deleteLesson('${l.id}')">Excluir</button></div></td></tr>`}).join("")}</tbody></table></div></div>`;
- }
- if(tab==="activities"){
-  c.innerHTML=`<div class="card"><h2>Atividades registradas</h2><div style="overflow:auto"><table><thead><tr><th>Aluno</th><th>Data</th><th>Turma</th><th>Horas</th><th>Atividade</th><th>Status</th></tr></thead><tbody>
-  ${db.activities.length?db.activities.map(a=>{const u=db.users.find(x=>x.id===a.userId),l=db.lessons.find(x=>x.id===a.lessonId),cl=db.classes.find(x=>x.id===l?.classId);
-  return `<tr><td>${esc(u?.name||"—")}</td><td>${fmtDate(l?.date||a.date)}</td><td>${esc(cl?.name||"—")}</td><td>${a.hours}h</td><td>${esc(a.description)}</td><td><span class="badge ${a.status==="APROVADA"?"ok":"pending"}">${esc(a.status)}</span></td></tr>`}).join(""):`<tr><td colspan="6" class="empty">Nenhuma atividade registrada.</td></tr>`}
-  </tbody></table></div></div>`;
- }
- if(tab==="attendance"){
-  const rows=db.lessons.flatMap(l=>studentsOfClass(l.classId).map(s=>({l,s,a:attendanceFor(l.id,s.id)}))).filter(x=>x.a);
-  c.innerHTML=`<div class="card"><h2>Registros de frequência</h2><p class="muted">A frequência é registrada pelo instrutor responsável pela aula.</p>
-  <div style="overflow:auto"><table><thead><tr><th>Data</th><th>Turma</th><th>Aluno</th><th>Presença</th><th>Registrado por</th></tr></thead><tbody>
-  ${rows.length?rows.map(x=>{const by=db.users.find(u=>u.id===x.a.byUserId);return `<tr><td>${fmtDate(x.l.date)}</td><td>${esc(db.classes.find(c=>c.id===x.l.classId)?.name||"—")}</td><td>${esc(x.s.name)}</td>
-  <td><span class="badge ${x.a.status==="PRESENTE"?"ok":"absent"}">${x.a.status==="PRESENTE"?"Presente":"Ausente"}</span></td><td>${esc(by?.name||"—")}</td></tr>`}).join(""):`<tr><td colspan="5" class="empty">Nenhuma frequência registrada.</td></tr>`}
-  </tbody></table></div></div>`;
- }
- if(tab==="reports"){
-  c.innerHTML=`<div class="card"><h2>Relatórios individuais</h2><p class="muted">Visualize e imprima o relatório de qualquer aluno.</p><div style="overflow:auto"><table><thead><tr><th>Aluno</th><th>Turma</th><th>Atividades</th><th>Presenças</th><th>Ausências</th><th>Horas</th><th></th></tr></thead><tbody>
-  ${db.users.filter(u=>u.role==="ALUNO").map(u=>{const cls=userClass(u.id),acts=db.activities.filter(a=>a.userId===u.id),att=db.attendance.filter(a=>a.userId===u.id),p=att.filter(a=>a.status==="PRESENTE").length,ab=att.filter(a=>a.status==="AUSENTE").length,h=acts.reduce((s,a)=>s+Number(a.hours||0),0);
-  return `<tr><td>${esc(u.name)}</td><td>${esc(cls?.name||"—")}</td><td>${acts.length}</td><td>${p}</td><td>${ab}</td><td>${h}h</td><td><button class="btn primary" onclick="openStudentReport('${u.id}')">Relatório</button></td></tr>`}).join("")}
-  </tbody></table></div></div>`;
- }
+  if(tab==="users"){
+    c.innerHTML=`<div class="card"><h2>Usuários cadastrados</h2>
+      <div style="overflow:auto"><table>
+      <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Turma</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody>${db.users.map(u=>{
+        const cls=userClass(u.id);
+        return `<tr>
+          <td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${roleLabel(u.role)}</td>
+          <td>${esc(cls?.name||"—")}</td>
+          <td><span class="badge ${u.active?"ok":"pending"}">${u.active?"Ativo":"Inativo"}</span></td>
+          <td><div class="actions">
+            <button class="btn secondary" onclick="openUserModal('${u.id}')">Editar</button>
+            <button class="btn ${u.active?"danger":"primary"}" onclick="toggleUser('${u.id}')">${u.active?"Desativar":"Ativar"}</button>
+          </div></td>
+        </tr>`}).join("")}</tbody></table></div></div>`;
+  }
+
+  if(tab==="classes"){
+    c.innerHTML=`<div class="card"><h2>Turmas / Agências</h2>
+      <div style="overflow:auto"><table>
+      <thead><tr><th>Nome</th><th>Coordenador</th><th>Instrutor</th><th>Alunos</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody>${db.classes.map(cl=>{
+        const co=db.users.find(u=>u.id===cl.coordinatorId);
+        const ins=db.users.find(u=>u.id===cl.instructorId);
+        const qtd=db.enrollments.filter(e=>e.classId===cl.id).length;
+        return `<tr><td>${esc(cl.name)}</td><td>${esc(co?.name||"—")}</td><td>${esc(ins?.name||"—")}</td><td>${qtd}</td>
+        <td><span class="badge ${cl.active?"ok":"pending"}">${cl.active?"Ativa":"Inativa"}</span></td>
+        <td><div class="actions">
+          <button class="btn secondary" onclick="openClassModal('${cl.id}')">Editar</button>
+          <button class="btn primary" onclick="manageEnrollments('${cl.id}')">Alunos</button>
+        </div></td></tr>`}).join("")}</tbody></table></div></div>`;
+  }
+
+  if(tab==="lessons"){
+    c.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+      <h2>Aulas programadas</h2><button class="btn primary" onclick="openLessonModal()">+ Nova aula</button></div>
+      <div style="overflow:auto"><table><thead><tr><th>Data</th><th>Horário</th><th>Turma</th><th>Carga</th><th>Tipo</th><th>Ações</th></tr></thead>
+      <tbody>${db.lessons.sort((a,b)=>a.date.localeCompare(b.date)).map(l=>{
+        const cl=db.classes.find(c=>c.id===l.classId);
+        return `<tr><td>${fmtDate(l.date)}</td><td>${esc(l.time)}</td><td>${esc(cl?.name||"—")}</td><td>${l.hours}h</td><td>${esc(l.type)}</td>
+        <td><div class="actions"><button class="btn secondary" onclick="openLessonModal('${l.id}')">Editar</button>
+        <button class="btn danger" onclick="deleteLesson('${l.id}')">Excluir</button></div></td></tr>`}).join("")}</tbody></table></div></div>`;
+  }
+
+  if(tab==="activities"){
+    c.innerHTML=`<div class="card"><h2>Todas as atividades</h2>
+      <div style="overflow:auto"><table><thead><tr><th>Aluno</th><th>Data</th><th>Aula</th><th>Horas</th><th>Atividade</th><th>Status</th></tr></thead>
+      <tbody>${db.activities.length?db.activities.map(a=>{
+        const u=db.users.find(x=>x.id===a.userId), l=db.lessons.find(x=>x.id===a.lessonId);
+        return `<tr><td>${esc(u?.name||"—")}</td><td>${fmtDate(l?.date||a.date)}</td><td>${esc(l?.title||"—")}</td>
+        <td>${a.hours}h</td><td>${esc(a.description)}</td><td><span class="badge ${a.status==="APROVADA"?"ok":"pending"}">${esc(a.status)}</span></td></tr>`;
+      }).join(""):`<tr><td colspan="6" class="empty">Nenhuma atividade registrada.</td></tr>`}</tbody></table></div></div>`;
+  }
+
+  if(tab==="reports"){
+    c.innerHTML=`<div class="card"><h2>Relatórios</h2><p class="muted">Selecione um aluno para visualizar o relatório individual.</p>
+      <div style="overflow:auto"><table><thead><tr><th>Aluno</th><th>Turma</th><th>Atividades</th><th>Horas</th><th></th></tr></thead>
+      <tbody>${db.users.filter(u=>u.role==="ALUNO").map(u=>{
+        const acts=db.activities.filter(a=>a.userId===u.id);
+        const h=acts.reduce((s,a)=>s+Number(a.hours||0),0);
+        return `<tr><td>${esc(u.name)}</td><td>${esc(userClass(u.id)?.name||"—")}</td><td>${acts.length}</td><td>${h}h</td>
+        <td><button class="btn primary" onclick="openStudentReport('${u.id}')">Visualizar relatório</button></td></tr>`;
+      }).join("")}</tbody></table></div></div>`;
+  }
 }
 
 /* ================= COORDENADOR ================= */
 function renderCoordinator(){
- const u=currentUser(),classes=coordinatorClasses(u.id),students=db.users.filter(x=>x.role==="ALUNO"&&classes.some(c=>classIdsForUser(x.id).includes(c.id)));
- const acts=db.activities.filter(a=>students.some(s=>s.id===a.userId));
- document.getElementById("app").innerHTML=header("Painel do Coordenador")+`
- <div class="container"><div><h1>Coordenação</h1><p class="muted">Acompanhamento das turmas sob sua coordenação.</p></div>
- <div class="grid section"><div class="card stat"><div class="muted">Turmas</div><div class="num">${classes.length}</div></div><div class="card stat"><div class="muted">Alunos</div><div class="num">${students.length}</div></div><div class="card stat"><div class="muted">Atividades</div><div class="num">${acts.length}</div></div><div class="card stat"><div class="muted">Horas</div><div class="num">${acts.reduce((s,a)=>s+Number(a.hours||0),0)}h</div></div></div>
- <div class="card section"><h2>Minhas turmas</h2><div style="overflow:auto"><table><thead><tr><th>Turma</th><th>Instrutor</th><th>Alunos</th><th>Aulas</th><th></th></tr></thead><tbody>
- ${classes.length?classes.map(cl=>{const ins=db.users.find(x=>x.id===cl.instructorId);return `<tr><td>${esc(cl.name)}</td><td>${esc(ins?.name||"—")}</td><td>${studentsOfClass(cl.id).length}</td><td>${db.lessons.filter(l=>l.classId===cl.id).length}</td><td><button class="btn primary" onclick="openClassReport('${cl.id}')">Acompanhamento</button></td></tr>`}).join(""):`<tr><td colspan="5" class="empty">Nenhuma turma vinculada.</td></tr>`}
- </tbody></table></div></div></div>`;
+  const u=currentUser();
+  const classes=classesForCoordinator(u.id);
+  const students=db.users.filter(x=>x.role==="ALUNO" && classIdsForUser(x.id).some(id=>classes.map(c=>c.id).includes(id)));
+  const acts=db.activities.filter(a=>students.some(s=>s.id===a.userId));
+
+  document.getElementById("app").innerHTML=`
+  <div class="topbar"><div><div class="brand">COMUNICATEC</div><small>Painel do Coordenador</small></div>
+  <button class="btn secondary" onclick="logout()">Sair</button></div>
+  <div class="container">
+    <div><h1>Olá, ${esc(u.name)}!</h1><p class="muted">Acompanhamento dos alunos vinculados à sua coordenação.</p></div>
+    <div class="grid section">
+      <div class="card stat"><div class="muted">Turmas</div><div class="num">${classes.length}</div></div>
+      <div class="card stat"><div class="muted">Alunos</div><div class="num">${students.length}</div></div>
+      <div class="card stat"><div class="muted">Atividades</div><div class="num">${acts.length}</div></div>
+      <div class="card stat"><div class="muted">Horas</div><div class="num">${acts.reduce((s,a)=>s+Number(a.hours||0),0)}h</div></div>
+    </div>
+    <div class="card section"><h2>Meus alunos</h2>
+      <div style="overflow:auto"><table><thead><tr><th>Aluno</th><th>E-mail</th><th>Turma</th><th>Atividades</th><th>Horas</th><th></th></tr></thead>
+      <tbody>${students.length?students.map(s=>{
+        const aa=db.activities.filter(a=>a.userId===s.id);
+        return `<tr><td>${esc(s.name)}</td><td>${esc(s.email)}</td><td>${esc(userClass(s.id)?.name||"—")}</td>
+        <td>${aa.length}</td><td>${aa.reduce((x,a)=>x+Number(a.hours||0),0)}h</td>
+        <td><button class="btn primary" onclick="openStudentReport('${s.id}')">Relatório</button></td></tr>`;
+      }).join(""):`<tr><td colspan="6" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div>
+    </div>
+  </div>`;
 }
 
 /* ================= INSTRUTOR ================= */
 function renderInstructor(){
- const u=currentUser(),classes=instructorClasses(u.id),lessons=db.lessons.filter(l=>classes.some(c=>c.id===l.classId)).sort((a,b)=>a.date.localeCompare(b.date));
- const allStudents=[...new Set(classes.flatMap(c=>studentsOfClass(c.id).map(s=>s.id)))].map(id=>db.users.find(u=>u.id===id)).filter(Boolean);
- const pres=db.attendance.filter(a=>a.byUserId===u.id&&a.status==="PRESENTE").length;
- const abs=db.attendance.filter(a=>a.byUserId===u.id&&a.status==="AUSENTE").length;
- document.getElementById("app").innerHTML=header("Painel do Instrutor")+`
- <div class="container"><div class="toolbar"><div><h1>Área do Instrutor</h1><p class="muted">Registre a frequência e acompanhe as atividades das suas turmas.</p></div></div>
- <div class="grid section"><div class="card stat"><div class="muted">Minhas turmas</div><div class="num">${classes.length}</div></div><div class="card stat"><div class="muted">Alunos</div><div class="num">${allStudents.length}</div></div><div class="card stat"><div class="muted">Presenças</div><div class="num">${pres}</div></div><div class="card stat"><div class="muted">Ausências</div><div class="num">${abs}</div></div></div>
- <div class="card section"><h2>Minhas aulas</h2><p class="muted">Abra uma aula para marcar os alunos que participaram. O instrutor controla a frequência de cada aula.</p>
- <div style="overflow:auto"><table><thead><tr><th>Data</th><th>Horário</th><th>Turma</th><th>Carga</th><th>Alunos</th><th>Frequência</th><th></th></tr></thead><tbody>
- ${lessons.length?lessons.map(l=>{const cl=db.classes.find(c=>c.id===l.classId),st=studentsOfClass(l.classId),marked=st.filter(s=>attendanceFor(l.id,s.id)).length;
- return `<tr><td>${fmtDate(l.date)}</td><td>${esc(l.time)}</td><td>${esc(cl?.name||"—")}</td><td>${l.hours}h</td><td>${st.length}</td><td>${marked}/${st.length}</td>
- <td><button class="btn primary" onclick="openAttendance('${l.id}')">Registrar frequência</button></td></tr>`}).join(""):`<tr><td colspan="7" class="empty">Nenhuma aula atribuída a você.</td></tr>`}
- </tbody></table></div></div></div>`;
+  const u=currentUser();
+  const classes=classesForInstructor(u.id);
+  const students=db.users.filter(s=>s.role==="ALUNO"&&s.active&&classIdsForUser(s.id).some(cid=>classes.some(c=>c.id===cid)));
+  const acts=db.activities.filter(a=>students.some(s=>s.id===a.userId));
+  const abs=db.absences.filter(a=>students.some(s=>s.id===a.userId));
+  document.getElementById("app").innerHTML=`
+  <div class="topbar"><div><div class="brand">COMUNICATEC</div><small>Painel do Instrutor</small></div><button class="btn secondary" onclick="logout()">Sair</button></div>
+  <div class="container">
+    <div><h1>Olá, ${esc(u.name)}!</h1><p class="muted">Responsável pelas atividades e frequência das turmas atribuídas a você.</p></div>
+    <div class="grid section">
+      <div class="card stat"><div class="muted">Minhas turmas</div><div class="num">${classes.length}</div></div>
+      <div class="card stat"><div class="muted">Alunos</div><div class="num">${students.length}</div></div>
+      <div class="card stat"><div class="muted">Atividades</div><div class="num">${acts.length}</div></div>
+      <div class="card stat"><div class="muted">Ausências</div><div class="num">${abs.length}</div></div>
+    </div>
+    <div class="card section"><h2>Alunos das minhas turmas</h2>
+      <div style="overflow:auto"><table><thead><tr><th>Aluno</th><th>Turma</th><th>Atividades</th><th>Ausências</th><th>Ação</th></tr></thead><tbody>
+      ${students.length?students.map(s=>{const cls=classes.find(c=>classIdsForUser(s.id).includes(c.id)); const aa=acts.filter(a=>a.userId===s.id).length; const ff=abs.filter(a=>a.userId===s.id).length; return `<tr><td>${esc(s.name)}</td><td>${esc(cls?.name||"—")}</td><td>${aa}</td><td>${ff}</td><td><button class="btn danger" onclick="openAttendance('${cls.id}','${s.id}')">Registrar ausência</button></td></tr>`}).join(""):`<tr><td colspan="5" class="empty">Nenhum aluno vinculado às suas turmas.</td></tr>`}
+      </tbody></table></div>
+    </div>
+    ${classes.map(cl=>{
+      const ss=studentsForClass(cl.id);
+      const lessons=db.lessons.filter(l=>l.classId===cl.id).sort((a,b)=>a.date.localeCompare(b.date));
+      return `<div class="card section"><h2>Frequência — ${esc(cl.name)}</h2><p class="muted">Marque a ausência somente dos alunos desta turma.</p>
+      <div style="overflow:auto"><table><thead><tr><th>Aluno</th>${lessons.map(l=>`<th>${fmtDate(l.date)}</th>`).join("")}</tr></thead><tbody>${ss.length?ss.map(s=>`<tr><td><b>${esc(s.name)}</b></td>${lessons.map(l=>{const a=hasAbsence(l.id,s.id);return `<td>${a?`<span class="badge pending">Ausente</span><br><button class="btn secondary" style="margin-top:5px" onclick="toggleAbsence('${l.id}','${s.id}')">Desmarcar</button>`:`<span class="badge ok">Presente</span><br><button class="btn danger" style="margin-top:5px" onclick="toggleAbsence('${l.id}','${s.id}')">Registrar ausência</button>`}</td>`}).join("")}</tr>`).join(""):`<tr><td colspan="${Math.max(1,lessons.length+1)}" class="empty">Nenhum aluno nesta turma.</td></tr>`}</tbody></table></div></div>`;
+    }).join("")}
+  </div>`;
 }
-
-function openAttendance(lessonId){
- const u=currentUser(),l=db.lessons.find(x=>x.id===lessonId),cl=db.classes.find(c=>c.id===l?.classId);
- if(!l||u.role!=="INSTRUTOR"||cl?.instructorId!==u.id){toast("Você não é o instrutor desta aula.");return}
- const students=studentsOfClass(l.classId);
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card">
- <div class="toolbar"><div><h2>Frequência da aula</h2><p class="muted">${fmtDate(l.date)} • ${esc(l.time)} • ${esc(cl.name)} • ${l.hours}h</p></div>
- <span class="badge ${lessonStatus(l)==="FUTURA"?"future":"ok"}">${lessonStatus(l)==="FUTURA"?"Aula futura":"Aula realizada"}</span></div>
- <div class="info" style="margin:12px 0">Marque <b>Presente</b> ou <b>Ausente</b> para cada aluno. O registro fica vinculado à aula e ao instrutor.</div>
- <div>${students.length?students.map(s=>{const a=attendanceFor(l.id,s.id);return `<div class="att-grid" style="border-bottom:1px solid #eee;padding:9px 0"><div><b>${esc(s.name)}</b><br><span class="muted" style="font-size:12px">${esc(s.email)}</span></div>
- <select class="status-select attendance-input" data-user="${s.id}"><option value="">Não marcado</option><option value="PRESENTE" ${a?.status==="PRESENTE"?"selected":""}>Presente</option><option value="AUSENTE" ${a?.status==="AUSENTE"?"selected":""}>Ausente</option></select></div>`}).join(""):`<div class="empty">Nenhum aluno está vinculado a esta turma.</div>`}</div>
- <div class="actions" style="margin-top:18px"><button class="btn primary" onclick="saveAttendance('${lessonId}')">Salvar frequência</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div>
- </div></div>`);
+function openAttendance(classId,userId){
+  const u=currentUser(), cl=db.classes.find(c=>c.id===classId), st=db.users.find(x=>x.id===userId);
+  if(!u||u.role!=="INSTRUTOR"||!cl||cl.instructorId!==u.id||!st)return;
+  const lessons=db.lessons.filter(l=>l.classId===classId).sort((a,b)=>a.date.localeCompare(b.date));
+  document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card"><h2>Frequência — ${esc(st.name)}</h2><p class="muted">${esc(cl.name)}</p>${lessons.map(l=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eee"><span><b>${fmtDate(l.date)}</b> — ${esc(l.title||"Aula")}</span><button class="btn ${hasAbsence(l.id,userId)?"secondary":"danger"}" onclick="toggleAbsence('${l.id}','${userId}');closeModal();openAttendance('${classId}','${userId}')">${hasAbsence(l.id,userId)?"Desmarcar ausência":"Registrar ausência"}</button></div>`).join("")||`<p class="empty">Nenhuma aula cadastrada.</p>`}<div class="actions" style="margin-top:15px"><button class="btn secondary" onclick="closeModal()">Fechar</button></div></div></div>`);
 }
-function saveAttendance(lessonId){
- const u=currentUser(),l=db.lessons.find(x=>x.id===lessonId),cl=db.classes.find(c=>c.id===l?.classId);
- if(!l||u.role!=="INSTRUTOR"||cl?.instructorId!==u.id)return;
- document.querySelectorAll(".attendance-input").forEach(sel=>{
-  const userId=sel.dataset.user,status=sel.value;
-  db.attendance=db.attendance.filter(a=>!(a.lessonId===lessonId&&a.userId===userId));
-  if(status)db.attendance.push({id:uid("att"),lessonId,userId,status,byUserId:u.id,updatedAt:new Date().toISOString()});
- });
- saveDB();closeModal();toast("Frequência da aula salva.");renderInstructor();
+function toggleAbsence(lessonId,userId){
+  const u=currentUser(), lesson=db.lessons.find(l=>l.id===lessonId);
+  if(!u||u.role!=="INSTRUTOR"||!lesson||!db.classes.some(c=>c.id===lesson.classId&&c.instructorId===u.id)){toast("Acesso não permitido.");return}
+  const i=db.absences.findIndex(a=>a.lessonId===lessonId&&a.userId===userId);
+  if(i>=0) db.absences.splice(i,1); else db.absences.push({id:uid("abs"),lessonId,userId,markedBy:u.id,createdAt:new Date().toISOString()});
+  saveDB();toast(i>=0?"Ausência desmarcada.":"Ausência registrada.");
+  if(document.getElementById("app")) renderInstructor();
 }
 
 /* ================= ALUNO ================= */
 function renderStudent(){
- const u=currentUser(),cls=userClass(u.id);
- const lessons=db.lessons.filter(l=>l.classId===cls?.id).sort((a,b)=>a.date.localeCompare(b.date));
- const acts=db.activities.filter(a=>a.userId===u.id),hours=acts.reduce((s,a)=>s+Number(a.hours||0),0);
- const pres=db.attendance.filter(a=>a.userId===u.id&&a.status==="PRESENTE").length;
- const abs=db.attendance.filter(a=>a.userId===u.id&&a.status==="AUSENTE").length;
+  const u=currentUser();
+  const cls=userClass(u.id);
+  const lessons=db.lessons.filter(l=>l.classId===cls?.id).sort((a,b)=>a.date.localeCompare(b.date));
+  const acts=db.activities.filter(a=>a.userId===u.id);
+  const hours=acts.reduce((s,a)=>s+Number(a.hours||0),0);
+  const registered=lessons.filter(l=>acts.some(a=>a.lessonId===l.id)).length;
 
- document.getElementById("app").innerHTML=header("Área individual do aluno")+`
- <div class="container"><div class="toolbar"><div><h1>Olá, ${esc(u.name)}!</h1><p class="muted">Turma: ${esc(cls?.name||"Não vinculada")}</p></div>
- <div class="actions"><button class="btn primary" onclick="openProfile()">Meu cadastro</button><button class="btn secondary" onclick="openStudentReport('${u.id}')">Meu relatório</button></div></div>
- <div class="grid section"><div class="card stat"><div class="muted">Aulas</div><div class="num">${lessons.length}</div></div><div class="card stat"><div class="muted">Presenças</div><div class="num">${pres}</div></div><div class="card stat"><div class="muted">Ausências</div><div class="num">${abs}</div></div><div class="card stat"><div class="muted">Horas registradas</div><div class="num">${hours}h</div></div></div>
- <div class="card section"><h2>Minhas aulas</h2><p class="muted">Você visualiza somente as aulas da sua turma. Depois de registrar uma atividade, ela fica bloqueada para edição pelo aluno.</p>
- <div style="overflow:auto"><table><thead><tr><th>Data</th><th>Horário</th><th>Carga</th><th>Frequência</th><th>Minha atividade</th><th>Status</th><th></th></tr></thead><tbody>
- ${lessons.length?lessons.map(l=>{
-  const a=activityFor(l.id,u.id),att=attendanceFor(l.id,u.id);
-  let freq=att?.status==="PRESENTE"?`<span class="badge ok">Presente</span>`:att?.status==="AUSENTE"?`<span class="badge absent">Ausente</span>`:`<span class="badge pending">Pendente</span>`;
-  let action="";
-  if(att?.status==="AUSENTE") action=`<span class="muted" style="font-size:12px">Ausência registrada</span>`;
-  else if(a) action=`<span class="badge ok">Registrada</span>`;
-  else if(lessonStatus(l)==="FUTURA") action=`<span class="muted" style="font-size:12px">Aguardando aula</span>`;
-  else action=`<button class="btn primary" onclick="openActivity('${l.id}')">Registrar</button>`;
-  return `<tr><td>${fmtDate(l.date)}</td><td>${esc(l.time)}</td><td>${l.hours}h</td><td>${freq}</td><td>${esc(a?.description||"—")}</td>
-  <td><span class="badge ${a?"ok":"pending"}">${a?"Registrada":"Pendente"}</span></td><td>${action}</td></tr>`;
- }).join(""):`<tr><td colspan="7" class="empty">Nenhuma aula cadastrada para sua turma.</td></tr>`}
- </tbody></table></div></div></div>`;
+  document.getElementById("app").innerHTML=`
+  <div class="topbar"><div><div class="brand">COMUNICATEC</div><small>Área individual do aluno</small></div>
+  <button class="btn secondary" onclick="logout()">Sair</button></div>
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap">
+      <div><h1>Olá, ${esc(u.name)}!</h1><p class="muted">Turma: ${esc(cls?.name||"Não vinculada")}</p></div>
+      <div class="actions">
+        <button class="btn primary" onclick="openProfile()">Meu cadastro</button>
+        <button class="btn secondary" onclick="openStudentReport('${u.id}')">Meu relatório</button>
+      </div>
+    </div>
+
+    <div class="grid section">
+      <div class="card stat"><div class="muted">Aulas registradas</div><div class="num">${registered}</div></div>
+      <div class="card stat"><div class="muted">Horas registradas</div><div class="num">${hours}h</div></div>
+      <div class="card stat"><div class="muted">Aulas disponíveis</div><div class="num">${lessons.length}</div></div>
+      <div class="card stat"><div class="muted">Mês</div><div class="num" style="font-size:21px">Set/2026</div></div>
+    </div>
+
+    <div class="card section"><h2>Minhas aulas — Setembro/2026</h2>
+      <p class="muted">Você visualiza somente as aulas da sua turma e registra somente suas próprias atividades.</p>
+      <div style="overflow:auto"><table><thead><tr><th>Data</th><th>Horário</th><th>Carga</th><th>Atividade</th><th>Status</th><th></th></tr></thead>
+      <tbody>${lessons.length?lessons.map(l=>{
+        const a=acts.find(x=>x.lessonId===l.id);
+        return `<tr><td>${fmtDate(l.date)}</td><td>${esc(l.time)}</td><td>${l.hours}h</td>
+          <td>${esc(a?.description||l.title)}</td>
+          <td><span class="badge ${a?"ok":"pending"}">${a?"Registrada":"Pendente"}</span></td>
+          <td>${a?`<span class="badge ok">Registro concluído</span>`:`<button class="btn primary" onclick="openActivity('${l.id}')">Registrar</button>`}</td></tr>`;
+      }).join(""):`<tr><td colspan="6" class="empty">Nenhuma aula cadastrada para sua turma.</td></tr>`}</tbody></table></div>
+    </div>
+  </div>`;
 }
 
-/* ================= ATIVIDADE DO ALUNO ================= */
+/* ================= ATIVIDADE ================= */
 function openActivity(lessonId){
- const u=currentUser(),l=db.lessons.find(x=>x.id===lessonId);
- if(!l||u.role!=="ALUNO"||!classIdsForUser(u.id).includes(l.classId)){toast("Acesso não permitido.");return}
- const old=activityFor(l.id,u.id);
- if(old){toast("Esta atividade já foi registrada e não pode mais ser editada.");return}
- const att=attendanceFor(l.id,u.id);
- if(att?.status==="AUSENTE"){toast("Você foi marcado como ausente nesta aula.");return}
- if(lessonStatus(l)==="FUTURA"){toast("A atividade só pode ser registrada após a aula.");return}
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card">
- <h2>Registrar atividade</h2><p><b>Data:</b> ${fmtDate(l.date)} &nbsp; <b>Horário:</b> ${esc(l.time)} &nbsp; <b>Carga:</b> ${l.hours}h</p>
- <label>Atividade desenvolvida</label><textarea id="activityDesc" placeholder="Descreva objetivamente as atividades realizadas..."></textarea>
- <div class="info">Após salvar, o registro ficará <b>bloqueado para edição pelo aluno</b>. Correções posteriores deverão ser tratadas pela coordenação/instrutor.</div>
- <div class="actions" style="margin-top:15px"><button class="btn primary" onclick="saveActivity('${lessonId}')">Salvar atividade</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div>
- </div></div>`);
+  const u=currentUser();
+  const lesson=db.lessons.find(l=>l.id===lessonId);
+  if(!lesson || u.role!=="ALUNO") return;
+  if(!classIdsForUser(u.id).includes(lesson.classId)){toast("Acesso não permitido.");return}
+  const old=db.activities.find(a=>a.userId===u.id&&a.lessonId===lessonId);
+  if(old){toast("Esta atividade já foi registrada e não pode mais ser editada.");return}
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modal" id="modal"><div class="card">
+    <h2>Registrar atividade</h2>
+    <p><b>Data:</b> ${fmtDate(lesson.date)} &nbsp; <b>Horário:</b> ${esc(lesson.time)} &nbsp; <b>Carga:</b> ${lesson.hours}h</p>
+    <label>Atividade desenvolvida</label>
+    <textarea id="activityDesc" placeholder="Descreva de forma objetiva as atividades realizadas..."></textarea>
+    <div class="actions" style="margin-top:15px">
+      <button class="btn primary" onclick="saveActivity('${lessonId}')">Salvar atividade</button>
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div></div>`);
 }
 function saveActivity(lessonId){
- const u=currentUser(),l=db.lessons.find(x=>x.id===lessonId);
- if(!u||u.role!=="ALUNO"||!l||!classIdsForUser(u.id).includes(l.classId)){toast("Acesso não permitido.");return}
- if(activityFor(l.id,u.id)){toast("Esta atividade já foi registrada.");closeModal();return}
- const att=attendanceFor(l.id,u.id);
- if(att?.status==="AUSENTE"){toast("Você está marcado como ausente.");return}
- const desc=document.getElementById("activityDesc").value.trim();
- if(!desc){toast("Descreva a atividade antes de salvar.");return}
- db.activities.push({id:uid("act"),userId:u.id,lessonId,description:desc,hours:Number(l.hours),status:"PENDENTE",createdAt:new Date().toISOString()});
- saveDB();closeModal();toast("Atividade registrada. A edição foi bloqueada.");renderStudent();
+  const u=currentUser(), lesson=db.lessons.find(l=>l.id===lessonId);
+  if(!u||u.role!=="ALUNO"||!lesson||!classIdsForUser(u.id).includes(lesson.classId)){toast("Acesso não permitido.");return}
+  if(db.activities.some(a=>a.userId===u.id&&a.lessonId===lessonId)){toast("Esta atividade já foi registrada e não pode mais ser alterada.");closeModal();renderStudent();return}
+  const desc=document.getElementById("activityDesc").value.trim();
+  if(!desc){toast("Descreva a atividade antes de salvar.");return}
+  db.activities.push({id:uid("act"),userId:u.id,lessonId,description:desc,hours:Number(lesson.hours),status:"PENDENTE",createdAt:new Date().toISOString()});
+  saveDB();closeModal();toast("Atividade registrada com sucesso.");renderStudent();
 }
 
 /* ================= PERFIL ================= */
 function openProfile(){
- const u=currentUser();
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card"><h2>Meu cadastro</h2>
- <label>Nome</label><input id="pname" value="${esc(u.name)}"><label>Função</label><input id="pfunc" value="${esc(u.func||"")}">
- <label>Telefone</label><input id="pphone" value="${esc(u.phone||"")}"><label>E-mail</label><input id="pemail" type="email" value="${esc(u.email)}">
- <label>Nova senha <span class="muted">(deixe em branco para manter)</span></label><input id="ppassword" type="password">
- <div class="actions" style="margin-top:15px"><button class="btn primary" onclick="saveProfile()">Salvar</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div>
- </div></div>`);
+  const u=currentUser();
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modal" id="modal"><div class="card"><h2>Meu cadastro</h2>
+    <label>Nome</label><input id="pname" value="${esc(u.name)}">
+    <label>Função</label><input id="pfunc" value="${esc(u.func||"")}">
+    <label>Telefone</label><input id="pphone" value="${esc(u.phone||"")}">
+    <label>E-mail</label><input id="pemail" type="email" value="${esc(u.email)}">
+    <label>Nova senha <span class="muted">(deixe em branco para manter)</span></label>
+    <input id="ppassword" type="password">
+    <div class="actions" style="margin-top:15px">
+      <button class="btn primary" onclick="saveProfile()">Salvar</button>
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div></div>`);
 }
 function saveProfile(){
- const u=currentUser(),email=document.getElementById("pemail").value.trim().toLowerCase();
- if(db.users.some(x=>x.email.toLowerCase()===email&&x.id!==u.id)){toast("Este e-mail já está cadastrado.");return}
- u.name=document.getElementById("pname").value.trim()||u.name;u.func=document.getElementById("pfunc").value.trim();
- u.phone=document.getElementById("pphone").value.trim();u.email=email;
- const p=document.getElementById("ppassword").value;if(p)u.password=p;
- saveDB();closeModal();toast("Cadastro atualizado.");render();
+  const u=currentUser();
+  const email=document.getElementById("pemail").value.trim().toLowerCase();
+  const duplicate=db.users.find(x=>x.email.toLowerCase()===email&&x.id!==u.id);
+  if(duplicate){toast("Este e-mail já está cadastrado.");return}
+  u.name=document.getElementById("pname").value.trim()||u.name;
+  u.func=document.getElementById("pfunc").value.trim();
+  u.phone=document.getElementById("pphone").value.trim();
+  u.email=email;
+  const p=document.getElementById("ppassword").value;
+  if(p) u.password=p;
+  saveDB();closeModal();toast("Cadastro atualizado.");render();
 }
 
-/* ================= USUÁRIOS ================= */
+/* ================= ADMIN USUÁRIOS ================= */
 function openUserModal(id){
- if(currentUser().role!=="ADMIN")return;
- const u=id?db.users.find(x=>x.id===id):null;
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card">
- <h2>${u?"Editar usuário":"Novo usuário"}</h2>
- <label>Nome</label><input id="uName" value="${esc(u?.name||"")}"><label>E-mail</label><input id="uEmail" type="email" value="${esc(u?.email||"")}">
- <label>Senha</label><input id="uPassword" type="password" placeholder="${u?"Deixe em branco para manter":"Senha obrigatória"}">
- <label>Perfil</label><select id="uRole" onchange="updateUserClassField()">
- <option value="ALUNO" ${u?.role==="ALUNO"?"selected":""}>Aluno</option><option value="INSTRUTOR" ${u?.role==="INSTRUTOR"?"selected":""}>Instrutor</option>
- <option value="COORDENADOR" ${u?.role==="COORDENADOR"?"selected":""}>Coordenador</option><option value="ADMIN" ${u?.role==="ADMIN"?"selected":""}>Administrador</option></select>
- <label>Função</label><input id="uFunc" value="${esc(u?.func||"")}"><label>Telefone</label><input id="uPhone" value="${esc(u?.phone||"")}">
- <div id="userClassField"><label>Turma do aluno</label><select id="uClass"><option value="">Sem turma</option>${db.classes.map(c=>`<option value="${c.id}" ${u&&classIdsForUser(u.id).includes(c.id)?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
- <div class="actions" style="margin-top:15px"><button class="btn primary" onclick="saveUser('${id||""}')">Salvar</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div>
- </div></div>`);
- updateUserClassField();
+  if(currentUser().role!=="ADMIN") return;
+  const u=id?db.users.find(x=>x.id===id):null;
+  const students=db.users.filter(x=>x.role==="ALUNO");
+  const classes=db.classes;
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modal" id="modal"><div class="card">
+    <h2>${u?"Editar usuário":"Novo usuário"}</h2>
+    <label>Nome</label><input id="uName" value="${esc(u?.name||"")}">
+    <label>E-mail</label><input id="uEmail" type="email" value="${esc(u?.email||"")}">
+    <label>Senha</label><input id="uPassword" type="password" placeholder="${u?"Deixe em branco para manter":"Senha obrigatória"}">
+    <label>Perfil</label>
+    <select id="uRole" onchange="updateUserClassField()">
+      <option value="ALUNO" ${u?.role==="ALUNO"?"selected":""}>Aluno</option>
+      <option value="COORDENADOR" ${u?.role==="COORDENADOR"?"selected":""}>Coordenador</option>
+      <option value="INSTRUTOR" ${u?.role==="INSTRUTOR"?"selected":""}>Instrutor</option>
+      <option value="ADMIN" ${u?.role==="ADMIN"?"selected":""}>Administrador</option>
+    </select>
+    <label>Função</label><input id="uFunc" value="${esc(u?.func||"")}">
+    <label>Telefone</label><input id="uPhone" value="${esc(u?.phone||"")}">
+    <div id="userClassField">
+      <label>Turma do aluno</label>
+      <select id="uClass">${classes.map(c=>`<option value="${c.id}" ${u&&classIdsForUser(u.id).includes(c.id)?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+    </div>
+    <div class="actions" style="margin-top:15px">
+      <button class="btn primary" onclick="saveUser('${id||""}')">Salvar</button>
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div></div>`);
 }
 function updateUserClassField(){
- const role=document.getElementById("uRole")?.value;
- const box=document.getElementById("userClassField");if(box)box.style.display=role==="ALUNO"?"block":"none";
+  const role=document.getElementById("uRole").value;
+  document.getElementById("userClassField").style.display=role==="ALUNO"?"block":"none";
 }
 function saveUser(id){
- const name=document.getElementById("uName").value.trim(),email=document.getElementById("uEmail").value.trim().toLowerCase(),role=document.getElementById("uRole").value,password=document.getElementById("uPassword").value;
- if(!name||!email){toast("Nome e e-mail são obrigatórios.");return}
- if(db.users.some(x=>x.email.toLowerCase()===email&&x.id!==id)){toast("Este e-mail já está cadastrado.");return}
- if(!id&&!password){toast("Informe uma senha para o novo usuário.");return}
- let u=id?db.users.find(x=>x.id===id):{id:uid("user"),active:true};
- u.name=name;u.email=email;u.role=role;u.func=document.getElementById("uFunc").value.trim();u.phone=document.getElementById("uPhone").value.trim();if(password)u.password=password;
- if(!id)db.users.push(u);
- db.enrollments=db.enrollments.filter(e=>e.userId!==u.id);
- if(role==="ALUNO"){const cid=document.getElementById("uClass")?.value;if(cid)db.enrollments.push({userId:u.id,classId:cid})}
- saveDB();closeModal();toast("Usuário salvo.");renderAdmin();adminTab("users");
+  const name=document.getElementById("uName").value.trim();
+  const email=document.getElementById("uEmail").value.trim().toLowerCase();
+  const role=document.getElementById("uRole").value;
+  const password=document.getElementById("uPassword").value;
+  if(!name||!email){toast("Nome e e-mail são obrigatórios.");return}
+  const duplicate=db.users.find(x=>x.email.toLowerCase()===email&&x.id!==id);
+  if(duplicate){toast("Este e-mail já está cadastrado.");return}
+  if(!id && !password){toast("Informe uma senha para o novo usuário.");return}
+  let u=id?db.users.find(x=>x.id===id):{id:uid("user"),active:true};
+  u.name=name;u.email=email;u.role=role;u.func=document.getElementById("uFunc").value.trim();u.phone=document.getElementById("uPhone").value.trim();
+  if(password)u.password=password;
+  if(!id)db.users.push(u);
+
+  db.enrollments=db.enrollments.filter(e=>e.userId!==u.id);
+  if(role==="ALUNO"){
+    const cid=document.getElementById("uClass")?.value;
+    if(cid)db.enrollments.push({userId:u.id,classId:cid});
+  }
+  saveDB();closeModal();toast("Usuário salvo.");renderAdmin();adminTab("users");
 }
 function toggleUser(id){
- const u=db.users.find(x=>x.id===id);if(!u)return;
- if(u.id===currentUserId){toast("Você não pode desativar seu próprio usuário.");return}
- u.active=!u.active;saveDB();toast(u.active?"Usuário ativado.":"Usuário desativado.");adminTab("users");
+  const u=db.users.find(x=>x.id===id);
+  if(!u)return;
+  u.active=!u.active;saveDB();toast(u.active?"Usuário ativado.":"Usuário desativado.");adminTab("users");
 }
 
 /* ================= TURMAS ================= */
 function openClassModal(id){
- if(currentUser().role!=="ADMIN")return;
- const cl=id?db.classes.find(x=>x.id===id):null;
- const coords=db.users.filter(u=>u.role==="COORDENADOR"&&u.active),inst=db.users.filter(u=>u.role==="INSTRUTOR"&&u.active);
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card"><h2>${cl?"Editar turma":"Nova turma"}</h2>
- <label>Nome da turma/agência</label><input id="cName" value="${esc(cl?.name||"")}">
- <label>Coordenador</label><select id="cCoord"><option value="">Selecione</option>${coords.map(u=>`<option value="${u.id}" ${cl?.coordinatorId===u.id?"selected":""}>${esc(u.name)}</option>`).join("")}</select>
- <label>Instrutor responsável</label><select id="cInst"><option value="">Selecione</option>${inst.map(u=>`<option value="${u.id}" ${cl?.instructorId===u.id?"selected":""}>${esc(u.name)}</option>`).join("")}</select>
- <label>Descrição</label><textarea id="cDesc">${esc(cl?.description||"")}</textarea>
- <div class="actions" style="margin-top:15px"><button class="btn primary" onclick="saveClass('${id||""}')">Salvar</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div>
- </div></div>`);
+  if(currentUser().role!=="ADMIN")return;
+  const cl=id?db.classes.find(x=>x.id===id):null;
+  const coords=db.users.filter(u=>u.role==="COORDENADOR"&&u.active);
+  const instructors=db.users.filter(u=>u.role==="INSTRUTOR"&&u.active);
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modal" id="modal"><div class="card">
+    <h2>${cl?"Editar turma":"Nova turma"}</h2>
+    <label>Nome da turma/agência</label><input id="cName" value="${esc(cl?.name||"")}">
+    <label>Coordenador</label><select id="cCoord">
+      <option value="">Selecione</option>
+      ${coords.map(u=>`<option value="${u.id}" ${cl?.coordinatorId===u.id?"selected":""}>${esc(u.name)}</option>`).join("")}
+    </select>
+    <label>Instrutor responsável</label><select id="cInstructor">
+      <option value="">Selecione</option>
+      ${instructors.map(u=>`<option value="${u.id}" ${cl?.instructorId===u.id?"selected":""}>${esc(u.name)}</option>`).join("")}
+    </select>
+    <label>Descrição</label><textarea id="cDesc">${esc(cl?.description||"")}</textarea>
+    <div class="actions" style="margin-top:15px">
+      <button class="btn primary" onclick="saveClass('${id||""}')">Salvar</button>
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div></div>`);
 }
 function saveClass(id){
- const name=document.getElementById("cName").value.trim();if(!name){toast("Informe o nome da turma.");return}
- let cl=id?db.classes.find(x=>x.id===id):{id:uid("class"),active:true};
- cl.name=name;cl.coordinatorId=document.getElementById("cCoord").value;cl.instructorId=document.getElementById("cInst").value;cl.description=document.getElementById("cDesc").value.trim();
- if(!id)db.classes.push(cl);saveDB();closeModal();toast("Turma salva.");renderAdmin();adminTab("classes");
+  const name=document.getElementById("cName").value.trim();
+  if(!name){toast("Informe o nome da turma.");return}
+  let cl=id?db.classes.find(x=>x.id===id):{id:uid("class"),active:true};
+  cl.name=name;cl.coordinatorId=document.getElementById("cCoord").value;cl.instructorId=document.getElementById("cInstructor")?.value||"";cl.description=document.getElementById("cDesc").value.trim();
+  if(!id)db.classes.push(cl);
+  saveDB();closeModal();toast("Turma salva.");renderAdmin();adminTab("classes");
 }
 function manageEnrollments(classId){
- const cl=db.classes.find(c=>c.id===classId),alunos=db.users.filter(u=>u.role==="ALUNO"&&u.active);
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card"><h2>Alunos — ${esc(cl.name)}</h2>
- <p class="muted">Marque os alunos pertencentes a esta turma. A lista será usada pelo instrutor em todas as aulas da turma.</p>
- ${alunos.map(u=>{const checked=db.enrollments.some(e=>e.userId===u.id&&e.classId===classId);return `<label class="check-row"><input type="checkbox" class="enroll" value="${u.id}" ${checked?"checked":""}><span>${esc(u.name)}<br><small class="muted">${esc(u.email)}</small></span></label>`}).join("")||"<p class='empty'>Nenhum aluno cadastrado.</p>"}
- <div class="actions" style="margin-top:15px"><button class="btn primary" onclick="saveEnrollments('${classId}')">Salvar vínculos</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div>
- </div></div>`);
+  const cl=db.classes.find(c=>c.id===classId);
+  const alunos=db.users.filter(u=>u.role==="ALUNO"&&u.active);
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modal" id="modal"><div class="card">
+    <h2>Alunos — ${esc(cl.name)}</h2>
+    <p class="muted">Marque os alunos que pertencem a esta turma.</p>
+    ${alunos.map(u=>{
+      const checked=db.enrollments.some(e=>e.userId===u.id&&e.classId===classId);
+      return `<label style="font-weight:400;display:flex;gap:10px;align-items:center">
+        <input type="checkbox" class="enroll" value="${u.id}" ${checked?"checked":""} style="width:auto">
+        ${esc(u.name)} — ${esc(u.email)}
+      </label>`;
+    }).join("")||"<p class='empty'>Nenhum aluno cadastrado.</p>"}
+    <div class="actions" style="margin-top:15px">
+      <button class="btn primary" onclick="saveEnrollments('${classId}')">Salvar vínculos</button>
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div></div>`);
 }
 function saveEnrollments(classId){
- const ids=[...document.querySelectorAll(".enroll:checked")].map(x=>x.value);
- db.enrollments=db.enrollments.filter(e=>e.classId!==classId);ids.forEach(userId=>db.enrollments.push({userId,classId}));
- saveDB();closeModal();toast("Vínculos atualizados.");adminTab("classes");
+  const ids=[...document.querySelectorAll(".enroll:checked")].map(x=>x.value);
+  db.enrollments=db.enrollments.filter(e=>e.classId!==classId);
+  ids.forEach(userId=>db.enrollments.push({userId,classId}));
+  saveDB();closeModal();toast("Vínculos atualizados.");adminTab("classes");
 }
 
 /* ================= AULAS ================= */
 function openLessonModal(id){
- const l=id?db.lessons.find(x=>x.id===id):null;
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card"><h2>${l?"Editar aula":"Nova aula"}</h2>
- <label>Turma</label><select id="lClass">${db.classes.filter(c=>c.active).map(c=>`<option value="${c.id}" ${l?.classId===c.id?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
- <label>Data</label><input id="lDate" type="date" value="${l?.date||today()}"><label>Horário</label><input id="lTime" type="time" value="${l?.time||"19:00"}">
- <label>Carga horária</label><input id="lHours" type="number" min="0.5" step="0.5" value="${l?.hours??2}">
- <label>Tipo</label><select id="lType">${["Aula","Planejamento","Atividade","Reunião"].map(x=>`<option ${l?.type===x?"selected":""}>${x}</option>`).join("")}</select>
- <label>Título/descrição</label><input id="lTitle" value="${esc(l?.title||"Aula / atividade do programa")}">
- <div class="actions" style="margin-top:15px"><button class="btn primary" onclick="saveLesson('${id||""}')">Salvar</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div>
- </div></div>`);
+  const l=id?db.lessons.find(x=>x.id===id):null;
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modal" id="modal"><div class="card">
+    <h2>${l?"Editar aula":"Nova aula"}</h2>
+    <label>Turma</label><select id="lClass">${db.classes.map(c=>`<option value="${c.id}" ${l?.classId===c.id?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+    <label>Data</label><input id="lDate" type="date" value="${l?.date||""}">
+    <label>Horário</label><input id="lTime" type="time" value="${l?.time||"19:00"}">
+    <label>Carga horária</label><input id="lHours" type="number" min="0" step="0.5" value="${l?.hours??2}">
+    <label>Tipo</label><select id="lType"><option>Aula</option><option>Planejamento</option><option>Atividade</option><option>Reunião</option></select>
+    <label>Título/descrição</label><input id="lTitle" value="${esc(l?.title||"Aula / atividade do programa")}">
+    <div class="actions" style="margin-top:15px">
+      <button class="btn primary" onclick="saveLesson('${id||""}')">Salvar</button>
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div></div>`);
+  if(l)document.getElementById("lType").value=l.type;
 }
 function saveLesson(id){
- const l=id?db.lessons.find(x=>x.id===id):{id:uid("lesson")};
- l.classId=document.getElementById("lClass").value;l.date=document.getElementById("lDate").value;l.time=document.getElementById("lTime").value;l.hours=Number(document.getElementById("lHours").value);l.type=document.getElementById("lType").value;l.title=document.getElementById("lTitle").value.trim();
- if(!l.date||!l.classId||!l.hours){toast("Preencha turma, data e carga horária.");return}
- if(!id)db.lessons.push(l);saveDB();closeModal();toast("Aula salva.");renderAdmin();adminTab("lessons");
+  const l=id?db.lessons.find(x=>x.id===id):{id:uid("lesson")};
+  l.classId=document.getElementById("lClass").value;
+  l.date=document.getElementById("lDate").value;
+  l.time=document.getElementById("lTime").value;
+  l.hours=Number(document.getElementById("lHours").value);
+  l.type=document.getElementById("lType").value;
+  l.title=document.getElementById("lTitle").value.trim();
+  if(!l.date||!l.classId||!l.hours){toast("Preencha turma, data e carga horária.");return}
+  if(!id)db.lessons.push(l);
+  saveDB();closeModal();toast("Aula salva.");renderAdmin();adminTab("lessons");
 }
 function deleteLesson(id){
- if(!confirm("Excluir esta aula? A frequência e as atividades vinculadas também serão removidas."))return;
- db.lessons=db.lessons.filter(l=>l.id!==id);db.activities=db.activities.filter(a=>a.lessonId!==id);db.attendance=db.attendance.filter(a=>a.lessonId!==id);
- saveDB();toast("Aula excluída.");adminTab("lessons");
+  if(!confirm("Excluir esta aula? As atividades vinculadas também serão removidas."))return;
+  db.lessons=db.lessons.filter(l=>l.id!==id);
+  db.activities=db.activities.filter(a=>a.lessonId!==id);
+  saveDB();toast("Aula excluída.");adminTab("lessons");
 }
 
-/* ================= RELATÓRIOS ================= */
+/* ================= RELATÓRIO ================= */
 function openStudentReport(userId){
- const u=db.users.find(x=>x.id===userId);if(!u)return;
- const cls=userClass(u.id),acts=db.activities.filter(a=>a.userId===u.id).sort((a,b)=>(db.lessons.find(x=>x.id===a.lessonId)?.date||"").localeCompare(db.lessons.find(x=>x.id===b.lessonId)?.date||""));
- const att=db.attendance.filter(a=>a.userId===u.id),total=acts.reduce((s,a)=>s+Number(a.hours||0),0);
- document.body.innerHTML=`<div class="no-print" style="padding:12px 18px;background:#176b3a;color:#fff;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
- <button class="btn secondary" onclick="returnFromReport()">← Voltar ao sistema</button><button class="btn primary" onclick="window.print()">🖨 Imprimir / Salvar PDF</button></div>
- <div class="report-page"><div class="report-head"><div style="font-size:26px">🇧🇷</div><b>SERVIÇO PÚBLICO FEDERAL</b><br><b>INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DO AMAPÁ</b><br><b>PROJETO COMUNICATEC</b></div>
- <div class="report-title">RELATÓRIO DE ATIVIDADES E FREQUÊNCIA DO(A) ALUNO(A)</div>
- <table><tr><th colspan="2" style="text-align:center">DADOS DO ALUNO(A)</th></tr><tr><th>Nome:</th><td>${esc(u.name)}</td></tr><tr><th>Função:</th><td>${esc(u.func||"")}</td></tr><tr><th>Telefone:</th><td>${esc(u.phone||"")}</td></tr><tr><th>E-mail:</th><td>${esc(u.email)}</td></tr><tr><th>Turma/Agência:</th><td>${esc(cls?.name||"—")}</td></tr></table>
- <div class="report-title">FREQUÊNCIA E ATIVIDADES</div>
- <table><thead><tr><th>DATA</th><th>CARGA</th><th>FREQUÊNCIA</th><th>ATIVIDADE DESENVOLVIDA</th><th>STATUS</th></tr></thead><tbody>
- ${db.lessons.filter(l=>l.classId===cls?.id).sort((a,b)=>a.date.localeCompare(b.date)).map(l=>{const a=activityFor(l.id,u.id),f=attendanceFor(l.id,u.id);return `<tr><td>${fmtDate(l.date)}</td><td>${l.hours}h</td><td>${f?.status==="PRESENTE"?"PRESENTE":f?.status==="AUSENTE"?"AUSENTE":"—"}</td><td>${esc(a?.description||"—")}</td><td>${a?.status||"—"}</td></tr>`}).join("")}
- <tr><th>CH TOTAL</th><th>${total}h</th><th colspan="3">Presenças: ${att.filter(a=>a.status==="PRESENTE").length} • Ausências: ${att.filter(a=>a.status==="AUSENTE").length} • Atividades: ${acts.length}</th></tr></tbody></table>
- <p style="text-align:right;margin-top:35px">Macapá-AP, ${new Date().toLocaleDateString("pt-BR")}.</p><div class="sign"><div>Assinatura do(a) Aluno(a)</div><div>Assinatura do(a) Coordenador(a)</div></div></div>`;
+  const u=db.users.find(x=>x.id===userId);
+  if(!u)return;
+  const cls=userClass(u.id);
+  const acts=db.activities.filter(a=>a.userId===u.id).sort((a,b)=>{
+    const la=db.lessons.find(x=>x.id===a.lessonId),lb=db.lessons.find(x=>x.id===b.lessonId);
+    return (la?.date||"").localeCompare(lb?.date||"");
+  });
+  const total=acts.reduce((s,a)=>s+Number(a.hours||0),0);
+
+  document.body.innerHTML=`
+  <div class="no-print" style="padding:12px 18px;background:#176b3a;color:white;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn secondary" onclick="backToSystem()">← Voltar ao sistema</button>
+    <button class="btn primary" onclick="window.print()">🖨 Imprimir / Salvar PDF</button>
+  </div>
+  <div class="report-page">
+    <div class="report-head">
+      <div style="font-size:26px">🇧🇷</div>
+      <b>SERVIÇO PÚBLICO FEDERAL</b><br>
+      <b>INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DO AMAPÁ</b><br>
+      <b>PRÓ-REITORIA DE EXTENSÃO, ARTE, CULTURA E DESPORTO</b><br>
+      <b>PROJETO COMUNICATEC</b>
+    </div>
+    <div class="report-title">RELATÓRIO MENSAL DE ATIVIDADE DO ALUNO(A)</div>
+    <table>
+      <tr><th colspan="2" style="text-align:center">DADOS DO ALUNO(A)</th></tr>
+      <tr><th>Nome:</th><td>${esc(u.name)}</td></tr>
+      <tr><th>Função:</th><td>${esc(u.func||"")}</td></tr>
+      <tr><th>Telefone:</th><td>${esc(u.phone||"")}</td></tr>
+      <tr><th>E-mail:</th><td>${esc(u.email)}</td></tr>
+      <tr><th>Turma/Agência:</th><td>${esc(cls?.name||"—")}</td></tr>
+    </table>
+    <div class="report-title">FREQUÊNCIA/ATIVIDADE – SETEMBRO/2026</div>
+    <table><thead><tr><th>DATA</th><th>CARGA</th><th>ATIVIDADE DESENVOLVIDA</th><th>STATUS</th></tr></thead>
+    <tbody>${acts.length?acts.map(a=>{
+      const l=db.lessons.find(x=>x.id===a.lessonId);
+      return `<tr><td>${l?fmtDate(l.date):"—"}</td><td>${a.hours}h</td><td>${esc(a.description)}</td><td>${esc(a.status)}</td></tr>`;
+    }).join(""):`<tr><td colspan="4" style="height:90px;text-align:center">Nenhuma atividade registrada.</td></tr>`}
+    <tr><th>CH TOTAL</th><th>${total}h</th><th colspan="2">Atividades: ${acts.length}</th></tr>
+    </tbody></table>
+    <p style="text-align:right;margin-top:35px">Macapá-AP, ${new Date().toLocaleDateString("pt-BR")}.</p>
+    <div class="sign"><div>Assinatura do(a) Aluno(a)</div><div>Assinatura do Coordenador(a)</div></div>
+  </div>`;
 }
-function returnFromReport(){
- render();
-}
-function openClassReport(classId){
- const cl=db.classes.find(c=>c.id===classId);if(!cl)return;
- const students=studentsOfClass(classId);
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card"><h2>Acompanhamento — ${esc(cl.name)}</h2>
- <div style="overflow:auto"><table><thead><tr><th>Aluno</th><th>Aulas</th><th>Presenças</th><th>Ausências</th><th>Atividades</th><th>Horas</th></tr></thead><tbody>
- ${students.map(s=>{const at=db.attendance.filter(a=>a.userId===s.id&&db.lessons.some(l=>l.classId===classId&&l.id===a.lessonId)),ac=db.activities.filter(a=>a.userId===s.id&&db.lessons.some(l=>l.classId===classId&&l.id===a.lessonId));return `<tr><td>${esc(s.name)}</td><td>${db.lessons.filter(l=>l.classId===classId).length}</td><td>${at.filter(a=>a.status==="PRESENTE").length}</td><td>${at.filter(a=>a.status==="AUSENTE").length}</td><td>${ac.length}</td><td>${ac.reduce((x,a)=>x+Number(a.hours||0),0)}h</td></tr>`}).join("")||`<tr><td colspan="6" class="empty">Nenhum aluno.</td></tr>`}
- </tbody></table></div><div class="actions" style="margin-top:15px"><button class="btn secondary" onclick="closeModal()">Fechar</button></div></div></div>`);
+
+function backToSystem(){
+  document.body.innerHTML='<div id="app"></div><div id="toast" class="toast"></div>';
+  render();
 }
 
 /* ================= BACKUP ================= */
 function openBackupModal(){
- document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal"><div class="card"><h2>Backup dos dados</h2>
- <p class="muted">Inclui usuários, turmas, vínculos, aulas, frequência e atividades.</p><div class="actions">
- <button class="btn primary" onclick="exportBackup()">Exportar backup</button><button class="btn secondary" onclick="document.getElementById('backupFile').click()">Importar backup</button>
- <input id="backupFile" type="file" accept=".json" style="display:none" onchange="importBackup(event)"><button class="btn secondary" onclick="closeModal()">Fechar</button></div>
- <p style="font-size:12px;color:#b42318;margin-top:15px">Este arquivo é um protótipo local. Para vários dispositivos simultaneamente, use banco de dados + servidor.</p></div></div>`);
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modal" id="modal"><div class="card">
+    <h2>Backup dos dados</h2>
+    <p class="muted">O backup contém usuários, turmas, vínculos, aulas, atividades e registros de ausência.</p>
+    <div class="actions">
+      <button class="btn primary" onclick="exportBackup()">Exportar backup</button>
+      <button class="btn secondary" onclick="document.getElementById('backupFile').click()">Importar backup</button>
+      <input id="backupFile" type="file" accept=".json" style="display:none" onchange="importBackup(event)">
+      <button class="btn secondary" onclick="closeModal()">Fechar</button>
+    </div>
+    <p style="font-size:12px;color:#b42318;margin-top:15px">
+      Atenção: este protótipo usa localStorage. Os dados não ficam em um servidor.
+    </p>
+  </div></div>`);
 }
 function exportBackup(){
- const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");
- a.href=URL.createObjectURL(blob);a.download="backup-comunicatec-"+today()+".json";a.click();URL.revokeObjectURL(a.href);toast("Backup exportado.");
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="backup-comunicatec-"+new Date().toISOString().slice(0,10)+".json";
+  a.click();URL.revokeObjectURL(a.href);
+  toast("Backup exportado.");
 }
 function importBackup(event){
- const file=event.target.files[0];if(!file)return;
- const reader=new FileReader();reader.onload=()=>{
-  try{const data=JSON.parse(reader.result);
-   if(!data.users||!data.classes||!data.lessons||!data.activities||!data.enrollments||!data.attendance)throw new Error();
-   db=data;saveDB();closeModal();currentUserId=null;sessionStorage.removeItem("ct_user_id");render();toast("Backup importado com sucesso.");
-  }catch(e){toast("Arquivo de backup inválido.")}
- };reader.readAsText(file);
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!data.users||!data.classes||!data.lessons||!data.activities||!data.enrollments)throw new Error();
+      data.absences ||= [];
+      db=data;saveDB();closeModal();currentUserId=null;sessionStorage.removeItem("ct_user_id");
+      toast("Backup importado com sucesso.");render();
+    }catch(e){toast("Arquivo de backup inválido.")}
+  };
+  reader.readAsText(file);
 }
 
 /* ================= UTILITÁRIOS ================= */
 function closeModal(){document.getElementById("modal")?.remove()}
-window.addEventListener("storage",()=>{db=loadDB();if(currentUser())render()});
+
+window.addEventListener("storage",()=>{
+  db=loadDB();
+  if(currentUser())render();
+});
+
 render();
 </script>
 </body>

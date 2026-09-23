@@ -121,6 +121,36 @@ button{
   color:var(--muted);
   margin-bottom:28px;
 }
+.btn-link{
+  border:0;
+  background:transparent;
+  color:var(--secondary);
+  padding:0;
+  font-size:13px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.btn-link:hover{text-decoration:underline}
+
+.auth-note{
+  padding:12px;
+  border-radius:9px;
+  background:#eff6ff;
+  color:#1e40af;
+  font-size:14px;
+  margin-bottom:16px;
+  line-height:1.45;
+}
+
+.auth-note.warning{
+  background:#fff7ed;
+  color:#9a3412;
+}
+
+.auth-back{
+  width:100%;
+  margin-top:10px;
+}
 
 /* APP */
 
@@ -658,39 +688,55 @@ th{
     <div class="logo">CT</div>
 
     <h1>COMUNICATEC</h1>
-    <p>Sistema de Gestão de Alunos</p>
+    <p id="authSubtitle">Sistema de Gestão de Alunos</p>
 
-    <form id="loginForm">
+    <div id="authContent">
+      <form id="loginForm">
 
-      <div class="form-group">
-        <label>E-mail</label>
-        <input
-          type="email"
-          id="loginEmail"
-          required
-          autocomplete="username"
-          placeholder="seu@email.com">
-      </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input
+            type="email"
+            id="loginEmail"
+            required
+            autocomplete="username"
+            placeholder="seu@email.com">
+        </div>
 
-      <br>
+        <br>
 
-      <div class="form-group">
-        <label>Senha</label>
-        <input
-          type="password"
-          id="loginPassword"
-          required
-          autocomplete="current-password"
-          placeholder="Digite sua senha">
-      </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input
+            type="password"
+            id="loginPassword"
+            required
+            autocomplete="current-password"
+            placeholder="Digite sua senha">
+        </div>
 
-      <br>
+        <div style="text-align:right;margin-top:8px">
+          <button type="button" class="btn-link" onclick="showForgotPassword()">
+            Esqueci minha senha
+          </button>
+        </div>
 
-      <button class="btn btn-primary" style="width:100%">
-        🔐 Entrar no sistema
-      </button>
+        <br>
 
-    </form>
+        <button class="btn btn-primary" style="width:100%">
+          🔐 Entrar no sistema
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          style="width:100%;margin-top:10px"
+          onclick="showSignup()">
+          📝 Cadastrar novo usuário
+        </button>
+
+      </form>
+    </div>
 
   </div>
 </section>
@@ -954,6 +1000,412 @@ function userIsStudent(){
    AUTENTICAÇÃO
    ========================================================= */
 
+function publicRedirectUrl(){
+  /*
+   * Usa a URL atual do GitHub Pages (ou outro domínio publicado).
+   * No Supabase, essa URL precisa estar cadastrada em:
+   * Authentication > URL Configuration > Redirect URLs.
+   */
+  return window.location.origin + window.location.pathname;
+}
+
+function showLogin(){
+  const screen = document.getElementById("loginScreen");
+  screen.classList.remove("hidden");
+  document.getElementById("app").classList.add("hidden");
+
+  document.getElementById("authSubtitle").textContent =
+    "Sistema de Gestão de Alunos";
+
+  document.getElementById("authContent").innerHTML = `
+    <form id="loginForm">
+
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="loginEmail" required
+          autocomplete="username" placeholder="seu@email.com">
+      </div>
+
+      <br>
+
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="loginPassword" required
+          autocomplete="current-password" placeholder="Digite sua senha">
+      </div>
+
+      <div style="text-align:right;margin-top:8px">
+        <button type="button" class="btn-link" onclick="showForgotPassword()">
+          Esqueci minha senha
+        </button>
+      </div>
+
+      <br>
+
+      <button class="btn btn-primary" style="width:100%">
+        🔐 Entrar no sistema
+      </button>
+
+      <button type="button" class="btn btn-secondary"
+        style="width:100%;margin-top:10px" onclick="showSignup()">
+        📝 Cadastrar novo usuário
+      </button>
+
+    </form>
+  `;
+
+  document.getElementById("loginForm")
+    .addEventListener("submit", handleLoginSubmit);
+}
+
+async function handleLoginSubmit(event){
+  event.preventDefault();
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  try{
+    showLoading(true);
+    await login(email,password);
+  }catch(error){
+    console.error(error);
+    showToast(
+      error.message || "E-mail ou senha inválidos.",
+      "error"
+    );
+  }finally{
+    showLoading(false);
+  }
+}
+
+function showForgotPassword(){
+  document.getElementById("authSubtitle").textContent =
+    "Recuperação de senha";
+
+  document.getElementById("authContent").innerHTML = `
+    <div class="auth-note">
+      Informe o e-mail cadastrado. Enviaremos um link para você criar
+      uma nova senha.
+    </div>
+
+    <form id="forgotForm">
+      <div class="form-group">
+        <label>E-mail cadastrado</label>
+        <input type="email" id="forgotEmail" required
+          autocomplete="email" placeholder="seu@email.com">
+      </div>
+
+      <br>
+
+      <button class="btn btn-primary" style="width:100%">
+        📧 Enviar link de recuperação
+      </button>
+
+      <button type="button" class="btn btn-secondary auth-back"
+        onclick="showLogin()">
+        ← Voltar para o login
+      </button>
+    </form>
+  `;
+
+  document.getElementById("forgotForm")
+    .addEventListener("submit", handleForgotSubmit);
+}
+
+async function handleForgotSubmit(event){
+  event.preventDefault();
+
+  const email = document.getElementById("forgotEmail").value.trim();
+
+  try{
+    showLoading(true);
+
+    const {error} = await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {redirectTo:publicRedirectUrl()}
+    );
+
+    if(error) throw error;
+
+    showToast(
+      "Se o e-mail estiver cadastrado, o link de recuperação foi enviado.",
+      "success"
+    );
+
+    document.getElementById("forgotForm").reset();
+
+  }catch(error){
+    console.error(error);
+    showToast(
+      error.message || "Não foi possível enviar o link de recuperação.",
+      "error"
+    );
+  }finally{
+    showLoading(false);
+  }
+}
+
+function showSignup(){
+  document.getElementById("authSubtitle").textContent =
+    "Novo cadastro";
+
+  document.getElementById("authContent").innerHTML = `
+    <div class="auth-note">
+      O cadastro público cria inicialmente um usuário com perfil
+      <strong>Aluno</strong>. Depois da confirmação do e-mail, o acesso
+      poderá ser liberado conforme as regras do sistema.
+    </div>
+
+    <form id="signupForm">
+
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="signupNome" required
+          autocomplete="name" placeholder="Seu nome completo">
+      </div>
+
+      <br>
+
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="signupEmail" required
+          autocomplete="email" placeholder="seu@email.com">
+      </div>
+
+      <br>
+
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="signupPassword" required
+          minlength="6" autocomplete="new-password"
+          placeholder="Mínimo de 6 caracteres">
+      </div>
+
+      <br>
+
+      <div class="form-group">
+        <label>Confirmar senha</label>
+        <input type="password" id="signupPassword2" required
+          minlength="6" autocomplete="new-password"
+          placeholder="Digite a senha novamente">
+      </div>
+
+      <br>
+
+      <button class="btn btn-primary" style="width:100%">
+        📝 Criar cadastro
+      </button>
+
+      <button type="button" class="btn btn-secondary auth-back"
+        onclick="showLogin()">
+        ← Voltar para o login
+      </button>
+
+    </form>
+  `;
+
+  document.getElementById("signupForm")
+    .addEventListener("submit", handleSignupSubmit);
+}
+
+async function handleSignupSubmit(event){
+  event.preventDefault();
+
+  const nome = document.getElementById("signupNome").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const password2 = document.getElementById("signupPassword2").value;
+
+  if(password !== password2){
+    showToast("As senhas não conferem.","error");
+    return;
+  }
+
+  try{
+    showLoading(true);
+
+    /*
+     * O Supabase pode retornar um usuário sem identities quando
+     * o e-mail já existe. Nesse caso não tratamos como novo cadastro:
+     * orientamos diretamente para a recuperação de senha.
+     */
+    const {data,error} = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options:{
+        emailRedirectTo:publicRedirectUrl(),
+        data:{
+          nome,
+          perfil:"ALUNO",
+          ativo:true
+        }
+      }
+    });
+
+    if(error) throw error;
+
+    if(!data.user){
+      throw new Error("O Supabase não retornou o usuário.");
+    }
+
+    if(Array.isArray(data.user.identities) &&
+       data.user.identities.length === 0){
+
+      showToast(
+        "Este e-mail já possui cadastro. Use 'Esqueci minha senha' para recuperar o acesso.",
+        "error"
+      );
+
+      showForgotPassword();
+
+      const input = document.getElementById("forgotEmail");
+      if(input) input.value = email;
+
+      return;
+    }
+
+    /*
+     * Se a confirmação de e-mail estiver desativada e houver sessão,
+     * podemos criar o perfil imediatamente. Com confirmação ativada,
+     * a criação do perfil deve ser feita por trigger no Supabase,
+     * usando os dados enviados acima.
+     */
+    if(data.session){
+      const {error:profileError} = await supabaseClient
+        .from("profiles")
+        .upsert({
+          id:data.user.id,
+          nome,
+          email,
+          perfil:"ALUNO",
+          ativo:true
+        },{onConflict:"id"});
+
+      if(profileError){
+        console.error("Perfil:",profileError);
+      }
+    }
+
+    showLogin();
+
+    showToast(
+      "Cadastro iniciado. Verifique seu e-mail para confirmar a conta.",
+      "success"
+    );
+
+  }catch(error){
+    console.error(error);
+
+    const msg = String(error.message || "").toLowerCase();
+
+    if(
+      msg.includes("already registered") ||
+      msg.includes("already exists") ||
+      msg.includes("user already")
+    ){
+      showForgotPassword();
+
+      const input = document.getElementById("forgotEmail");
+      if(input) input.value = email;
+
+      showToast(
+        "Este e-mail já possui cadastro. Use a recuperação de senha.",
+        "error"
+      );
+    }else{
+      showToast(
+        error.message || "Não foi possível realizar o cadastro.",
+        "error"
+      );
+    }
+  }finally{
+    showLoading(false);
+  }
+}
+
+function showPasswordRecovery(){
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("loginScreen").classList.remove("hidden");
+
+  document.getElementById("authSubtitle").textContent =
+    "Criar nova senha";
+
+  document.getElementById("authContent").innerHTML = `
+    <div class="auth-note">
+      Você chegou por um link de recuperação de senha.
+      Defina uma nova senha para voltar a acessar o sistema.
+    </div>
+
+    <form id="recoveryForm">
+
+      <div class="form-group">
+        <label>Nova senha</label>
+        <input type="password" id="newPassword" required
+          minlength="6" autocomplete="new-password"
+          placeholder="Digite a nova senha">
+      </div>
+
+      <br>
+
+      <div class="form-group">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="newPassword2" required
+          minlength="6" autocomplete="new-password"
+          placeholder="Digite novamente">
+      </div>
+
+      <br>
+
+      <button class="btn btn-primary" style="width:100%">
+        🔑 Salvar nova senha
+      </button>
+
+    </form>
+  `;
+
+  document.getElementById("recoveryForm")
+    .addEventListener("submit", handleRecoverySubmit);
+}
+
+async function handleRecoverySubmit(event){
+  event.preventDefault();
+
+  const password = document.getElementById("newPassword").value;
+  const password2 = document.getElementById("newPassword2").value;
+
+  if(password !== password2){
+    showToast("As senhas não conferem.","error");
+    return;
+  }
+
+  try{
+    showLoading(true);
+
+    const {error} = await supabaseClient.auth.updateUser({
+      password
+    });
+
+    if(error) throw error;
+
+    showToast(
+      "Senha alterada com sucesso. Faça login com a nova senha.",
+      "success"
+    );
+
+    await supabaseClient.auth.signOut();
+    showLogin();
+
+  }catch(error){
+    console.error(error);
+    showToast(
+      error.message || "Não foi possível alterar a senha.",
+      "error"
+    );
+  }finally{
+    showLoading(false);
+  }
+}
+
 async function login(email,password){
 
   const {data,error} =
@@ -978,44 +1430,8 @@ async function logout(){
   session = null;
   currentProfile = null;
 
-  document.getElementById("app").classList.add("hidden");
-  document.getElementById("loginScreen").classList.remove("hidden");
-
-  document.getElementById("loginForm").reset();
+  showLogin();
 }
-
-async function loadCurrentProfile(){
-
-  if(!session?.user?.id){
-    throw new Error("Sessão de usuário não encontrada.");
-  }
-
-  const {data,error} =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id",session.user.id)
-      .maybeSingle();
-
-  if(error){
-    throw error;
-  }
-
-  if(!data){
-    throw new Error(
-      "Seu usuário existe no Supabase Auth, mas ainda não possui um registro na tabela profiles."
-    );
-  }
-
-  if(data.ativo === false){
-    await supabaseClient.auth.signOut();
-
-    throw new Error("Seu usuário está inativo.");
-  }
-
-  currentProfile = data;
-}
-
 
 /* =========================================================
    CARREGAMENTO DO BANCO
@@ -4462,44 +4878,8 @@ async function saveOwnProfile(event){
 
 
 /* =========================================================
-   LOGIN FORM
+   LOGIN / SESSÃO
    ========================================================= */
-
-document
-  .getElementById("loginForm")
-  .addEventListener("submit",async event => {
-
-    event.preventDefault();
-
-    const email =
-      document.getElementById("loginEmail").value.trim();
-
-    const password =
-      document.getElementById("loginPassword").value;
-
-    try{
-
-      showLoading(true);
-
-      await login(email,password);
-
-    }catch(error){
-
-      console.error(error);
-
-      showToast(
-        error.message ||
-        "E-mail ou senha inválidos.",
-        "error"
-      );
-
-    }finally{
-
-      showLoading(false);
-    }
-
-  });
-
 
 /* =========================================================
    SESSÃO SUPABASE
@@ -4508,45 +4888,36 @@ document
 supabaseClient.auth.onAuthStateChange(
   async (event,newSession) => {
 
-    /*
-     * Evitamos recarregar tudo desnecessariamente
-     * quando a sessão muda apenas por refresh.
-     */
-
-    if(event === "SIGNED_OUT"){
-
-      session = null;
-      currentProfile = null;
-
-      document
-        .getElementById("app")
-        .classList.add("hidden");
-
-      document
-        .getElementById("loginScreen")
-        .classList.remove("hidden");
-
+    if(event === "PASSWORD_RECOVERY"){
+      session = newSession;
+      showPasswordRecovery();
       showLoading(false);
-
       return;
     }
 
-    if(newSession && !currentProfile){
+    if(event === "SIGNED_OUT"){
+      session = null;
+      currentProfile = null;
+      showLogin();
+      showLoading(false);
+      return;
+    }
 
+    /*
+     * Não abrimos o sistema automaticamente durante o retorno
+     * de recuperação. O evento PASSWORD_RECOVERY cuida daquela tela.
+     */
+    if(newSession && !currentProfile && event !== "PASSWORD_RECOVERY"){
       session = newSession;
 
       try{
-
         await loadApplication();
-
       }catch(error){
-
         console.error(error);
       }
     }
   }
 );
-
 
 /* =========================================================
    INICIALIZAÇÃO
@@ -4558,6 +4929,17 @@ async function initialize(){
 
   try{
 
+    /*
+     * Se o Supabase devolveu a aplicação por um link de recuperação,
+     * exibimos o formulário de nova senha em vez da tela de login.
+     */
+    const hash = window.location.hash || "";
+    const search = window.location.search || "";
+
+    const recoveryUrl =
+      hash.includes("type=recovery") ||
+      search.includes("type=recovery");
+
     const {data,error} =
       await supabaseClient.auth.getSession();
 
@@ -4565,29 +4947,30 @@ async function initialize(){
 
     session = data.session;
 
+    if(recoveryUrl){
+      if(session){
+        showPasswordRecovery();
+      }else{
+        showLogin();
+        showToast(
+          "O link de recuperação expirou ou é inválido. Solicite um novo link.",
+          "error"
+        );
+      }
+      return;
+    }
+
     if(session){
-
       await loadApplication();
-
     }else{
-
-      document
-        .getElementById("loginScreen")
-        .classList.remove("hidden");
-
-      document
-        .getElementById("app")
-        .classList.add("hidden");
-
+      showLogin();
     }
 
   }catch(error){
 
     console.error(error);
 
-    document
-      .getElementById("loginScreen")
-      .classList.remove("hidden");
+    showLogin();
 
     showToast(
       error.message ||
@@ -4600,7 +4983,6 @@ async function initialize(){
     showLoading(false);
   }
 }
-
 
 /* =========================================================
    BOTÃO DE PERFIL NO CABEÇALHO

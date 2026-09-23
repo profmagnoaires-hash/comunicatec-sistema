@@ -1509,7 +1509,8 @@ async function loadDatabase(){
 
 async function loadCurrentProfile(){
 
-  const { data: { user }, error: userError } = await sb.auth.getUser();
+  const { data: { user }, error: userError } =
+    await supabaseClient.auth.getUser();
 
   if(userError){
     throw userError;
@@ -1519,7 +1520,7 @@ async function loadCurrentProfile(){
     throw new Error("Usuário não autenticado.");
   }
 
-  const { data, error } = await sb
+  const { data, error } = await supabaseClient
     .from("profiles")
     .select("*")
     .eq("id", user.id)
@@ -1527,7 +1528,9 @@ async function loadCurrentProfile(){
 
   if(error){
     console.error("Erro ao carregar perfil:", error);
-    throw new Error("Não foi possível carregar o perfil do usuário.");
+    throw new Error(
+      "Não foi possível carregar o perfil do usuário."
+    );
   }
 
   if(!data){
@@ -1535,7 +1538,7 @@ async function loadCurrentProfile(){
   }
 
   if(!data.ativo){
-    await sb.auth.signOut();
+    await supabaseClient.auth.signOut();
     throw new Error("Este usuário está desativado.");
   }
 
@@ -1543,7 +1546,6 @@ async function loadCurrentProfile(){
 
   return data;
 }
-
 
   
 async function loadApplication(){

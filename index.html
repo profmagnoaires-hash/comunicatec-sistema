@@ -1507,6 +1507,45 @@ async function loadDatabase(){
   };
 }
 
+async function loadCurrentProfile(){
+
+  const { data: { user }, error: userError } = await sb.auth.getUser();
+
+  if(userError){
+    throw userError;
+  }
+
+  if(!user){
+    throw new Error("Usuário não autenticado.");
+  }
+
+  const { data, error } = await sb
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if(error){
+    console.error("Erro ao carregar perfil:", error);
+    throw new Error("Não foi possível carregar o perfil do usuário.");
+  }
+
+  if(!data){
+    throw new Error("Perfil do usuário não encontrado.");
+  }
+
+  if(!data.ativo){
+    await sb.auth.signOut();
+    throw new Error("Este usuário está desativado.");
+  }
+
+  currentProfile = data;
+
+  return data;
+}
+
+
+  
 async function loadApplication(){
 
   showLoading(true);

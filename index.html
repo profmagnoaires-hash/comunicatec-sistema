@@ -213,7 +213,7 @@ async function register(e){
  if(name.length<3)return alertBox("registerAlert","Informe seu nome completo.","error");if(p.length<8)return alertBox("registerAlert","A senha deve ter pelo menos 8 caracteres.","error");if(p!==p2)return alertBox("registerAlert","As senhas não são iguais.","error");
  loading("regBtn",true,"CRIANDO...");
  try{if(!isReal)throw new Error("O Supabase não está configurado.");
- const {data,error}=await sb.auth.signUp({email,password:p,options:{data:{full_name:name,requested_role:"ALUNO"},emailRedirectTo:location.href}});if(error)throw error;
+ const {data,error}=await sb.auth.signUp({email,password:p,options:{data:{nome:name,full_name:name,requested_role:"ALUNO"},emailRedirectTo:location.href}});if(error)throw error;
  alertBox("registerAlert",data.session?"Conta criada.":"Conta criada. Confirme seu e-mail.","success");document.getElementById("registerForm").reset();
  }catch(e){alertBox("registerAlert",errMsg(e),"error")}finally{loading("regBtn",false,"CRIAR CONTA")}
 }

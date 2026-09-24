@@ -144,7 +144,7 @@ h2{font-size:31px;letter-spacing:-1px;margin:0 0 8px}.sub{font-size:13px;color:v
 /* ==========================================================
  COMUNICATEC V2 — GESTÃO ACADÊMICA
  Banco esperado:
- profiles(id,nome,email,telefone,role,ativo,created_at)
+ profiles(id,nome,email,telefone,perfil,ativo,signature_data,created_at)
  classes(id,nome,descricao,coordenador_id,instrutor_id,created_at)
  enrollments(id,class_id,student_id,created_at)
  lessons(id,class_id,data,horario,carga,tipo,titulo,created_at)
@@ -153,7 +153,7 @@ h2{font-size:31px;letter-spacing:-1px;margin:0 0 8px}.sub{font-size:13px;color:v
 
  Para o relatório, este front usa os dados dessas tabelas.
  Assinatura digital: para produção, recomenda-se Supabase Storage
- e uma coluna assinatura_url em profiles.
+ e a coluna signature_data em profiles.
 ========================================================== */
 
 const SUPABASE_URL="https://qexkcjdyldshzxkuwpkw.supabase.co";
@@ -224,9 +224,9 @@ async function forgot(e){
 }
 async function enterReal(user){
  try{
-  const {data,error}=await sb.from("profiles").select("id,nome,email,telefone,role,ativo").eq("id",user.id).single();if(error)throw error;
+  const {data,error}=await sb.from("profiles").select("id,nome,email,telefone,perfil,ativo,signature_data").eq("id",user.id).single();if(error)throw error;
   if(!data.ativo){await sb.auth.signOut();view("login");return alertBox("loginAlert","Usuário desativado. Procure o administrador.","error")}
-  currentUser={id:user.id,email:user.email,name:data.nome||user.user_metadata?.full_name||"Usuário",role:String(data.role).toUpperCase(),telefone:data.telefone||""};
+  currentUser={id:user.id,email:user.email,name:data.nome||user.user_metadata?.full_name||"Usuário",role:String(data.perfil).toUpperCase(),telefone:data.telefone||"",signature_data:data.signature_data||""};
   if(!["ADMIN","COORDENADOR","INSTRUTOR","ALUNO"].includes(currentUser.role))throw new Error("Perfil não configurado.");
   await loadState();openDashboard(currentUser);
  }catch(e){await sb.auth.signOut();view("login");alertBox("loginAlert","Login autenticado, mas o perfil não pôde ser carregado. Verifique profiles e RLS.","error")}
@@ -235,7 +235,7 @@ async function enterReal(user){
 async function loadState(){
  if(!isReal)return;
  const [p,c,e,l,a,at]=await Promise.all([
-  sb.from("profiles").select("id,nome,email,telefone,role,ativo,created_at").order("nome"),
+  sb.from("profiles").select("id,nome,email,telefone,perfil,ativo,created_at").order("nome"),
   sb.from("classes").select("*").order("nome"),
   sb.from("enrollments").select("*"),
   sb.from("lessons").select("*").order("data",{ascending:false}),
@@ -297,7 +297,7 @@ function head(title,desc,buttonText,fn){
  return `<div class="workspace-head"><div><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>${buttonText?`<button class="action" onclick="${fn}">${esc(buttonText)}</button>`:""}</div>`;
 }
 function dashboardPage(w){
- const counts={users:state.profiles.length,students:state.profiles.filter(x=>x.role==="ALUNO").length,classes:state.classes.length,lessons:state.lessons.length};
+ const counts={users:state.profiles.length,students:state.profiles.filter(x=>x.perfil==="ALUNO").length,classes:state.classes.length,lessons:state.lessons.length};
  if(currentUser.role==="ALUNO")return todayPage(w);
  w.innerHTML=head("Dashboard","Visão geral da plataforma.","","")+
  `<div class="statGrid"><div class="stat"><small>Usuários</small><strong>${counts.users}</strong></div><div class="stat"><small>Alunos</small><strong>${counts.students}</strong></div><div class="stat"><small>Turmas</small><strong>${counts.classes}</strong></div><div class="stat"><small>Aulas</small><strong>${counts.lessons}</strong></div></div>
@@ -312,13 +312,13 @@ function usersPage(w){
 }
 function drawUsers(rows){
  const b=document.getElementById("usersBody");if(!b)return;
- b.innerHTML=rows.map(p=>`<tr><td><b>${esc(p.nome||"—")}</b></td><td>${esc(p.email||"—")}</td><td><span class="badge roleBadge">${roleLabel(String(p.role).toUpperCase())}</span></td><td>${esc(p.telefone||"—")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td><td><div class="rowActions"><button class="tiny" onclick="editUser('${p.id}')">EDITAR</button>${p.id!==currentUser.id?`<button class="tiny danger" onclick="toggleUser('${p.id}',${!p.ativo})">${p.ativo?"DESATIVAR":"ATIVAR"}</button>`:""}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">Nenhum usuário encontrado.</td></tr>`;
+ b.innerHTML=rows.map(p=>`<tr><td><b>${esc(p.nome||"—")}</b></td><td>${esc(p.email||"—")}</td><td><span class="badge roleBadge">${roleLabel(String(p.perfil).toUpperCase())}</span></td><td>${esc(p.telefone||"—")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td><td><div class="rowActions"><button class="tiny" onclick="editUser('${p.id}')">EDITAR</button>${p.id!==currentUser.id?`<button class="tiny danger" onclick="toggleUser('${p.id}',${!p.ativo})">${p.ativo?"DESATIVAR":"ATIVAR"}</button>`:""}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">Nenhum usuário encontrado.</td></tr>`;
 }
 function filterUsers(){const q=(document.getElementById("userSearch")?.value||"").toLowerCase();drawUsers(state.profiles.filter(p=>(p.nome||"").toLowerCase().includes(q)||(p.email||"").toLowerCase().includes(q)))}
 function newUser(){openForm("Novo usuário",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="fNome"></div><div class="formField"><label>E-MAIL</label><input id="fEmail" type="email"></div><div class="formField"><label>TELEFONE</label><input id="fTel"></div><div class="formField"><label>PERFIL</label><select id="fRole"><option>ALUNO</option><option>INSTRUTOR</option><option>COORDENADOR</option><option>ADMIN</option></select></div></div>`,async()=>{await saveUser(null)})}
-function editUser(id){const p=state.profiles.find(x=>x.id===id);if(!p)return;openForm("Editar usuário",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="fNome" value="${attr(p.nome||"")}"></div><div class="formField"><label>E-MAIL</label><input id="fEmail" type="email" value="${attr(p.email||"")}"></div><div class="formField"><label>TELEFONE</label><input id="fTel" value="${attr(p.telefone||"")}"></div><div class="formField"><label>PERFIL</label><select id="fRole">${["ALUNO","INSTRUTOR","COORDENADOR","ADMIN"].map(r=>`<option ${r===String(p.role).toUpperCase()?"selected":""}>${r}</option>`).join("")}</select></div></div>`,async()=>{await saveUser(id)})}
+function editUser(id){const p=state.profiles.find(x=>x.id===id);if(!p)return;openForm("Editar usuário",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="fNome" value="${attr(p.nome||"")}"></div><div class="formField"><label>E-MAIL</label><input id="fEmail" type="email" value="${attr(p.email||"")}"></div><div class="formField"><label>TELEFONE</label><input id="fTel" value="${attr(p.telefone||"")}"></div><div class="formField"><label>PERFIL</label><select id="fRole">${["ALUNO","INSTRUTOR","COORDENADOR","ADMIN"].map(r=>`<option ${r===String(p.perfil).toUpperCase()?"selected":""}>${r}</option>`).join("")}</select></div></div>`,async()=>{await saveUser(id)})}
 async function saveUser(id){
- const data={nome:document.getElementById("fNome").value.trim(),email:document.getElementById("fEmail").value.trim().toLowerCase(),telefone:document.getElementById("fTel").value.trim(),role:document.getElementById("fRole").value};
+ const data={nome:document.getElementById("fNome").value.trim(),email:document.getElementById("fEmail").value.trim().toLowerCase(),telefone:document.getElementById("fTel").value.trim(),perfil:document.getElementById("fRole").value};
  if(!data.nome||!data.email)return toast("Nome e e-mail são obrigatórios.");
  if(isReal){if(id){const {error}=await sb.from("profiles").update(data).eq("id",id);if(error)return toast(error.message)}else return toast("Para criar um usuário com login real, vamos ligar este botão a uma Edge Function segura do Supabase na próxima etapa.")}
  else{if(id){Object.assign(state.profiles.find(x=>x.id===id),data)}else state.profiles.push({...data,id:"p"+Date.now(),ativo:true})}
@@ -331,19 +331,19 @@ async function toggleUser(id,ativo){
 }
 
 function studentsPage(w){
- const students=state.profiles.filter(p=>String(p.role).toUpperCase()==="ALUNO");
+ const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
  w.innerHTML=head("Alunos","Visualização dos alunos cadastrados no sistema.","ATUALIZAR","renderPage('Alunos')")+
  `<div class="toolbar"><input id="studentSearch" class="search" placeholder="Pesquisar aluno..." oninput="filterStudents()"></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Telefone</th><th>Turmas</th><th>Status</th></tr></thead><tbody id="studentsBody"></tbody></table></div>`;
  drawStudents(students);
 }
 function drawStudents(rows){const b=document.getElementById("studentsBody");if(!b)return;b.innerHTML=rows.map(p=>{const cs=state.enrollments.filter(e=>e.student_id===p.id).map(e=>state.classes.find(c=>c.id===e.class_id)?.nome).filter(Boolean).join(", ");return`<tr><td><b>${esc(p.nome)}</b></td><td>${esc(p.email||"—")}</td><td>${esc(p.telefone||"—")}</td><td>${esc(cs||"Sem turma")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td></tr>`}).join("")||`<tr><td colspan="5" class="empty">Nenhum aluno cadastrado.</td></tr>`}
-function filterStudents(){const q=studentSearch.value.toLowerCase();drawStudents(state.profiles.filter(p=>String(p.role).toUpperCase()==="ALUNO"&&(p.nome||"").toLowerCase().includes(q)))}
+function filterStudents(){const q=studentSearch.value.toLowerCase();drawStudents(state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&(p.nome||"").toLowerCase().includes(q)))}
 
 function classesPage(w){
  w.innerHTML=head("Turmas","Gerenciamento das turmas do sistema. Crie, edite e visualize os alunos.","NOVA TURMA","newClass()")+
  `<div class="tableWrap"><table class="dataTable"><thead><tr><th>Turma</th><th>Descrição</th><th>Coordenador</th><th>Instrutor</th><th>Alunos</th><th>Ações</th></tr></thead><tbody>${state.classes.map(c=>{const co=state.profiles.find(p=>p.id===c.coordenador_id)?.nome||"—",ins=state.profiles.find(p=>p.id===c.instrutor_id)?.nome||"—",n=state.enrollments.filter(e=>e.class_id===c.id).length;return`<tr><td><b>${esc(c.nome)}</b></td><td>${esc(c.descricao||"—")}</td><td>${esc(co)}</td><td>${esc(ins)}</td><td>${n}</td><td><div class="rowActions"><button class="tiny" onclick="editClass('${c.id}')">EDITAR</button><button class="tiny" onclick="classStudents('${c.id}')">GERENCIAR ALUNOS</button></div></td></tr>`}).join("")||`<tr><td colspan="6" class="empty">Nenhuma turma cadastrada.</td></tr>`}</tbody></table></div>`;
 }
-function peopleOptions(role){return state.profiles.filter(p=>String(p.role).toUpperCase()===role&&p.ativo).map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("")}
+function peopleOptions(role){return state.profiles.filter(p=>String(p.perfil).toUpperCase()===role&&p.ativo).map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("")}
 function newClass(){openForm("Nova turma",`<div class="formGrid"><div class="formField"><label>NOME DA TURMA</label><input id="cNome"></div><div class="formField"><label>COORDENADOR</label><select id="cCoord"><option value="">Selecione</option>${peopleOptions("COORDENADOR")}</select></div><div class="formField"><label>INSTRUTOR</label><select id="cInst"><option value="">Selecione</option>${peopleOptions("INSTRUTOR")}</select></div><div class="formField full"><label>DESCRIÇÃO</label><textarea id="cDesc"></textarea></div></div>`,()=>saveClass(null))}
 function editClass(id){const c=state.classes.find(x=>x.id===id);openForm("Editar turma",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="cNome" value="${attr(c.nome)}"></div><div class="formField"><label>COORDENADOR</label><select id="cCoord"><option value="">Selecione</option>${peopleOptions("COORDENADOR").replace(`value="${c.coordenador_id}"`,`value="${c.coordenador_id}" selected`)}</select></div><div class="formField"><label>INSTRUTOR</label><select id="cInst"><option value="">Selecione</option>${peopleOptions("INSTRUTOR").replace(`value="${c.instrutor_id}"`,`value="${c.instrutor_id}" selected`)}</select></div><div class="formField full"><label>DESCRIÇÃO</label><textarea id="cDesc">${esc(c.descricao||"")}</textarea></div></div>`,()=>saveClass(id))}
 async function saveClass(id){
@@ -354,7 +354,7 @@ async function saveClass(id){
 function classStudents(id){
  const c=state.classes.find(x=>x.id===id),enrolledIds=new Set(state.enrollments.filter(e=>e.class_id===id).map(e=>e.student_id));
  const rows=state.enrollments.filter(e=>e.class_id===id).map(e=>state.profiles.find(p=>p.id===e.student_id)).filter(Boolean);
- const available=state.profiles.filter(p=>String(p.role).toUpperCase()==="ALUNO"&&p.ativo&&!enrolledIds.has(p.id));
+ const available=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&p.ativo&&!enrolledIds.has(p.id));
  openModal(c?.nome||"Alunos da turma",`<div class="formField"><label>ADICIONAR ALUNO À TURMA</label><select id="enrollStudent"><option value="">Selecione um aluno</option>${available.map(p=>`<option value="${p.id}">${esc(p.nome)} — ${esc(p.email||"")}</option>`).join("")}</select><button class="btn primary" style="margin-top:9px" onclick="addStudentToClass('${id}')">INSERIR ALUNO NA TURMA</button></div><div style="margin-top:18px"><b>ALUNOS DA TURMA (${rows.length})</b></div><div class="tableWrap" style="margin-top:8px"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>${rows.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.email||"")}</td><td><button class="tiny danger" onclick="removeStudentFromClass('${id}','${p.id}')">REMOVER</button></td></tr>`).join("")||`<tr><td colspan="3" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div>`);
 }
 async function addStudentToClass(classId){
@@ -429,7 +429,7 @@ async function saveLessonAttendance(lessonId){
 }
 
 function reportsPage(w){
- const students=state.profiles.filter(p=>String(p.role).toUpperCase()==="ALUNO");
+ const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
  w.innerHTML=head("Relatórios","Relatórios dos alunos e das atividades.","","")+
  `<div class="placeholder">
    <h4>Relatório mensal de atividade do aluno</h4>
@@ -459,7 +459,7 @@ function chooseReportForStudent(studentId){
  `);
 }
 function chooseReport(){
- const students=state.profiles.filter(p=>String(p.role).toUpperCase()==="ALUNO");openModal("Gerar relatório",`<div class="formField"><label>ALUNO</label><select id="reportStudent">${students.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("")}</select></div><div class="formField" style="margin-top:12px"><label>MÊS</label><input id="reportMonth" type="month" value="${new Date().toISOString().slice(0,7)}"></div><button class="btn primary" style="margin-top:14px" onclick="generateReport(document.getElementById('reportStudent').value,document.getElementById('reportMonth').value)">GERAR</button>`)}
+ const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");openModal("Gerar relatório",`<div class="formField"><label>ALUNO</label><select id="reportStudent">${students.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("")}</select></div><div class="formField" style="margin-top:12px"><label>MÊS</label><input id="reportMonth" type="month" value="${new Date().toISOString().slice(0,7)}"></div><button class="btn primary" style="margin-top:14px" onclick="generateReport(document.getElementById('reportStudent').value,document.getElementById('reportMonth').value)">GERAR</button>`)}
 
 function todayPage(w){
  const today=new Date().toISOString().slice(0,10);
@@ -491,7 +491,7 @@ async function saveActivity(lessonId){
 
 function studentReportPage(w){
  const signatureKey="signature_"+currentUser.id;
- const sig=window.__signatures?.[signatureKey]||"";
+ const sig=currentUser.signature_data||window.__signatures?.[signatureKey]||"";
  window.__signatures=window.__signatures||{};
  w.innerHTML=head("Meu relatório","Relatório mensal de atividade do aluno.","IMPRIMIR / PDF","printReport()")+
  `<div class="signatureUpload"><p><b>ASSINATURA DIGITAL DO ALUNO</b><br>Selecione uma imagem da sua assinatura. A assinatura será vinculada ao perfil do aluno e armazenada no Supabase Storage.</p><input id="signatureInput" type="file" accept="image/png,image/jpeg,image/webp" onchange="readSignature(this)">${sig?`<button class="tiny" style="margin-top:8px" onclick="removeSignature()">REMOVER ASSINATURA</button>`:""}</div>

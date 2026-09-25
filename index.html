@@ -93,7 +93,7 @@ h2{font-size:31px;letter-spacing:-1px;margin:0 0 8px}.sub{font-size:13px;color:v
 .report{background:#fff;border:1px solid #e0e5ed;border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.reportInner{padding:28px}
 .reportTable{width:100%;border-collapse:collapse}.reportTable th,.reportTable td{padding:10px;border:1px solid #dfe4eb;font-size:10px}.reportInfo{width:100%;border-collapse:collapse}.reportInfo td{padding:8px;border:1px solid #dfe4eb;font-size:10px}
 @media(max-width:900px){.content{padding:22px 20px 35px}.cards{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:700px){.content{padding:18px 14px 30px}.bar{height:64px}.workspace-head{align-items:flex-start}.workspace-head h1{font-size:22px}.workspace-head .action{width:auto}.cards{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px}.formGrid{grid-template-columns:1fr}.modalCard{padding:18px;border-radius:16px}.signatureUpload{padding:17px}.reportInner{padding:12px}.reportTable{min-width:650px}.report{overflow:auto}.reportInfo{min-width:620px}}
+@media(max-width:700px){.content{padding:18px 14px 30px}.bar{height:64px}.workspace-head{align-items:flex-start}.workspace-head h1{font-size:22px}.workspace-head .action{width:auto}.cards{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px}.formGrid{grid-template-columns:1fr}.modalCard{padding:18px;border-radius:16px}.signatureUpload{padding:17px}.reportInner{padding:10px}.reportPaper{padding:12px!important;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}.reportHeader{font-size:8.5px;line-height:1.2}.reportHeader .reportTitle{font-size:12px;margin:12px 0 10px}.reportSectionTitle{font-size:9px;padding:4px}.reportInfo{min-width:0!important;width:100%;table-layout:fixed;font-size:8px}.reportInfo td{font-size:8px;padding:4px;word-break:break-word;overflow-wrap:anywhere}.reportTable{min-width:0!important;width:100%;table-layout:fixed;font-size:8px}.reportTable th,.reportTable td{font-size:8px;padding:4px;word-break:break-word;overflow-wrap:anywhere}.reportTable th:nth-child(1),.reportTable td:nth-child(1){width:22%!important}.reportTable th:nth-child(2),.reportTable td:nth-child(2){width:17%!important}.reportTable th:nth-child(3),.reportTable td:nth-child(3){width:61%!important}.report{overflow:hidden}.signatureArea{grid-template-columns:1fr;gap:45px;margin-top:45px}.signatureImg{max-width:140px}}
 @media(max-width:430px){.cards{grid-template-columns:1fr}.workspace-head{flex-direction:column}.workspace-head .action{width:100%}.toolbar .action{width:100%}}
 </style>
 <style id="communicatec-popup-standard">
@@ -809,8 +809,10 @@ function renderReportPreview(studentId,month){
 function buildReport(studentId,month){
  const p=state.profiles.find(x=>x.id===studentId)||currentUser;
  const sig=p.signature_data||((studentId===currentUser.id)?(currentUser.signature_data||""):(window.__signatures?.["signature_"+studentId]||""));
- const monthLessons=state.lessons.filter(l=>String(l.data||"").slice(0,7)===month&&state.enrollments.some(e=>e.student_id===studentId&&e.class_id===l.class_id));
- const coordId=monthLessons[0]?state.classes.find(c=>c.id===monthLessons[0].class_id)?.coordenador_id:null;
+ const enrolledClassIds=state.enrollments.filter(e=>e.student_id===studentId).map(e=>e.class_id);
+ const monthLessons=state.lessons.filter(l=>String(l.data||"").slice(0,7)===month&&enrolledClassIds.includes(l.class_id));
+ const classCandidates=[...monthLessons.map(l=>state.classes.find(c=>c.id===l.class_id)),...enrolledClassIds.map(id=>state.classes.find(c=>c.id===id))].filter(Boolean);
+ const coordId=classCandidates.find(c=>c.coordenador_id)?.coordenador_id||null;
  const coord=state.profiles.find(x=>x.id===coordId);
  const rows=monthLessons.map(l=>{const a=state.activities.find(x=>x.lesson_id===l.id&&x.student_id===studentId);return{l,a}});
  const total=rows.reduce((s,x)=>s+Number(x.l.carga||0),0);

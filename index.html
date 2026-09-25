@@ -374,12 +374,12 @@ function usersPage(w){
  const canManage=["ADMIN","COORDENADOR","INSTRUTOR"].includes(currentUser.role);
  w.innerHTML=head("Usuários","Administração dos usuários cadastrados no sistema.",canManage?"NOVO USUÁRIO":"",canManage?"newUser()":"")+
  `<div class="toolbar"><input id="userSearch" class="search" placeholder="Pesquisar por nome ou e-mail..." oninput="filterUsers()"></div>
- <div class="tableWrap"><table class="dataTable"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Telefone</th><th>Status</th><th>Ações</th></tr></thead><tbody id="usersBody"></tbody></table></div>`;
+ <div class="tableWrap"><table class="dataTable"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Telefone</th><th>Status</th><th>Senha</th><th>Ações</th></tr></thead><tbody id="usersBody"></tbody></table></div>`;
  drawUsers(state.profiles);
 }
 function drawUsers(rows){
  const b=document.getElementById("usersBody");if(!b)return;
- b.innerHTML=rows.map(p=>`<tr><td><b>${esc(p.nome||"—")}</b></td><td>${esc(p.email||"—")}</td><td><span class="badge roleBadge">${roleLabel(String(p.perfil).toUpperCase())}</span></td><td>${esc(p.telefone||"—")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td><td><div class="rowActions"><button class="tiny" onclick="editUser('${p.id}')">EDITAR</button>${p.id!==currentUser.id?`<button class="tiny danger" onclick="toggleUser('${p.id}',${!p.ativo})">${p.ativo?"DESATIVAR":"ATIVAR"}</button>`:""}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">Nenhum usuário encontrado.</td></tr>`;
+ b.innerHTML=rows.map(p=>`<tr><td><b>${esc(p.nome||"—")}</b></td><td>${esc(p.email||"—")}</td><td><span class="badge roleBadge">${roleLabel(String(p.perfil).toUpperCase())}</span></td><td>${esc(p.telefone||"—")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td><td><button class="tiny" onclick="openPasswordChange('${p.id}')">ALTERAR SENHA</button></td><td><div class="rowActions"><button class="tiny" onclick="editUser('${p.id}')">EDITAR</button>${p.id!==currentUser.id?`<button class="tiny danger" onclick="toggleUser('${p.id}',${!p.ativo})">${p.ativo?"DESATIVAR":"ATIVAR"}</button>`:""}</div></td></tr>`).join("")||`<tr><td colspan="7" class="empty">Nenhum usuário encontrado.</td></tr>`;
 }
 function filterUsers(){const q=(document.getElementById("userSearch")?.value||"").toLowerCase();drawUsers(state.profiles.filter(p=>(p.nome||"").toLowerCase().includes(q)||(p.email||"").toLowerCase().includes(q)))}
 function newUser(){
@@ -393,6 +393,35 @@ function newUser(){
  </div>`,async()=>{await saveUser(null)})
 }
 function toggleNewUserPassword(){const f=document.getElementById("fSenha");if(!f)return;f.type=f.type==="password"?"text":"password"}
+function openPasswordChange(id){
+ const p=state.profiles.find(x=>x.id===id);
+ if(!p)return;
+ openForm("Alterar senha",`<div class="formGrid">
+ <div class="formField"><label>USUÁRIO</label><input value="${attr(p.nome||"")} — ${attr(p.email||"")}" disabled></div>
+ <div class="formField"><label>NOVA SENHA</label><div class="pass"><input id="newUserPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres"><button type="button" class="showPass" onclick="toggleChangePassword()">MOSTRAR</button></div></div>
+ </div>`,async()=>{await changeUserPassword(id)})
+}
+function toggleChangePassword(){const f=document.getElementById("newUserPassword");const b=f?.parentElement?.querySelector(".showPass");if(!f)return;f.type=f.type==="password"?"text":"password";if(b)b.textContent=f.type==="password"?"MOSTRAR":"OCULTAR"}
+async function changeUserPassword(id){
+ if(currentUser.role!=="ADMIN")return toast("Apenas administradores podem alterar senhas.");
+ const senha=document.getElementById("newUserPassword")?.value||"";
+ if(senha.length<8)return toast("A nova senha deve ter pelo menos 8 caracteres.");
+ try{
+  const {data:sessionData,error:sessionError}=await sb.auth.getSession();
+  if(sessionError)return toast("Não foi possível validar a sessão do administrador.");
+  const accessToken=sessionData?.session?.access_token;
+  if(!accessToken)return toast("Sessão do administrador não encontrada. Faça login novamente.");
+  const {data:resp,error}=await sb.functions.invoke("alterar-senha-admin",{headers:{Authorization:`Bearer ${accessToken}`},body:{user_id:id,senha}});
+  if(error){
+   let msg=error.message||"Não foi possível alterar a senha.";
+   try{if(error.context){const body=await error.context.json();msg=body?.mensagem||body?.message||body?.error||msg}}catch(e){}
+   return toast(msg);
+  }
+  if(!(resp?.sucesso||resp?.success))return toast(resp?.mensagem||resp?.message||"Não foi possível alterar a senha.");
+  closeModal();toast("Senha alterada com sucesso.");
+ }catch(e){toast(e?.message||"Não foi possível alterar a senha.")}
+}
+
 function editUser(id){const p=state.profiles.find(x=>x.id===id);if(!p)return;openForm("Editar usuário",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="fNome" value="${attr(p.nome||"")}"></div><div class="formField"><label>E-MAIL</label><input id="fEmail" type="email" value="${attr(p.email||"")}"></div><div class="formField"><label>TELEFONE</label><input id="fTel" value="${attr(p.telefone||"")}"></div><div class="formField"><label>FUNÇÃO</label><input id="fFuncao" value="${attr(p.funcao||"")}"></div><div class="formField"><label>PERFIL</label><select id="fRole">${["ALUNO","INSTRUTOR","COORDENADOR","ADMIN"].map(r=>`<option ${r===String(p.perfil).toUpperCase()?"selected":""}>${r}</option>`).join("")}</select></div></div>`,async()=>{await saveUser(id)})}
 async function saveUser(id){
  const data={nome:document.getElementById("fNome").value.trim(),email:document.getElementById("fEmail").value.trim().toLowerCase(),telefone:document.getElementById("fTel").value.trim(),funcao:document.getElementById("fFuncao")?.value.trim()||"",perfil:document.getElementById("fRole").value};

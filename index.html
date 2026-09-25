@@ -37,6 +37,9 @@ h2{font-size:31px;letter-spacing:-1px;margin:0 0 8px}.sub{font-size:13px;color:v
 @media(max-width:900px){.brand{width:40%;padding:25px}.cards{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.brand{display:none}.auth{padding:24px 18px}.mobileLogo{display:block}.side{display:block;position:fixed;z-index:1000;left:0;top:0;bottom:0;width:min(280px,82vw);transform:translateX(-105%);transition:transform .25s ease;overflow-y:auto;box-shadow:12px 0 35px #0005}.side.open{transform:translateX(0)}.bar{padding:0 18px 0 12px}.content{padding:18px}.cards{grid-template-columns:1fr 1fr}.mobileMenuBtn{display:grid!important;place-items:center;width:40px;height:40px;border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:10px;font-size:20px;font-weight:900;flex-shrink:0}.barLeft{display:flex;align-items:center;gap:10px;min-width:0}.barLeft h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobileOverlay{display:block;position:fixed;inset:0;background:#0007;z-index:999;opacity:0;pointer-events:none;transition:opacity .25s ease}.mobileOverlay.show{opacity:1;pointer-events:auto}}
 @media(min-width:701px){.mobileMenuBtn,.mobileOverlay{display:none!important}}
+
+/* Botão FECHAR: permanece no código, mas fica invisível em todos os formulários/pop-ups. */
+#closeModal{display:none !important;}
 </style>
 
 <style>
@@ -371,7 +374,7 @@ function dashboardPage(w){
  <div class="placeholder"><h4>Acesso do perfil</h4><p>Você está conectado como <b>${roleLabel(currentUser.role)}</b>. Os módulos disponíveis neste perfil estão no menu lateral.</p></div>`;
 }
 function usersPage(w){
- const canManage=["ADMIN","COORDENADOR","INSTRUTOR"].includes(currentUser.role);
+ const canManage=currentUser.role==="ADMIN";
  w.innerHTML=head("Usuários","Administração dos usuários cadastrados no sistema.",canManage?"NOVO USUÁRIO":"",canManage?"newUser()":"")+
  `<div class="toolbar"><input id="userSearch" class="search" placeholder="Pesquisar por nome ou e-mail..." oninput="filterUsers()"></div>
  <div class="tableWrap"><table class="dataTable"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Telefone</th><th>Status</th><th>Senha</th><th>Ações</th></tr></thead><tbody id="usersBody"></tbody></table></div>`;

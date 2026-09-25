@@ -348,7 +348,12 @@ async function saveUser(id){
    if(isReal){
      const senha=document.getElementById("fSenha")?.value||"";
      if(senha.length<6)return toast("A senha inicial deve ter pelo menos 6 caracteres.");
+     const {data:sessionData,error:sessionError}=await sb.auth.getSession();
+     if(sessionError)return toast("Não foi possível validar a sessão do administrador.");
+     const accessToken=sessionData?.session?.access_token;
+     if(!accessToken)return toast("Sessão do administrador não encontrada. Faça login novamente.");
      const {data:resp,error}=await sb.functions.invoke("criar-usuario-admin",{
+       headers:{Authorization:`Bearer ${accessToken}`},
        body:{nome:data.nome,email:data.email,telefone:data.telefone,funcao:data.funcao,perfil:data.perfil,senha}
      });
      if(error){

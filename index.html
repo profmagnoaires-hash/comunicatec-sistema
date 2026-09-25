@@ -322,14 +322,46 @@ function drawUsers(rows){
  b.innerHTML=rows.map(p=>`<tr><td><b>${esc(p.nome||"—")}</b></td><td>${esc(p.email||"—")}</td><td><span class="badge roleBadge">${roleLabel(String(p.perfil).toUpperCase())}</span></td><td>${esc(p.telefone||"—")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td><td><div class="rowActions"><button class="tiny" onclick="editUser('${p.id}')">EDITAR</button>${p.id!==currentUser.id?`<button class="tiny danger" onclick="toggleUser('${p.id}',${!p.ativo})">${p.ativo?"DESATIVAR":"ATIVAR"}</button>`:""}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">Nenhum usuário encontrado.</td></tr>`;
 }
 function filterUsers(){const q=(document.getElementById("userSearch")?.value||"").toLowerCase();drawUsers(state.profiles.filter(p=>(p.nome||"").toLowerCase().includes(q)||(p.email||"").toLowerCase().includes(q)))}
-function newUser(){openForm("Novo usuário",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="fNome"></div><div class="formField"><label>E-MAIL</label><input id="fEmail" type="email"></div><div class="formField"><label>TELEFONE</label><input id="fTel"></div><div class="formField"><label>PERFIL</label><select id="fRole"><option>ALUNO</option><option>INSTRUTOR</option><option>COORDENADOR</option><option>ADMIN</option></select></div></div>`,async()=>{await saveUser(null)})}
-function editUser(id){const p=state.profiles.find(x=>x.id===id);if(!p)return;openForm("Editar usuário",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="fNome" value="${attr(p.nome||"")}"></div><div class="formField"><label>E-MAIL</label><input id="fEmail" type="email" value="${attr(p.email||"")}"></div><div class="formField"><label>TELEFONE</label><input id="fTel" value="${attr(p.telefone||"")}"></div><div class="formField"><label>PERFIL</label><select id="fRole">${["ALUNO","INSTRUTOR","COORDENADOR","ADMIN"].map(r=>`<option ${r===String(p.perfil).toUpperCase()?"selected":""}>${r}</option>`).join("")}</select></div></div>`,async()=>{await saveUser(id)})}
+function newUser(){
+ openForm("Novo usuário",`<div class="formGrid">
+ <div class="formField"><label>NOME</label><input id="fNome" autocomplete="name"></div>
+ <div class="formField"><label>E-MAIL</label><input id="fEmail" type="email" autocomplete="email"></div>
+ <div class="formField"><label>TELEFONE</label><input id="fTel" autocomplete="tel"></div>
+ <div class="formField"><label>FUNÇÃO</label><input id="fFuncao" placeholder="Ex.: Instrutor, Fotografia, Coordenação..."></div>
+ <div class="formField"><label>PERFIL</label><select id="fRole"><option>ALUNO</option><option>INSTRUTOR</option><option>COORDENADOR</option><option>ADMIN</option></select></div>
+ <div class="formField"><label>SENHA INICIAL</label><input id="fSenha" type="password" autocomplete="new-password" minlength="6" placeholder="Mínimo de 6 caracteres"></div>
+ </div>`,async()=>{await saveUser(null)})
+}
+function editUser(id){const p=state.profiles.find(x=>x.id===id);if(!p)return;openForm("Editar usuário",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="fNome" value="${attr(p.nome||"")}"></div><div class="formField"><label>E-MAIL</label><input id="fEmail" type="email" value="${attr(p.email||"")}"></div><div class="formField"><label>TELEFONE</label><input id="fTel" value="${attr(p.telefone||"")}"></div><div class="formField"><label>FUNÇÃO</label><input id="fFuncao" value="${attr(p.funcao||"")}"></div><div class="formField"><label>PERFIL</label><select id="fRole">${["ALUNO","INSTRUTOR","COORDENADOR","ADMIN"].map(r=>`<option ${r===String(p.perfil).toUpperCase()?"selected":""}>${r}</option>`).join("")}</select></div></div>`,async()=>{await saveUser(id)})}
 async function saveUser(id){
- const data={nome:document.getElementById("fNome").value.trim(),email:document.getElementById("fEmail").value.trim().toLowerCase(),telefone:document.getElementById("fTel").value.trim(),perfil:document.getElementById("fRole").value};
+ const data={nome:document.getElementById("fNome").value.trim(),email:document.getElementById("fEmail").value.trim().toLowerCase(),telefone:document.getElementById("fTel").value.trim(),funcao:document.getElementById("fFuncao")?.value.trim()||"",perfil:document.getElementById("fRole").value};
  if(!data.nome||!data.email)return toast("Nome e e-mail são obrigatórios.");
- if(isReal){if(id){const {error}=await sb.from("profiles").update(data).eq("id",id);if(error)return toast(error.message)}else return toast("Para criar um usuário com login real, vamos ligar este botão a uma Edge Function segura do Supabase na próxima etapa.")}
- else{if(id){Object.assign(state.profiles.find(x=>x.id===id),data)}else state.profiles.push({...data,id:"p"+Date.now(),ativo:true})}
- closeModal();toast("Usuário salvo.");renderPage("Usuários");
+ if(id){
+   if(isReal){
+     const {error}=await sb.from("profiles").update(data).eq("id",id);
+     if(error)return toast(error.message);
+   }else{
+     Object.assign(state.profiles.find(x=>x.id===id),data);
+   }
+ }else{
+   if(isReal){
+     const senha=document.getElementById("fSenha")?.value||"";
+     if(senha.length<6)return toast("A senha inicial deve ter pelo menos 6 caracteres.");
+     const {data:resp,error}=await sb.functions.invoke("criar-usuario-admin",{
+       body:{nome:data.nome,email:data.email,telefone:data.telefone,funcao:data.funcao,perfil:data.perfil,senha}
+     });
+     if(error){
+       console.error("Erro Edge Function:",error);
+       let msg=error.message||"Não foi possível criar o usuário.";
+       try{if(resp?.mensagem)msg=resp.mensagem}catch(e){}
+       return toast(msg);
+     }
+     if(!resp?.sucesso)return toast(resp?.mensagem||"Não foi possível criar o usuário.");
+   }else{
+     state.profiles.push({...data,id:"p"+Date.now(),ativo:true});
+   }
+ }
+ closeModal();toast(id?"Usuário atualizado.":"Usuário criado com sucesso.");renderPage("Usuários");
 }
 async function toggleUser(id,ativo){
  if(isReal){const {error}=await sb.from("profiles").update({ativo}).eq("id",id);if(error)return toast(error.message)}

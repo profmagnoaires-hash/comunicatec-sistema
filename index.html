@@ -246,7 +246,24 @@ async function loadState(){
   sb.from("activities").select("*"),
   sb.from("attendance").select("*")
  ]);
- if(p.error)throw p.error;state.profiles=p.data||[];state.classes=c.data||[];state.enrollments=e.data||[];state.lessons=l.data||[];state.activities=a.data||[];state.attendance=at.data||[];
+ const failures=[
+  ["profiles",p],
+  ["classes",c],
+  ["enrollments",e],
+  ["lessons",l],
+  ["activities",a],
+  ["attendance",at]
+ ].filter(([,r])=>r.error);
+ if(failures.length){
+  const [table,result]=failures[0];
+  throw new Error(`Falha ao carregar ${table}: ${result.error.message}`);
+ }
+ state.profiles=p.data||[];
+ state.classes=c.data||[];
+ state.enrollments=e.data||[];
+ state.lessons=l.data||[];
+ state.activities=a.data||[];
+ state.attendance=at.data||[];
 }
 function openDashboard(u){
  authApp.style.display="none";dashboard.classList.add("active");renderNavigation();renderPage("Dashboard");
@@ -495,9 +512,28 @@ function classesPage(w){
  w.innerHTML=head("Turmas","Gerenciamento das turmas do sistema. Crie, edite e visualize os alunos.","NOVA TURMA","newClass()")+
  `<div class="tableWrap"><table class="dataTable"><thead><tr><th>Turma</th><th>Descrição</th><th>Coordenador</th><th>Instrutor</th><th>Alunos</th><th>Ações</th></tr></thead><tbody>${state.classes.map(c=>{const co=state.profiles.find(p=>p.id===c.coordenador_id)?.nome||"—",ins=state.profiles.find(p=>p.id===c.instrutor_id)?.nome||"—",n=state.enrollments.filter(e=>e.class_id===c.id).length;return`<tr><td><b>${esc(c.nome)}</b></td><td>${esc(c.descricao||"—")}</td><td>${esc(co)}</td><td>${esc(ins)}</td><td>${n}</td><td><div class="rowActions"><button class="tiny" onclick="editClass('${c.id}')">EDITAR</button><button class="tiny" onclick="classStudents('${c.id}')">GERENCIAR ALUNOS</button></div></td></tr>`}).join("")||`<tr><td colspan="6" class="empty">Nenhuma turma cadastrada.</td></tr>`}</tbody></table></div>`;
 }
-function peopleOptions(role){return state.profiles.filter(p=>String(p.perfil).toUpperCase()===role&&p.ativo).map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("")}
-function newClass(){openForm("Nova turma",`<div class="formGrid"><div class="formField"><label>NOME DA TURMA</label><input id="cNome"></div><div class="formField"><label>COORDENADOR</label><select id="cCoord"><option value="">Selecione</option>${peopleOptions("COORDENADOR")}</select></div><div class="formField"><label>INSTRUTOR</label><select id="cInst"><option value="">Selecione</option>${peopleOptions("INSTRUTOR")}</select></div><div class="formField full"><label>DESCRIÇÃO</label><textarea id="cDesc"></textarea></div></div>`,()=>saveClass(null))}
-function editClass(id){const c=state.classes.find(x=>x.id===id);openForm("Editar turma",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="cNome" value="${attr(c.nome)}"></div><div class="formField"><label>COORDENADOR</label><select id="cCoord"><option value="">Selecione</option>${peopleOptions("COORDENADOR").replace(`value="${c.coordenador_id}"`,`value="${c.coordenador_id}" selected`)}</select></div><div class="formField"><label>INSTRUTOR</label><select id="cInst"><option value="">Selecione</option>${peopleOptions("INSTRUTOR").replace(`value="${c.instrutor_id}"`,`value="${c.instrutor_id}" selected`)}</select></div><div class="formField full"><label>DESCRIÇÃO</label><textarea id="cDesc">${esc(c.descricao||"")}</textarea></div></div>`,()=>saveClass(id))}
+function peopleOptions(role,selected=""){return state.profiles.filter(p=>String(p.perfil).toUpperCase()===role&&p.ativo).map(p=>`<option value="${p.id}" ${p.id===selected?"selected":""}>${esc(p.nome||p.email||"Usuário")}</option>`).join("")}
+function newClass(){
+ const myRole=String(currentUser?.role||"").toUpperCase();
+ const coordSelf=myRole==="COORDENADOR"?currentUser.id:"";
+ const instSelf=myRole==="INSTRUTOR"?currentUser.id:"";
+ openForm("Nova turma",`<div class="formGrid">
+  <div class="formField"><label>NOME DA TURMA</label><input id="cNome"></div>
+  <div class="formField"><label>COORDENADOR</label><select id="cCoord" ${myRole==="COORDENADOR"?"disabled":""}><option value="">Selecione</option>${peopleOptions("COORDENADOR",coordSelf)}</select></div>
+  <div class="formField"><label>INSTRUTOR</label><select id="cInst" ${myRole==="INSTRUTOR"?"disabled":""}><option value="">Selecione</option>${peopleOptions("INSTRUTOR",instSelf)}</select></div>
+  <div class="formField full"><label>DESCRIÇÃO</label><textarea id="cDesc"></textarea></div>
+ </div>`,()=>saveClass(null))
+}
+function editClass(id){
+ const c=state.classes.find(x=>x.id===id);
+ if(!c)return toast("Turma não encontrada.");
+ openForm("Editar turma",`<div class="formGrid">
+  <div class="formField"><label>NOME</label><input id="cNome" value="${attr(c.nome)}"></div>
+  <div class="formField"><label>COORDENADOR</label><select id="cCoord"><option value="">Selecione</option>${peopleOptions("COORDENADOR",c.coordenador_id)}</select></div>
+  <div class="formField"><label>INSTRUTOR</label><select id="cInst"><option value="">Selecione</option>${peopleOptions("INSTRUTOR",c.instrutor_id)}</select></div>
+  <div class="formField full"><label>DESCRIÇÃO</label><textarea id="cDesc">${esc(c.descricao||"")}</textarea></div>
+ </div>`,()=>saveClass(id))
+}
 async function saveClass(id){
  const d={nome:cNome.value.trim(),descricao:cDesc.value.trim(),coordenador_id:cCoord.value||null,instrutor_id:cInst.value||null};if(!d.nome)return toast("Informe o nome da turma.");
  if(isReal){const r=id?await sb.from("classes").update(d).eq("id",id):await sb.from("classes").insert(d);if(r.error)return toast(r.error.message)}else{id?Object.assign(state.classes.find(x=>x.id===id),d):state.classes.push({...d,id:"c"+Date.now()})}

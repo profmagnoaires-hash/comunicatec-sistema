@@ -177,7 +177,7 @@ h2{font-size:31px;letter-spacing:-1px;margin:0 0 8px}.sub{font-size:13px;color:v
 </section>
 </div>
 
-<div id="modal" class="modal"><div class="modalCard"><h3 id="modalTitle">Informação</h3><div id="modalText"></div></div></div>
+<div id="modal" class="modal"><div class="modalCard"><h3 id="modalTitle">Informação</h3><div id="modalText"></div><button class="btn secondary" id="closeModal">FECHAR</button></div></div>
 
 
 <script>
@@ -822,7 +822,7 @@ function formatDateLong(date){
  return d.getDate()+" de "+months[d.getMonth()]+" de "+d.getFullYear();
 }
 
-function openModal(title,html){document.getElementById("modalTitle").textContent=title;document.getElementById("modalText").innerHTML=html;document.getElementById("modal").classList.add("show")}
+function openModal(title,html){document.getElementById("modalTitle").textContent=title;document.getElementById("modalText").innerHTML=html;document.getElementById("closeModal").style.display="block";document.getElementById("modal").classList.add("show")}
 function closeModal(){document.getElementById("modal").classList.remove("show")}
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function attr(v){return esc(v)}

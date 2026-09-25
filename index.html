@@ -93,6 +93,24 @@ h2{font-size:31px;letter-spacing:-1px;margin:0 0 8px}.sub{font-size:13px;color:v
 @media(max-width:700px){.content{padding:18px 14px 30px}.bar{height:64px}.workspace-head{align-items:flex-start}.workspace-head h1{font-size:22px}.workspace-head .action{width:auto}.cards{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px}.formGrid{grid-template-columns:1fr}.modalCard{padding:18px;border-radius:16px}.signatureUpload{padding:17px}.reportInner{padding:12px}.reportTable{min-width:650px}.report{overflow:auto}.reportInfo{min-width:620px}}
 @media(max-width:430px){.cards{grid-template-columns:1fr}.workspace-head{flex-direction:column}.workspace-head .action{width:100%}.toolbar .action{width:100%}}
 </style>
+<style id="communicatec-popup-standard">
+/* V27 — PADRONIZAÇÃO VISUAL DOS POP-UPS — SOMENTE LAYOUT */
+.modal{padding:16px !important;background:rgba(15,23,42,.58) !important;backdrop-filter:blur(3px);}
+.modalCard{width:min(560px,100%) !important;max-height:calc(100vh - 32px);overflow:auto;background:#fff !important;border:1px solid #e5eaf1 !important;border-radius:18px !important;padding:24px !important;box-shadow:0 24px 70px rgba(15,23,42,.22) !important;}
+.modalCard h3{font-size:18px !important;line-height:1.3 !important;margin:0 0 12px !important;color:#162033 !important;}
+.modalCard p{font-size:12px !important;line-height:1.55 !important;margin:0 !important;color:#667085 !important;}
+.modalCard .formCard{border:0 !important;box-shadow:none !important;padding:0 !important;border-radius:0 !important;background:transparent !important;}
+.modalCard .formGrid{gap:14px !important;}
+.modalCard .formField label{display:block;margin-bottom:6px;font-size:10px;font-weight:900;color:#344054;letter-spacing:.2px;}
+.modalCard .formField input,.modalCard .formField select,.modalCard .formField textarea{width:100%;box-sizing:border-box;min-height:42px;border:1px solid #d9e0ea;border-radius:10px;padding:10px 12px;font-size:12px;background:#fff;}
+.modalCard .formField textarea{min-height:90px;resize:vertical;}
+.modalCard .formActions,.modalCard .formActions.centerActions{display:flex !important;flex-direction:row !important;align-items:center !important;justify-content:flex-end !important;gap:10px !important;width:100% !important;margin-top:20px !important;padding-top:16px !important;border-top:1px solid #edf0f4 !important;}
+.modalCard .formActions button,.modalCard .formActions .modalActionBtn,.modalCard>button,.modalCard .btn{width:140px !important;min-width:140px !important;max-width:140px !important;height:40px !important;min-height:40px !important;max-height:40px !important;box-sizing:border-box !important;margin:0 !important;padding:0 14px !important;border-radius:9px !important;font-size:10px !important;font-weight:900 !important;line-height:40px !important;text-align:center !important;}
+.modalCard .formActions .secondary,.modalCard .formActions button.secondary,.modalCard>button.secondary{background:#fff !important;color:#344054 !important;border:1px solid #d9e0ea !important;}
+.modalCard .formActions .primary,.modalCard .formActions button.primary,.modalCard .formActions .modalActionBtn{background:var(--blue) !important;color:#fff !important;border:1px solid var(--blue) !important;}
+.modalCard .formActions button:hover,.modalCard>button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(15,23,42,.10);}
+@media(max-width:600px){.modal{padding:10px !important;}.modalCard{width:100% !important;max-height:calc(100vh - 20px);padding:18px !important;border-radius:16px !important;}.modalCard .formActions,.modalCard .formActions.centerActions{justify-content:stretch !important;}.modalCard .formActions button,.modalCard .formActions .modalActionBtn,.modalCard>button,.modalCard .btn{flex:1 1 0 !important;width:auto !important;min-width:0 !important;max-width:none !important;}}
+</style>
 </head>
 <body>
 

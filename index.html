@@ -233,7 +233,12 @@ async function enterReal(user){
   currentUser={id:user.id,email:user.email,name:data.nome||user.user_metadata?.full_name||"Usuário",role:String(data.perfil).toUpperCase(),telefone:data.telefone||"",signature_data:data.signature_data||""};
   if(!["ADMIN","COORDENADOR","INSTRUTOR","ALUNO"].includes(currentUser.role))throw new Error("Perfil não configurado.");
   await loadState();openDashboard(currentUser);
- }catch(e){await sb.auth.signOut();view("login");alertBox("loginAlert","Login autenticado, mas o perfil não pôde ser carregado. Verifique profiles e RLS.","error")}
+ }catch(e){
+  console.error("COMUNICATEC - erro ao carregar perfil/dados:", e);
+  await sb.auth.signOut();
+  view("login");
+  alertBox("loginAlert", "Login autenticado, mas houve erro ao carregar os dados: " + (e?.message || e), "error");
+}
 }
 
 async function loadState(){

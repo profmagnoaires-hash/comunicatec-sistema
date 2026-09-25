@@ -481,7 +481,7 @@ async function toggleUser(id,ativo){
 function studentsPage(w){
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
  const isAdmin=currentUser.role==="ADMIN";
- w.innerHTML=head("Alunos","Cadastro e gerenciamento dos alunos do ComunicaTec.",isAdmin?"NOVO ALUNO":"ATUALIZAR",isAdmin?"newStudent()":"renderPage('Alunos')")+
+ w.innerHTML=head("Alunos","Cadastro e gerenciamento dos alunos do ComunicaTec.","","")+
  `<div class="toolbar"><input id="studentSearch" class="search" placeholder="Pesquisar por nome, e-mail ou telefone..." oninput="filterStudents()"></div>
  <div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Telefone</th><th>Função</th><th>Turmas</th><th>Status</th>${isAdmin?"<th>Ações</th>":""}</tr></thead><tbody id="studentsBody"></tbody></table></div>`;
  drawStudents(students);
@@ -618,7 +618,7 @@ function classStudents(id){
  const c=state.classes.find(x=>x.id===id),enrolledIds=new Set(state.enrollments.filter(e=>e.class_id===id).map(e=>e.student_id));
  const rows=state.enrollments.filter(e=>e.class_id===id).map(e=>state.profiles.find(p=>p.id===e.student_id)).filter(Boolean);
  const available=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&p.ativo&&!enrolledIds.has(p.id));
- openModal(c?.nome||"Alunos da turma",`<div class="formField"><label>ADICIONAR ALUNO À TURMA</label><select id="enrollStudent"><option value="">Selecione um aluno</option>${available.map(p=>`<option value="${p.id}">${esc(p.nome)} — ${esc(p.email||"")}</option>`).join("")}</select><button class="btn primary" style="margin-top:9px" onclick="addStudentToClass('${id}')">INSERIR ALUNO NA TURMA</button></div><div style="margin-top:18px"><b>ALUNOS DA TURMA (${rows.length})</b></div><div class="tableWrap" style="margin-top:8px"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>${rows.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.email||"")}</td><td><button class="tiny danger" onclick="removeStudentFromClass('${id}','${p.id}')">REMOVER</button></td></tr>`).join("")||`<tr><td colspan="3" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div>`);
+ openModal(c?.nome||"Alunos da turma",`<div class="formField"><label>ADICIONAR ALUNO À TURMA</label><select id="enrollStudent"><option value="">Selecione um aluno</option>${available.map(p=>`<option value="${p.id}">${esc(p.nome)} — ${esc(p.email||"")}</option>`).join("")}</select><button class="btn primary" style="margin-top:9px" onclick="addStudentToClass('${id}')">INSERIR ALUNO NA TURMA</button></div><div style="margin-top:18px"><b>ALUNOS DA TURMA (${rows.length})</b></div><div class="tableWrap" style="margin-top:8px"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>${rows.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.email||"")}</td><td><button class="tiny danger" onclick="removeStudentFromClass('${id}','${p.id}')">REMOVER</button></td></tr>`).join("")||`<tr><td colspan="3" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div>`);showModalClose();
 }
 async function addStudentToClass(classId){
  const studentId=document.getElementById("enrollStudent")?.value;if(!studentId)return toast("Selecione um aluno.");
@@ -652,7 +652,7 @@ function lessonActivities(id){
  openModal("Atividades — "+(l?.titulo||""),`<div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>Atividade registrada</th>${canEdit?"<th>Ação</th>":""}</tr></thead><tbody>${acts.map(a=>{
   const p=state.profiles.find(x=>x.id===a.student_id);
   return`<tr><td>${esc(p?.nome||"—")}</td><td>${esc(a.texto||"—")}</td>${canEdit?`<td><button class="tiny" onclick="editStudentActivity('${a.id}')">EDITAR</button></td>`:""}</tr>`;
- }).join("")||`<tr><td colspan="${canEdit?3:2}" class="empty">Nenhuma atividade registrada.</td></tr>`}</tbody></table></div>${canEdit?`<p style="font-size:10px;color:var(--muted);margin-top:10px">O instrutor é o único perfil autorizado a corrigir uma atividade já registrada pelo aluno.</p>`:""}`)}
+ }).join("")||`<tr><td colspan="${canEdit?3:2}" class="empty">Nenhuma atividade registrada.</td></tr>`}</tbody></table></div>${canEdit?`<p style="font-size:10px;color:var(--muted);margin-top:10px">O instrutor é o único perfil autorizado a corrigir uma atividade já registrada pelo aluno.</p>`:""}`);showModalClose()}
 function editStudentActivity(activityId){
  const a=state.activities.find(x=>x.id===activityId);
  if(!a)return toast("Atividade não encontrada.");
@@ -679,7 +679,7 @@ async function saveInstructorActivity(activityId){
 }
 function lessonAttendance(id){
  const l=state.lessons.find(x=>x.id===id),ens=state.enrollments.filter(e=>e.class_id===l?.class_id);
- openModal("Frequência — "+(l?.titulo||""),`<p style="font-size:11px;color:var(--muted)">Somente alunos vinculados à turma podem receber presença nesta aula.</p><div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>Presença</th></tr></thead><tbody>${ens.map(e=>{const p=state.profiles.find(x=>x.id===e.student_id),a=state.attendance.find(x=>x.lesson_id===id&&x.student_id===e.student_id);return`<tr><td>${esc(p?.nome||"—")}</td><td><select id="att_${id}_${e.student_id}" style="padding:7px;border:1px solid var(--line);border-radius:8px"><option value="true" ${a?.presente===true?"selected":""}>PRESENTE</option><option value="false" ${a?.presente===false?"selected":""}>AUSENTE</option></select></td></tr>`}).join("")||`<tr><td colspan="2" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div><button class="btn primary" style="margin-top:12px" onclick="saveLessonAttendance('${id}')">SALVAR FREQUÊNCIA</button>`);
+ openModal("Frequência — "+(l?.titulo||""),`<p style="font-size:11px;color:var(--muted)">Somente alunos vinculados à turma podem receber presença nesta aula.</p><div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>Presença</th></tr></thead><tbody>${ens.map(e=>{const p=state.profiles.find(x=>x.id===e.student_id),a=state.attendance.find(x=>x.lesson_id===id&&x.student_id===e.student_id);return`<tr><td>${esc(p?.nome||"—")}</td><td><select id="att_${id}_${e.student_id}" style="padding:7px;border:1px solid var(--line);border-radius:8px"><option value="true" ${a?.presente===true?"selected":""}>PRESENTE</option><option value="false" ${a?.presente===false?"selected":""}>AUSENTE</option></select></td></tr>`}).join("")||`<tr><td colspan="2" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div><button class="btn primary" style="margin-top:12px" onclick="saveLessonAttendance('${id}')">SALVAR FREQUÊNCIA</button>`);showModalClose();
 }
 async function saveLessonAttendance(lessonId){
  const l=state.lessons.find(x=>x.id===lessonId),ens=state.enrollments.filter(e=>e.class_id===l?.class_id);
@@ -854,8 +854,10 @@ function formatDateLong(date){
  return d.getDate()+" de "+months[d.getMonth()]+" de "+d.getFullYear();
 }
 
-function openModal(title,html){document.getElementById("modalTitle").textContent=title;document.getElementById("modalText").innerHTML=html;document.getElementById("closeModal").style.display="block";document.getElementById("modal").classList.add("show")}
-function closeModal(){document.getElementById("modal").classList.remove("show")}
+function showModalClose(){document.getElementById("closeModal").style.setProperty("display","block","important")}
+function hideModalClose(){document.getElementById("closeModal").style.setProperty("display","none","important")}
+function openModal(title,html){hideModalClose();document.getElementById("modalTitle").textContent=title;document.getElementById("modalText").innerHTML=html;document.getElementById("modal").classList.add("show")}
+function closeModal(){hideModalClose();document.getElementById("modal").classList.remove("show")}
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function attr(v){return esc(v)}
 function fmtDate(v){if(!v)return"—";const [y,m,d]=String(v).slice(0,10).split("-");return d+"/"+m+"/"+y}

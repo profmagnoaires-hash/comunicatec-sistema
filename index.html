@@ -310,6 +310,13 @@ async function loadState(){
  state.lessons=l.data||[];
  state.activities=a.data||[];
  state.attendance=at.data||[];
+ state.myCoordinator=null;
+ if(currentUser?.role==="ALUNO"){
+   try{
+     const {data:mc,error:mcError}=await sb.rpc("get_my_coordinator");
+     if(!mcError) state.myCoordinator=Array.isArray(mc)?(mc[0]||null):(mc||null);
+   }catch(e){console.warn("Coordenador do aluno não carregado:",e)}
+ }
 }
 function openDashboard(u){
  authApp.style.display="none";dashboard.classList.add("active");renderNavigation();renderPage("Dashboard");
@@ -813,7 +820,9 @@ function buildReport(studentId,month){
  const monthLessons=state.lessons.filter(l=>String(l.data||"").slice(0,7)===month&&enrolledClassIds.includes(l.class_id));
  const classCandidates=[...monthLessons.map(l=>state.classes.find(c=>c.id===l.class_id)),...enrolledClassIds.map(id=>state.classes.find(c=>c.id===id))].filter(Boolean);
  const coordId=classCandidates.find(c=>c.coordenador_id)?.coordenador_id||null;
- const coord=state.profiles.find(x=>x.id===coordId);
+ const coord=(studentId===currentUser?.id && currentUser?.role==="ALUNO" && state.myCoordinator)
+   ? state.myCoordinator
+   : state.profiles.find(x=>x.id===coordId);
  const rows=monthLessons.map(l=>{const a=state.activities.find(x=>x.lesson_id===l.id&&x.student_id===studentId);return{l,a}});
  const total=rows.reduce((s,x)=>s+Number(x.l.carga||0),0);
  const monthName=month?new Date(month+"-02").toLocaleDateString("pt-BR",{month:"long",year:"numeric"}).toUpperCase():"";

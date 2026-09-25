@@ -388,12 +388,108 @@ async function toggleUser(id,ativo){
 
 function studentsPage(w){
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
- w.innerHTML=head("Alunos","Visualização dos alunos cadastrados no sistema.","ATUALIZAR","renderPage('Alunos')")+
- `<div class="toolbar"><input id="studentSearch" class="search" placeholder="Pesquisar aluno..." oninput="filterStudents()"></div><div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Telefone</th><th>Turmas</th><th>Status</th></tr></thead><tbody id="studentsBody"></tbody></table></div>`;
+ const isAdmin=currentUser.role==="ADMIN";
+ w.innerHTML=head("Alunos","Cadastro e gerenciamento dos alunos do ComunicaTec.",isAdmin?"NOVO ALUNO":"ATUALIZAR",isAdmin?"newStudent()":"renderPage('Alunos')")+
+ `<div class="toolbar"><input id="studentSearch" class="search" placeholder="Pesquisar por nome, e-mail ou telefone..." oninput="filterStudents()"></div>
+ <div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Telefone</th><th>Função</th><th>Turmas</th><th>Status</th>${isAdmin?"<th>Ações</th>":""}</tr></thead><tbody id="studentsBody"></tbody></table></div>`;
  drawStudents(students);
 }
-function drawStudents(rows){const b=document.getElementById("studentsBody");if(!b)return;b.innerHTML=rows.map(p=>{const cs=state.enrollments.filter(e=>e.student_id===p.id).map(e=>state.classes.find(c=>c.id===e.class_id)?.nome).filter(Boolean).join(", ");return`<tr><td><b>${esc(p.nome)}</b></td><td>${esc(p.email||"—")}</td><td>${esc(p.telefone||"—")}</td><td>${esc(cs||"Sem turma")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td></tr>`}).join("")||`<tr><td colspan="5" class="empty">Nenhum aluno cadastrado.</td></tr>`}
-function filterStudents(){const q=studentSearch.value.toLowerCase();drawStudents(state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&(p.nome||"").toLowerCase().includes(q)))}
+function drawStudents(rows){
+ const b=document.getElementById("studentsBody");if(!b)return;
+ const isAdmin=currentUser.role==="ADMIN";
+ b.innerHTML=rows.map(p=>{
+   const cs=state.enrollments.filter(e=>e.student_id===p.id).map(e=>state.classes.find(c=>c.id===e.class_id)?.nome).filter(Boolean).join(", ");
+   return `<tr><td><b>${esc(p.nome||"—")}</b></td><td>${esc(p.email||"—")}</td><td>${esc(p.telefone||"—")}</td><td>${esc(p.funcao||"—")}</td><td>${esc(cs||"Sem turma")}</td><td><span class="badge ${p.ativo?"on":"off"}">${p.ativo?"ATIVO":"DESATIVADO"}</span></td>${isAdmin?`<td><div class="rowActions"><button class="tiny" onclick="editStudent('${p.id}')">EDITAR</button><button class="tiny danger" onclick="toggleStudent('${p.id}',${!p.ativo})">${p.ativo?"DESATIVAR":"ATIVAR"}</button></div></td>`:""}</tr>`;
+ }).join("")||`<tr><td colspan="${isAdmin?7:6}" class="empty">Nenhum aluno cadastrado.</td></tr>`;
+}
+function filterStudents(){
+ const q=(document.getElementById("studentSearch")?.value||"").toLowerCase();
+ drawStudents(state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&(
+   (p.nome||"").toLowerCase().includes(q)||
+   (p.email||"").toLowerCase().includes(q)||
+   (p.telefone||"").toLowerCase().includes(q)
+ )));
+}
+function newStudent(){
+ openForm("Novo aluno",`<div class="formGrid">
+ <div class="formField"><label>NOME COMPLETO</label><input id="sNome" autocomplete="name"></div>
+ <div class="formField"><label>E-MAIL</label><input id="sEmail" type="email" autocomplete="email"></div>
+ <div class="formField"><label>TELEFONE</label><input id="sTel" autocomplete="tel"></div>
+ <div class="formField"><label>FUNÇÃO</label><input id="sFuncao" placeholder="Ex.: Fotografia, Captação de vídeo, Entrevista..."></div>
+ <div class="formField"><label>SENHA INICIAL</label><input id="sSenha" type="password" autocomplete="new-password" minlength="6" placeholder="Mínimo de 6 caracteres"></div>
+ <div class="formField" style="display:flex;align-items:end"><button type="button" class="tiny" style="width:100%;height:40px" onclick="toggleStudentPassword()">MOSTRAR / OCULTAR SENHA</button></div>
+ </div>`,async()=>{await saveStudent(null)})
+}
+function toggleStudentPassword(){const f=document.getElementById("sSenha");if(!f)return;f.type=f.type==="password"?"text":"password"}
+function editStudent(id){
+ if(currentUser.role!=="ADMIN")return toast("Apenas administradores podem editar alunos.");
+ const p=state.profiles.find(x=>x.id===id);if(!p)return;
+ openForm("Editar aluno",`<div class="formGrid">
+ <div class="formField"><label>NOME COMPLETO</label><input id="sNome" value="${attr(p.nome||"")}"></div>
+ <div class="formField"><label>E-MAIL</label><input id="sEmail" type="email" value="${attr(p.email||"")}"></div>
+ <div class="formField"><label>TELEFONE</label><input id="sTel" value="${attr(p.telefone||"")}"></div>
+ <div class="formField"><label>FUNÇÃO</label><input id="sFuncao" value="${attr(p.funcao||"")}"></div>
+ </div>`,async()=>{await saveStudent(id)})
+}
+async function saveStudent(id){
+ if(currentUser.role!=="ADMIN")return toast("Apenas administradores podem cadastrar alunos.");
+ const data={
+   nome:(document.getElementById("sNome")?.value||"").trim(),
+   email:(document.getElementById("sEmail")?.value||"").trim().toLowerCase(),
+   telefone:(document.getElementById("sTel")?.value||"").trim(),
+   funcao:(document.getElementById("sFuncao")?.value||"").trim()
+ };
+ if(!data.nome||!data.email)return toast("Nome e e-mail são obrigatórios.");
+ if(id){
+   if(isReal){
+     const {error}=await sb.from("profiles").update(data).eq("id",id).eq("perfil","ALUNO");
+     if(error)return toast(error.message);
+   }else{
+     const p=state.profiles.find(x=>x.id===id);if(p)Object.assign(p,data);
+   }
+   closeModal();toast("Aluno atualizado com sucesso.");renderPage("Alunos");return;
+ }
+ if(isReal){
+   const senha=document.getElementById("sSenha")?.value||"";
+   if(senha.length<6)return toast("A senha inicial deve ter pelo menos 6 caracteres.");
+   const {data:sessionData,error:sessionError}=await sb.auth.getSession();
+   if(sessionError)return toast("Não foi possível validar a sessão do administrador.");
+   const accessToken=sessionData?.session?.access_token;
+   if(!accessToken)return toast("Sessão do administrador não encontrada. Faça login novamente.");
+   const {data:resp,error}=await sb.functions.invoke("criar-usuario-admin",{
+     headers:{Authorization:`Bearer ${accessToken}`},
+     body:{nome:data.nome,email:data.email,telefone:data.telefone,funcao:data.funcao,perfil:"ALUNO",senha}
+   });
+   if(error){
+     console.error("Erro Edge Function:",error);
+     let msg=error.message||"Não foi possível criar o aluno.";
+     try{
+       if(error.context){
+         const body=await error.context.json();
+         console.error("Resposta da Edge Function:",body);
+         msg=body?.mensagem||body?.message||body?.error||msg;
+         if(body?.detalhe)msg += " | "+body.detalhe;
+       }else if(resp?.mensagem){msg=resp.mensagem;}
+     }catch(e){console.error("Não foi possível ler a resposta da Edge Function:",e)}
+     return toast(msg);
+   }
+   if(!(resp?.sucesso||resp?.success))return toast(resp?.mensagem||resp?.message||"Não foi possível criar o aluno.");
+ }else{
+   state.profiles.push({...data,perfil:"ALUNO",id:"p"+Date.now(),ativo:true});
+ }
+ closeModal();toast("Aluno criado com sucesso.");renderPage("Alunos");
+}
+async function toggleStudent(id,ativo){
+ if(currentUser.role!=="ADMIN")return toast("Apenas administradores podem alterar o status do aluno.");
+ if(id===currentUser.id)return toast("Não é possível desativar o próprio usuário nesta tela.");
+ if(isReal){
+   const {error}=await sb.from("profiles").update({ativo}).eq("id",id).eq("perfil","ALUNO");
+   if(error)return toast(error.message);
+ }else{
+   const p=state.profiles.find(x=>x.id===id);if(p)p.ativo=ativo;
+ }
+ toast(ativo?"Aluno ativado com sucesso.":"Aluno desativado com sucesso.");renderPage("Alunos");
+}
 
 function classesPage(w){
  w.innerHTML=head("Turmas","Gerenciamento das turmas do sistema. Crie, edite e visualize os alunos.","NOVA TURMA","newClass()")+

@@ -308,6 +308,8 @@ img{max-width:100%;height:auto}
   gap:0 !important;
 }
 @media(max-width:700px){
+  /* Ao acessar os atalhos do perfil, o menu lateral recua e a navegação inferior retorna. */
+  .profileTools .profileToolBtn{cursor:pointer;}
   .mobileBottomNav{
     transition:transform .28s ease,opacity .22s ease;
     transform:translateY(0);
@@ -443,9 +445,9 @@ function bindBase(){
  document.getElementById("forgotBtn").onclick=()=>view("forgot");
  document.getElementById("logout").onclick=logout;
 document.getElementById("mobileMenuBtn").onclick=openMobileMenu;
-document.getElementById("profilePanel").onclick=()=>renderPage("Meu perfil");
-document.getElementById("myAccountBtn").onclick=()=>renderPage("Minha conta");
-document.getElementById("notificationBtn").onclick=()=>renderPage("Notificações");
+document.getElementById("profilePanel").onclick=()=>sideToolAction("Meu perfil");
+document.getElementById("myAccountBtn").onclick=()=>sideToolAction("Minha conta");
+document.getElementById("notificationBtn").onclick=()=>sideToolAction("Notificações");
 document.getElementById("headerProfileBtn").onclick=()=>renderPage("Meu perfil");
 document.getElementById("sideCollapseBtn").onclick=toggleSide;
 document.getElementById("sideLogoBtn")?.addEventListener("click",()=>{const b=document.querySelector('#nav button[data-page="Dashboard"]'); if(b) b.click(); else renderPage("Dashboard")});
@@ -572,6 +574,10 @@ function setAvatarElement(el,data,initials){if(!el)return;if(data){el.innerHTML=
 function roleLabel(r){return({ADMIN:"Administrador",COORDENADOR:"Coordenador",INSTRUTOR:"Instrutor",ALUNO:"Aluno"})[r]||r}
 function closeMobileMenu(){document.querySelector(".side")?.classList.remove("open");document.getElementById("mobileOverlay")?.classList.remove("show")}
 function openMobileMenu(){document.querySelector(".side")?.classList.add("open");document.getElementById("mobileOverlay")?.classList.add("show")}
+function sideToolAction(page){
+  if(window.innerWidth<=700) closeMobileMenu();
+  renderPage(page);
+}
 
 async function renderPage(page){
  if(isReal){try{await loadState()}catch(e){toast("Não foi possível atualizar os dados.")}}

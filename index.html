@@ -321,6 +321,8 @@ img{max-width:100%;height:auto}
     pointer-events:none;
   }
 }
+/* V49 — formulário Nova mensagem padronizado com os demais formulários */
+.notificationFormHint{font-size:9px;color:var(--muted);margin-top:5px}
 </style>
 </head>
 <body>
@@ -1191,7 +1193,11 @@ function renderNotificationItem(n){
 function newNotification(){
  if(!notificationSenderRoles.includes(currentUser?.role))return;
  const options=state.profiles.filter(p=>p.ativo!==false).sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","pt-BR")).map(p=>`<option value="${attr(p.id)}">${esc(p.nome||p.email||"Usuário")} — ${esc(roleLabel(String(p.perfil||"").toUpperCase()))}</option>`).join("");
- openForm("Nova mensagem",`<div class="formGrid"><label>Destino<select id="notificationTarget"><option value="">TODOS OS USUÁRIOS</option>${options}</select></label><label>Título<input id="notificationTitle" maxlength="120" placeholder="Título da mensagem"></label><label class="full">Mensagem<textarea id="notificationMessage" rows="6" maxlength="1000" placeholder="Digite a mensagem..."></textarea></label></div>`,sendNotification);
+ openForm("Nova mensagem",`<div class="formGrid">
+ <div class="formField"><label>DESTINO</label><select id="notificationTarget"><option value="">TODOS OS USUÁRIOS</option>${options}</select></div>
+ <div class="formField"><label>TÍTULO</label><input id="notificationTitle" maxlength="120" placeholder="Informe o título da mensagem"></div>
+ <div class="formField full"><label>MENSAGEM</label><textarea id="notificationMessage" rows="6" maxlength="1000" placeholder="Digite a mensagem..."></textarea></div>
+ </div>`,sendNotification);
 }
 async function sendNotification(){
  const titulo=document.getElementById("notificationTitle")?.value.trim(),mensagem=document.getElementById("notificationMessage")?.value.trim(),recipient_id=document.getElementById("notificationTarget")?.value||null;

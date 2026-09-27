@@ -294,6 +294,31 @@ img{max-width:100%;height:auto}
 .side.is-collapsed .nav button[title]:hover::after,.side.is-collapsed .logout .nav.button[title]:hover::after{left:calc(100% + 10px);}
 .side.is-collapsed .sideLogoBtn:hover::after{display:none;}
 @media(max-width:700px){.sideCollapseBtn{display:none !important;}.sideLogoBtn{cursor:pointer;}.sideLogoBtn:hover::after{display:none !important;}}
+/* V46 — ajuste final: Sair na mesma linha + barra inferior móvel oculta com menu lateral aberto */
+.logout .nav.button{
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:11px !important;
+  width:100%;
+}
+.logout .nav.button i{flex:0 0 17px;text-align:center;}
+.side.is-collapsed .logout .nav.button{
+  justify-content:center !important;
+  gap:0 !important;
+}
+@media(max-width:700px){
+  .mobileBottomNav{
+    transition:transform .28s ease,opacity .22s ease;
+    transform:translateY(0);
+    opacity:1;
+  }
+  .side.open ~ .mobileBottomNav{
+    transform:translateY(calc(100% + 24px));
+    opacity:0;
+    pointer-events:none;
+  }
+}
 </style>
 </head>
 <body>

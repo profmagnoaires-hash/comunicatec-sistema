@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#0030DC">
-<title>ComunicaTec • Gestão de Alunos</title>
+<title>ComunicaTec • Gestão de Alunos</title><meta name="comunicatec-version" content="V48 — sessão persistente e página atual">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 :root{--blue:#0030DC;--blue2:#001F9C;--green:#00E8B2;--yellow:#FBDD01;--red:#FF4433;--bg:#F7F9FC;--line:#DCE3ED;--muted:#697586;--text:#101318}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}#authApp{visibility:hidden}
 button,input{font:inherit}button{cursor:pointer}.app{min-height:100vh;display:flex}
 .brand{width:47%;min-height:100vh;background:var(--blue);display:flex;align-items:center;justify-content:center;padding:45px;position:relative;overflow:hidden}
 .brand:before{content:"";position:absolute;width:430px;height:430px;border-radius:50%;background:#00e8b21c;top:-180px;left:-130px}
@@ -424,14 +424,23 @@ document.addEventListener("DOMContentLoaded",init);
 async function init(){
  bindBase();
  if(!validConfig()){
+  authApp.style.visibility="visible";
   setStatus("Configuração pendente",false);
   alertBox("loginAlert","A conexão com o Supabase ainda não foi configurada.","error");
   return;
  }
  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
  setStatus("Supabase conectado",true);
- const {data}=await sb.auth.getSession();
- if(data.session) await enterReal(data.session.user);
+ try{
+  const {data,error}=await sb.auth.getSession();
+  if(error)throw error;
+  if(data.session) await enterReal(data.session.user);
+  else authApp.style.visibility="visible";
+ }catch(e){
+  console.error("COMUNICATEC - erro ao recuperar sessão:",e);
+  authApp.style.visibility="visible";
+  view("login");
+ }
 }
 function setStatus(t,real){const e=document.getElementById("status");if(e){e.innerHTML="<i></i>"+t;if(real){e.style.background="#e8fff8";e.style.color="#087b60";e.querySelector("i").style.background="#00b98d"}}}
 
@@ -489,13 +498,16 @@ async function forgot(e){
 async function enterReal(user){
  try{
   const {data,error}=await sb.from("profiles").select("id,nome,email,telefone,perfil,ativo,signature_data,avatar_data").eq("id",user.id).single();if(error)throw error;
-  if(!data.ativo){await sb.auth.signOut();view("login");return alertBox("loginAlert","Usuário desativado. Procure o administrador.","error")}
+  if(!data.ativo){await sb.auth.signOut();dashboard.classList.remove("active");authApp.style.display="flex";authApp.style.visibility="visible";view("login");return alertBox("loginAlert","Usuário desativado. Procure o administrador.","error")}
   currentUser={id:user.id,email:user.email,name:data.nome||user.user_metadata?.full_name||"Usuário",role:String(data.perfil).toUpperCase(),telefone:data.telefone||"",signature_data:data.signature_data||"",avatar_data:data.avatar_data||""};
   if(!["ADMIN","COORDENADOR","INSTRUTOR","ALUNO"].includes(currentUser.role))throw new Error("Perfil não configurado.");
-  await loadState();openDashboard(currentUser);
+  await loadState();openDashboard(currentUser,getSavedPage());
  }catch(e){
   console.error("COMUNICATEC - erro ao carregar perfil/dados:", e);
   await sb.auth.signOut();
+  dashboard.classList.remove("active");
+  authApp.style.display="flex";
+  authApp.style.visibility="visible";
   view("login");
   alertBox("loginAlert", "Login autenticado, mas houve erro ao carregar os dados: " + (e?.message || e), "error");
 }
@@ -538,8 +550,10 @@ async function loadState(){
  }
  await loadNotifications();
 }
-function openDashboard(u){
- authApp.style.display="none";dashboard.classList.add("active");restoreSideState();renderNavigation();renderPage("Dashboard");
+function getSavedPage(){try{return localStorage.getItem("comunicatec_current_page")||"Dashboard"}catch(e){return "Dashboard"}}
+function saveCurrentPage(page){try{localStorage.setItem("comunicatec_current_page",page)}catch(e){}}
+function openDashboard(u,page){
+ authApp.style.display="none";dashboard.classList.add("active");restoreSideState();renderNavigation();renderPage(page||getSavedPage());
 }
 function renderNavigation(){
  const nav=document.getElementById("nav"),mobileNav=document.getElementById("mobileNav");nav.innerHTML="";if(mobileNav)mobileNav.innerHTML="";
@@ -580,6 +594,9 @@ function sideToolAction(page){
 }
 
 async function renderPage(page){
+ const allowedPages=currentUser?.role==="ALUNO"?["Dashboard","Aula de hoje","Meu relatório","Meu perfil","Minha conta","Notificações"]:currentUser?.role==="ADMIN"?["Dashboard","Usuários","Alunos","Turmas","Aulas","Relatórios","Meu perfil","Minha conta","Notificações"]:["Dashboard","Alunos","Turmas","Aulas","Relatórios","Meu perfil","Minha conta","Notificações"];
+ if(!allowedPages.includes(page))page="Dashboard";
+ saveCurrentPage(page);
  if(isReal){try{await loadState()}catch(e){toast("Não foi possível atualizar os dados.")}}
  const w=document.getElementById("workspace");
  if(page==="Dashboard")return dashboardPage(w);
@@ -1206,6 +1223,6 @@ function closeModal(){hideModalClose();document.getElementById("modal").classLis
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function attr(v){return esc(v)}
 function fmtDate(v){if(!v)return"—";const [y,m,d]=String(v).slice(0,10).split("-");return d+"/"+m+"/"+y}
-async function logout(){closeMobileMenu();if(isReal)await sb.auth.signOut();currentUser=null;dashboard.classList.remove("active");authApp.style.display="flex";document.getElementById("loginForm").reset();view("login")}
+async function logout(){closeMobileMenu();if(isReal)await sb.auth.signOut();currentUser=null;dashboard.classList.remove("active");authApp.style.display="flex";authApp.style.visibility="visible";try{localStorage.removeItem("comunicatec_current_page")}catch(e){}document.getElementById("loginForm").reset();view("login")}
 </script>
 </body></html>

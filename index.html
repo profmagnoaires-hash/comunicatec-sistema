@@ -158,6 +158,38 @@ img{max-width:100%;height:auto}
   .modalCard{max-height:calc(100dvh - 16px);padding:13px}
 }
 
+
+/* V50 — formulários organizados para não ficarem atrás da navegação inferior no mobile */
+@media(max-width:700px){
+  body.modal-open .mobileBottomNav{
+    transform:translateY(calc(100% + 24px)) !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+  .modal{
+    z-index:2000 !important;
+    align-items:center !important;
+    padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)) !important;
+  }
+  .modalCard{
+    width:100% !important;
+    max-width:560px !important;
+    max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+    overflow-y:auto !important;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .modalCard .formActions{
+    position:sticky !important;
+    bottom:0 !important;
+    z-index:4 !important;
+    background:#fff !important;
+    margin-left:-18px !important;
+    margin-right:-18px !important;
+    padding:12px 18px calc(8px + env(safe-area-inset-bottom)) !important;
+    box-shadow:0 -6px 16px rgba(15,23,42,.06);
+  }
+}
 </style>
 
 <style>
@@ -1134,7 +1166,7 @@ function openProfileModal(){
    <div class="profileActions"><button class="btn secondary" type="button" onclick="closeModal()">CANCELAR</button><button class="btn primary" type="button" onclick="saveAvatar()">SALVAR</button></div>
    ${currentUser.avatar_data?`<button class="tiny danger" type="button" onclick="removeAvatar()">REMOVER FOTO</button>`:""}
  </div>`;
- document.getElementById("modal").classList.add("show");
+ document.body.classList.add("modal-open");document.getElementById("modal").classList.add("show");
 }
 function previewAvatar(input){
  const f=input.files?.[0];if(!f)return;
@@ -1213,7 +1245,7 @@ async function markAllNotificationsRead(){
 }
 
 function openForm(title,body,saveFn){
- const m=document.getElementById("modal");document.getElementById("modalTitle").textContent=title;const centerActions=/^(Nova turma|Nova aula)$/i.test(title);document.getElementById("modalText").innerHTML=`<div class="formCard">${body}<div class="formActions${centerActions?" centerActions":""}"><button id="saveModalBtn" class="btn primary modalActionBtn">SALVAR</button><button class="btn secondary" onclick="closeModal()">CANCELAR</button></div></div>`;m.classList.add("show");document.getElementById("saveModalBtn").onclick=async()=>{await saveFn()}
+ const m=document.getElementById("modal");document.getElementById("modalTitle").textContent=title;const centerActions=/^(Nova turma|Nova aula)$/i.test(title);document.getElementById("modalText").innerHTML=`<div class="formCard">${body}<div class="formActions${centerActions?" centerActions":""}"><button id="saveModalBtn" class="btn primary modalActionBtn">SALVAR</button><button class="btn secondary" onclick="closeModal()">CANCELAR</button></div></div>`;document.body.classList.add("modal-open");m.classList.add("show");document.getElementById("saveModalBtn").onclick=async()=>{await saveFn()}
 }
 function formatDateLong(date){
  const months=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
@@ -1224,8 +1256,8 @@ function formatDateLong(date){
 
 function showModalClose(){document.getElementById("closeModal").style.setProperty("display","block","important")}
 function hideModalClose(){document.getElementById("closeModal").style.setProperty("display","none","important")}
-function openModal(title,html){hideModalClose();document.getElementById("modalTitle").textContent=title;document.getElementById("modalText").innerHTML=html;document.getElementById("modal").classList.add("show")}
-function closeModal(){hideModalClose();document.getElementById("modal").classList.remove("show")}
+function openModal(title,html){hideModalClose();document.getElementById("modalTitle").textContent=title;document.getElementById("modalText").innerHTML=html;document.body.classList.add("modal-open");document.getElementById("modal").classList.add("show")}
+function closeModal(){hideModalClose();document.body.classList.remove("modal-open");document.getElementById("modal").classList.remove("show")}
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function attr(v){return esc(v)}
 function fmtDate(v){if(!v)return"—";const [y,m,d]=String(v).slice(0,10).split("-");return d+"/"+m+"/"+y}

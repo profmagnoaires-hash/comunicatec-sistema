@@ -53,7 +53,7 @@ h2{font-size:31px;letter-spacing:-1px;margin:0 0 8px}.sub{font-size:13px;color:v
 .profileInfo{min-width:0;flex:1}.profileInfo strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profileInfo small{display:block;margin-top:3px;font-size:9px;opacity:.76;text-transform:uppercase;font-weight:800}.profileEditIcon{width:27px;height:27px;border-radius:8px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:11px;flex:0 0 auto}
 .role{display:none}
 .nav{display:flex;flex-direction:column;gap:3px}.nav button{display:flex;align-items:center;gap:11px;width:100%;padding:10px 11px;border-radius:10px;margin:0;color:#fff;font-size:11px;font-weight:800}.nav button i{width:17px;text-align:center;font-size:12px;opacity:.9}.nav button:hover,.nav button.active{background:rgba(255,255,255,.14);box-shadow:inset 3px 0 0 var(--green)}
-.logout{border-top:1px solid rgba(255,255,255,.14);margin-top:18px;padding-top:14px}.logout .nav.button{justify-content:flex-start;color:#fff}
+.logout{border-top:1px solid rgba(255,255,255,.14);margin-top:18px;padding-top:14px}.logout .nav.button{justify-content:flex-start;color:#fff;background:#dc2626;border:1px solid #ef4444;border-radius:10px;font-weight:800;box-shadow:0 3px 10px rgba(220,38,38,.28)}.logout .nav.button:hover{background:#b91c1c;box-shadow:0 5px 14px rgba(220,38,38,.38);transform:translateY(-1px)}.logout .nav.button i{color:#fff}
 .bar{padding-right:24px}.user{cursor:pointer;border:0;background:transparent;padding:0;color:inherit}.avatar{overflow:hidden;flex:0 0 33px}.avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .mobileBottomNav{display:none}
 .profileModal{display:grid;gap:13px}.profilePreview{display:flex;justify-content:center}.profilePreviewAvatar{width:108px;height:108px;border-radius:50%;overflow:hidden;background:#eef3ff;color:var(--blue);display:grid;place-items:center;font-size:28px;font-weight:900;border:4px solid #eef3ff;box-shadow:0 8px 24px rgba(0,48,220,.12)}.profilePreviewAvatar img{width:100%;height:100%;object-fit:cover;display:block}.profileUploadBox{border:1px dashed #b8c2d0;background:#f7f9fc;border-radius:12px;padding:14px;text-align:center}.profileUploadBox p{margin:0 0 9px;color:var(--muted);font-size:10px;line-height:1.45}.profileActions{display:flex;gap:9px}.profileActions .btn{flex:1}
@@ -234,7 +234,7 @@ img{max-width:100%;height:auto}
 
 /* V40 */
 .side{position:relative;transition:width .22s ease,padding .22s ease;overflow-x:hidden}
-.sideCollapseBtn{position:absolute;right:8px;top:10px;width:28px;height:28px;border:0;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:3}
+.sideCollapseBtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:3}
 .side.is-collapsed{width:78px;padding-left:10px;padding-right:10px}
 .side.is-collapsed .sideLogo{display:none}
 .side.is-collapsed .profilePanel{padding:8px 0;justify-content:center;background:transparent;border-color:transparent}
@@ -244,7 +244,7 @@ img{max-width:100%;height:auto}
 .side.is-collapsed .nav button span,.side.is-collapsed .logout span{display:none}
 .side.is-collapsed .nav button i{width:auto;font-size:15px}
 .side.is-collapsed .logout .nav.button{justify-content:center}
-.side.is-collapsed .sideCollapseBtn{right:25px;transform:translateX(50%)}
+.side.is-collapsed .sideCollapseBtn{right:25px;transform:translate(50%,-50%)}
 .profileTop{display:flex;align-items:center;gap:8px;margin-bottom:18px}
 .profileTop .profilePanel{margin:0;flex:1;min-width:0}
 .profileTools{display:flex;flex-direction:column;align-items:center;gap:7px;flex:0 0 36px}
@@ -274,6 +274,9 @@ img{max-width:100%;height:auto}
   .workspace{width:100%;min-width:0;max-width:100%;}
   .mobileBottomNav{left:10px !important;right:10px !important;bottom:max(10px,env(safe-area-inset-bottom)) !important;width:auto !important;max-width:none !important;}
 }
+
+/* V44 — layout das notificações */
+.notifyDot{min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ff4433;color:#fff;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;position:absolute;top:-5px;right:-5px;box-shadow:0 2px 6px #0003}.profileToolBtn{position:relative}.notificationToolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:12px}.notificationSummary{font-size:11px;font-weight:900;color:var(--text);display:flex;align-items:center;gap:7px}.notificationSummary i{color:var(--blue)}.notificationList{display:grid;gap:10px}.notificationCard{display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:0 4px 14px #001f9c0b}.notificationCard.unread{border-left:4px solid var(--blue);background:#f8fbff}.notificationIcon{width:34px;height:34px;border-radius:10px;background:#eaf0ff;color:var(--blue);display:flex;align-items:center;justify-content:center;flex:0 0 34px}.notificationBody{min-width:0;flex:1}.notificationMeta{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.notificationMeta strong{font-size:12px;line-height:1.3}.notificationMeta span{font-size:9px;color:var(--muted);white-space:nowrap}.notificationBody p{margin:5px 0 6px;font-size:11px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.notificationBody small{font-size:9px;color:var(--muted)}.notificationReadBtn{flex:0 0 auto;align-self:center}@media(max-width:700px){.notificationToolbar{align-items:stretch;flex-direction:column}.notificationCard{padding:11px;gap:9px}.notificationMeta{flex-direction:column;gap:3px}.notificationMeta span{white-space:normal}.notificationReadBtn{font-size:8px;padding:7px 8px}}
 </style>
 </head>
 <body>
@@ -368,7 +371,7 @@ img{max-width:100%;height:auto}
 const SUPABASE_URL="https://mkpydqlafyjswtyvogou.supabase.co";
 const SUPABASE_KEY="sb_publishable_8yWliKaU2ya-U2bDDAxCvA_4MwG3NzI";
 let sb=null,isReal=true,currentUser=null;
-let state={profiles:[],classes:[],lessons:[],enrollments:[],activities:[],attendance:[]};
+let state={profiles:[],classes:[],lessons:[],enrollments:[],activities:[],attendance:[],notifications:[],notificationReads:[]};
 
 
 function validConfig(){return SUPABASE_URL.startsWith("https://")&&!SUPABASE_URL.includes("COLE_AQUI")&&SUPABASE_KEY&&!SUPABASE_KEY.includes("COLE_AQUI")}
@@ -400,7 +403,7 @@ function bindBase(){
 document.getElementById("mobileMenuBtn").onclick=openMobileMenu;
 document.getElementById("profilePanel").onclick=()=>renderPage("Meu perfil");
 document.getElementById("myAccountBtn").onclick=()=>renderPage("Minha conta");
-document.getElementById("notificationBtn").onclick=()=>toast("Nenhuma notificação nova.");
+document.getElementById("notificationBtn").onclick=()=>renderPage("Notificações");
 document.getElementById("headerProfileBtn").onclick=()=>renderPage("Meu perfil");
 document.getElementById("sideCollapseBtn").onclick=toggleSide;
 document.getElementById("mobileOverlay").onclick=closeMobileMenu;
@@ -488,6 +491,7 @@ async function loadState(){
      if(!mcError) state.myCoordinator=Array.isArray(mc)?(mc[0]||null):(mc||null);
    }catch(e){console.warn("Coordenador do aluno não carregado:",e)}
  }
+ await loadNotifications();
 }
 function openDashboard(u){
  authApp.style.display="none";dashboard.classList.add("active");restoreSideState();renderNavigation();renderPage("Dashboard");
@@ -542,6 +546,7 @@ async function renderPage(page){
  if(page==="Meu relatório")return studentReportPage(w);
  if(page==="Meu perfil")return profilePage(w);
  if(page==="Minha conta")return accountPage(w);
+ if(page==="Notificações")return notificationsPage(w);
 }
 
 function head(title,desc,buttonText,fn){
@@ -1087,6 +1092,52 @@ async function saveAvatar(){
 }
 async function removeAvatar(){
  try{const {error}=await sb.from("profiles").update({avatar_data:null}).eq("id",currentUser.id);if(error)throw error;currentUser.avatar_data="";const profile=state.profiles.find(x=>x.id===currentUser.id);if(profile)profile.avatar_data="";const initials=currentUser.name.split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"U";setAvatarElement(document.getElementById("avatar"),"",initials);setAvatarElement(document.getElementById("sideAvatar"),"",initials);closeModal();toast("Foto de perfil removida.");}catch(e){toast(e?.message||"Erro ao remover foto.")}
+}
+
+
+/* V44 — NOTIFICACOES */
+const notificationSenderRoles=["ADMIN","COORDENADOR","INSTRUTOR"];
+async function loadNotifications(){
+ state.notifications=[];state.notificationReads=[];
+ if(!isReal||!sb||!currentUser?.id){updateNotificationBadge();return;}
+ try{
+  const {data,error}=await sb.from("notifications").select("id,sender_id,recipient_id,titulo,mensagem,created_at").order("created_at",{ascending:false}).limit(100);
+  if(error){console.warn("Notificações ainda não configuradas:",error.message);updateNotificationBadge();return;}
+  state.notifications=data||[];const ids=state.notifications.map(n=>n.id);
+  if(ids.length){const {data:reads,error:readError}=await sb.from("notification_reads").select("notification_id,user_id,read_at").eq("user_id",currentUser.id).in("notification_id",ids);if(!readError)state.notificationReads=reads||[];}
+ }catch(e){console.warn("Falha ao carregar notificações:",e)}
+ updateNotificationBadge();
+}
+function isNotificationRead(id){return state.notificationReads.some(r=>r.notification_id===id&&r.user_id===currentUser.id)}
+function updateNotificationBadge(){const count=state.notifications.filter(n=>!isNotificationRead(n.id)).length;const dot=document.querySelector("#notificationBtn .notifyDot");if(dot){dot.textContent=count>99?"99+":String(count);dot.style.display=count?"flex":"none";}}
+function notificationTime(v){if(!v)return"";const d=new Date(v);if(Number.isNaN(d.getTime()))return"";return d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}
+function notificationSenderName(id){return state.profiles.find(p=>p.id===id)?.nome||"Sistema"}
+function notificationsPage(w){
+ const canSend=notificationSenderRoles.includes(currentUser?.role);const unread=state.notifications.filter(n=>!isNotificationRead(n.id)).length;
+ w.innerHTML=`${head("Notificações","Mensagens gerais e mensagens direcionadas aos usuários.",canSend?"NOVA MENSAGEM":"",canSend?"newNotification()":"")}
+ <div class="notificationToolbar"><span class="notificationSummary"><i class="fa-solid fa-bell"></i> ${unread} não lida(s)</span><button class="tiny" onclick="markAllNotificationsRead()">MARCAR TODAS COMO LIDAS</button></div>
+ <div class="notificationList">${state.notifications.length?state.notifications.map(renderNotificationItem).join(""):"<div class='placeholder'><h4>Nenhuma notificação</h4><p>Quando houver uma nova mensagem, ela aparecerá aqui.</p></div>"}</div>`;
+}
+function renderNotificationItem(n){
+ const read=isNotificationRead(n.id);const target=n.recipient_id?`Para: ${esc(state.profiles.find(p=>p.id===n.recipient_id)?.nome||"usuário")}`:"Mensagem geral";
+ return `<article class="notificationCard ${read?"read":"unread"}"><div class="notificationIcon"><i class="fa-solid fa-bell"></i></div><div class="notificationBody"><div class="notificationMeta"><strong>${esc(n.titulo||"Notificação")}</strong><span>${notificationTime(n.created_at)}</span></div><p>${esc(n.mensagem||"")}</p><small>De: ${esc(notificationSenderName(n.sender_id))} · ${target}</small></div>${read?"":"<button class=\"tiny notificationReadBtn\" onclick=\"markNotificationRead('"+n.id+"')\">MARCAR COMO LIDA</button>"}</article>`;
+}
+function newNotification(){
+ if(!notificationSenderRoles.includes(currentUser?.role))return;
+ const options=state.profiles.filter(p=>p.ativo!==false).sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","pt-BR")).map(p=>`<option value="${attr(p.id)}">${esc(p.nome||p.email||"Usuário")} — ${esc(roleLabel(String(p.perfil||"").toUpperCase()))}</option>`).join("");
+ openForm("Nova mensagem",`<div class="formGrid"><label>Destino<select id="notificationTarget"><option value="">TODOS OS USUÁRIOS</option>${options}</select></label><label>Título<input id="notificationTitle" maxlength="120" placeholder="Título da mensagem"></label><label class="full">Mensagem<textarea id="notificationMessage" rows="6" maxlength="1000" placeholder="Digite a mensagem..."></textarea></label></div>`,sendNotification);
+}
+async function sendNotification(){
+ const titulo=document.getElementById("notificationTitle")?.value.trim(),mensagem=document.getElementById("notificationMessage")?.value.trim(),recipient_id=document.getElementById("notificationTarget")?.value||null;
+ if(!titulo)return toast("Informe o título da mensagem.");if(!mensagem)return toast("Informe a mensagem.");
+ try{const {error}=await sb.from("notifications").insert({sender_id:currentUser.id,recipient_id,titulo,mensagem});if(error)throw error;closeModal();await loadNotifications();notificationsPage(document.getElementById("workspace"));toast(recipient_id?"Mensagem enviada ao usuário.":"Mensagem geral enviada.");}catch(e){toast(e?.message||"Não foi possível enviar a mensagem.")}
+}
+async function markNotificationRead(id){
+ try{const {error}=await sb.from("notification_reads").upsert({notification_id:id,user_id:currentUser.id,read_at:new Date().toISOString()},{onConflict:"notification_id,user_id"});if(error)throw error;await loadNotifications();notificationsPage(document.getElementById("workspace"));}catch(e){toast(e?.message||"Não foi possível marcar a notificação.")}
+}
+async function markAllNotificationsRead(){
+ const unread=state.notifications.filter(n=>!isNotificationRead(n.id));if(!unread.length)return toast("Não há notificações pendentes.");
+ try{const now=new Date().toISOString(),rows=unread.map(n=>({notification_id:n.id,user_id:currentUser.id,read_at:now}));const {error}=await sb.from("notification_reads").upsert(rows,{onConflict:"notification_id,user_id"});if(error)throw error;await loadNotifications();notificationsPage(document.getElementById("workspace"));}catch(e){toast(e?.message||"Não foi possível atualizar as notificações.")}
 }
 
 function openForm(title,body,saveFn){

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#0030DC">
-<title>ComunicaTec • Gestão de Alunos</title><meta name="comunicatec-version" content="V52 — painel gerencial avançado no Dashboard do ADMIN">
+<title>ComunicaTec • Gestão de Alunos</title><meta name="comunicatec-version" content="V60 — pesquisa por aluno no Dashboard do ADMIN, COORDENADOR e INSTRUTOR">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -228,10 +228,16 @@ img{max-width:100%;height:auto}
 .formActions{display:flex;gap:8px;margin-top:16px}.formActions button{flex:0 0 auto}
 .statGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px}.stat small{display:block;color:var(--muted);font-size:9px;font-weight:900;text-transform:uppercase}.stat strong{display:block;color:var(--blue);font-size:26px;margin-top:7px}
 .todayCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px}.todayCard h3{margin:0 0 7px;font-size:19px}.todayMeta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}.todayMeta span{background:#eef3ff;color:#2448a5;border-radius:12px;padding:8px 10px;font-size:10px;font-weight:900;display:flex;flex-direction:column;gap:3px;min-width:0}.todayMeta span small{font-size:8px;text-transform:uppercase;letter-spacing:.35px;opacity:.72}.todayMeta span strong{font-size:10px;line-height:1.25;overflow-wrap:anywhere}.activityBox{background:#f7f9fc;border:1px solid var(--line);border-radius:11px;padding:13px;margin-top:14px}.activityBox label{display:block;font-size:10px;font-weight:900;margin-bottom:6px}.activityBox textarea{width:100%;min-height:130px;border:1px solid var(--line);border-radius:9px;padding:11px;resize:vertical}
+.activityTimer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 9px;padding:9px 11px;border-radius:10px;background:#eef3ff;border:1px solid #d8e1ff;color:#183b9f;font-size:11px;font-weight:800}.activityTimer .timerValue{font-size:18px;letter-spacing:.5px;font-variant-numeric:tabular-nums}.activityTimer.warning{background:#fff7e6;border-color:#f3d28a;color:#9a6500}.activityTimer.expired{background:#fff0f0;border-color:#f0b8b8;color:#b42318}.activityLock{margin-top:8px;font-size:10px;color:var(--muted);font-weight:700}.lessonActivityConfig{grid-column:1/-1;background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:12px}.lessonActivityConfig .configRow{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:12px;align-items:end}.lessonActivityConfig .checkLine{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:900}.lessonActivityConfig input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue)}
+
 .reportPaper{background:#fff;border:1px solid #bbb;padding:30px;max-width:850px;margin:auto;box-shadow:0 8px 25px #0000000c;color:#111}.reportHeader{text-align:center;font-size:11px;line-height:1.25}.reportHeader img{width:55px;height:55px;object-fit:contain;margin:0 auto 5px;display:block}.republicaBrasao{width:58px!important;height:58px!important}.reportTitle{font-size:15px;font-weight:900;margin:22px 0 14px;text-align:center}.reportSectionTitle{text-align:center;border:1px solid #222;background:#ddd;font-weight:900;font-size:11px;padding:5px}.reportTable{width:100%;border-collapse:collapse;margin-top:9px;font-size:10px}.reportTable th,.reportTable td{border:1px solid #555;padding:6px}.reportTable th:nth-child(1),.reportTable td:nth-child(1),.reportTable th:nth-child(2),.reportTable td:nth-child(2){text-align:center}.reportTable .chTotal{text-align:center}.reportTable th{background:#ddd;text-align:center}.reportInfo{width:100%;border-collapse:collapse;font-size:10px}.reportInfo td{border:1px solid #555;padding:6px}.signatureArea{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-top:70px;text-align:center;font-size:9px}.signatureArea .line{border-top:1px solid #222;padding-top:5px;min-height:35px}.signatureImg{max-height:55px;max-width:180px;object-fit:contain;display:block;margin:-45px auto 5px}
 .signatureUpload{background:#f7f9fc;border:1px dashed #b8c2d0;border-radius:12px;padding:14px;margin-bottom:15px}.signatureUpload p{font-size:10px;color:var(--muted);margin:0 0 9px}
 .empty{padding:30px;text-align:center;color:var(--muted);font-size:12px}
 .toast{position:fixed;right:18px;bottom:18px;background:#101318;color:#fff;padding:12px 15px;border-radius:10px;font-size:11px;font-weight:800;display:none;z-index:200}.toast.show{display:block}
+.onlinePanel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px;margin-top:18px;box-shadow:0 8px 24px rgba(0,0,0,.03)}
+.onlinePanelHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}.onlinePanelHead h3{margin:0;font-size:15px}.onlinePanelHead p{margin:4px 0 0;color:var(--muted);font-size:10px}.onlineCount{min-width:30px;height:30px;border-radius:50%;background:#e8fff8;color:#087b60;display:grid;place-items:center;font-weight:900;font-size:12px}
+.onlinePanel:has(.onlineUser){min-height:100px}.onlinePanel{display:block}.onlinePanel > .onlineUser{display:inline-flex;vertical-align:top;margin:0 8px 8px 0}.onlineUser{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:#fbfcff;border-radius:12px;padding:9px 12px;min-width:185px;max-width:260px}.onlineAvatar{position:relative;width:42px;height:42px;border-radius:50%;background:var(--green);color:var(--blue);display:grid;place-items:center;font-size:12px;font-weight:900;overflow:visible;flex:0 0 42px}.onlineAvatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}.onlineDot{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#18b76b;border:2px solid #fff}.onlineUserText{min-width:0}.onlineUserText strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.onlineUserText small{display:block;color:var(--muted);font-size:9px;margin-top:3px;font-weight:700}.onlineEmpty{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:11px;padding:10px 2px}.onlineEmpty i{font-size:20px;color:#b8c0cf}
+
 @media(max-width:800px){.formGrid{grid-template-columns:1fr}.statGrid{grid-template-columns:1fr 1fr}.workspace-head{align-items:stretch;flex-direction:column}.reportPaper{padding:18px}.signatureArea{gap:20px}}
 @media print{body{background:#fff!important}.authApp,.side,.bar,.workspace-head,.toolbar,.signatureUpload,#noPrint,.modal,.toast{display:none!important}.dashboard,.main,.content{display:block!important;width:100%!important;min-height:0!important;padding:0!important}.reportPaper{display:block!important;box-shadow:none!important;border:0!important;max-width:none!important;width:100%!important;margin:0!important}.reportTable{font-size:9px}}
 </style>
@@ -321,7 +327,7 @@ img{max-width:100%;height:auto}
 /* V52 — painel gerencial avançado do ADMIN */
 .adminDashboardFilters{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;margin:0 0 18px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
 .filterTitle{display:flex;align-items:center;gap:8px;margin-bottom:12px}.filterTitle i{color:var(--blue)}.filterTitle b{font-size:12px}.filterTitle span{font-size:9px;color:var(--muted);font-weight:700}
-.adminFilterGrid{display:grid;grid-template-columns:1.2fr .8fr .8fr auto;gap:10px;align-items:end}.adminFilterGrid .formField{margin:0}.filterActions{display:flex;gap:7px;align-items:center}.filterActions .btn{height:40px;white-space:nowrap}
+.adminFilterGrid{display:grid;grid-template-columns:1.35fr 1.1fr .8fr .8fr auto;gap:10px;align-items:end}.adminFilterGrid .formField{margin:0}.filterActions{display:flex;gap:7px;align-items:center}.filterActions .btn{height:40px;white-space:nowrap}
 .reportSectionTitle{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 4px}.reportSectionTitle h3{margin:0;font-size:16px}.reportSectionTitle p{margin:4px 0 0;font-size:10px;color:var(--muted)}.reportFilterBadge{padding:7px 10px;border-radius:999px;background:#edf3ff;color:var(--blue);font-size:9px;font-weight:900}
 .adminChartGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.chartCard{min-height:220px}.barChart{display:grid;gap:12px;padding-top:6px}.chartRow{display:grid;gap:5px}.chartLabel{display:flex;justify-content:space-between;gap:10px;font-size:9px;color:#475467}.chartLabel span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:82%}.chartLabel b{color:var(--text)}.chartTrack{height:9px;background:#edf1f7;border-radius:99px;overflow:hidden}.chartTrack i{display:block;height:100%;background:var(--blue);border-radius:99px;min-width:2px}
 .monthChart{height:165px;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;border-bottom:1px solid #e7ebf2;padding:0 6px 4px}.monthCol{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:34px}.monthValue{font-size:9px;font-weight:900;color:var(--blue)}.monthBar{width:22px;background:var(--green);border-radius:6px 6px 2px 2px;min-height:8px}.monthCol small{font-size:8px;color:var(--muted)}
@@ -497,7 +503,8 @@ img{max-width:100%;height:auto}
 const SUPABASE_URL="https://mkpydqlafyjswtyvogou.supabase.co";
 const SUPABASE_KEY="sb_publishable_8yWliKaU2ya-U2bDDAxCvA_4MwG3NzI";
 let sb=null,isReal=true,currentUser=null;
-let state={profiles:[],classes:[],lessons:[],enrollments:[],activities:[],attendance:[],notifications:[],notificationReads:[]};
+let state={profiles:[],classes:[],lessons:[],enrollments:[],activities:[],attendance:[],notifications:[],notificationReads:[],presence:[]};
+let presenceTimer=null,presenceRefreshTimer=null;
 
 
 function validConfig(){return SUPABASE_URL.startsWith("https://")&&!SUPABASE_URL.includes("COLE_AQUI")&&SUPABASE_KEY&&!SUPABASE_KEY.includes("COLE_AQUI")}
@@ -635,7 +642,52 @@ async function loadState(){
 function getSavedPage(){try{return localStorage.getItem("comunicatec_current_page")||"Dashboard"}catch(e){return "Dashboard"}}
 function saveCurrentPage(page){try{localStorage.setItem("comunicatec_current_page",page)}catch(e){}}
 function openDashboard(u,page){
- authApp.style.display="none";dashboard.classList.add("active");restoreSideState();renderNavigation();renderPage(page||getSavedPage());
+ authApp.style.display="none";dashboard.classList.add("active");restoreSideState();renderNavigation();startPresenceHeartbeat();renderPage(page||getSavedPage());
+}
+async function updatePresence(){
+ if(!isReal || !currentUser || !sb) return;
+ try{
+   const {error}=await sb.from("user_presence").upsert({user_id:currentUser.id,last_seen:new Date().toISOString()},{onConflict:"user_id"});
+   if(error) console.warn("Presença não atualizada:",error.message);
+ }catch(e){console.warn("Presença não atualizada:",e)}
+}
+async function loadPresence(){
+ if(!isReal || !sb) return;
+ try{
+   const {data,error}=await sb.from("user_presence").select("user_id,last_seen");
+   if(error){console.warn("Presença indisponível:",error.message);return}
+   state.presence=data||[];
+ }catch(e){console.warn("Presença indisponível:",e)}
+}
+function startPresenceHeartbeat(){
+ stopPresenceHeartbeat();
+ updatePresence();
+ presenceTimer=setInterval(updatePresence,30000);
+ presenceRefreshTimer=setInterval(async()=>{
+   await loadPresence();
+   if(document.getElementById("onlineUsersPanel")) renderOnlineUsers();
+ },30000);
+}
+function stopPresenceHeartbeat(){
+ if(presenceTimer){clearInterval(presenceTimer);presenceTimer=null}
+ if(presenceRefreshTimer){clearInterval(presenceRefreshTimer);presenceRefreshTimer=null}
+}
+function isUserOnline(lastSeen){
+ if(!lastSeen)return false;
+ return (Date.now()-new Date(lastSeen).getTime()) <= 90000;
+}
+function renderOnlineUsers(){
+ const box=document.getElementById("onlineUsersPanel");
+ if(!box)return;
+ const onlineIds=new Set((state.presence||[]).filter(x=>isUserOnline(x.last_seen)).map(x=>x.user_id));
+ const users=state.profiles.filter(p=>p.ativo!==false && onlineIds.has(p.id)).sort((a,b)=>(a.nome||"").localeCompare(b.nome||"",'pt-BR'));
+ const html=users.length?users.map(p=>{
+   const initials=(p.nome||"Usuário").split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"U";
+   const photo=p.avatar_data?`<img src="${p.avatar_data}" alt="Foto de ${esc(p.nome||"usuário")}">`:esc(initials);
+   return `<div class="onlineUser" title="${attr(p.nome||"Usuário")}"><div class="onlineAvatar">${photo}<span class="onlineDot"></span></div><div class="onlineUserText"><strong>${esc(p.nome||"Usuário")}</strong><small>${esc(roleLabel(String(p.perfil||"").toUpperCase()))}</small></div></div>`;
+ }).join(""): `<div class="onlineEmpty"><i class="fa-solid fa-circle-user"></i><span>Nenhum usuário online no momento.</span></div>`;
+ box.innerHTML=html;
+ const count=document.getElementById("onlineUsersCount");if(count)count.textContent=users.length;
 }
 function renderNavigation(){
  const nav=document.getElementById("nav"),mobileNav=document.getElementById("mobileNav");nav.innerHTML="";if(mobileNav)mobileNav.innerHTML="";
@@ -711,11 +763,7 @@ function dashboardPage(w){
  if(currentUser.role==="ALUNO")return todayPage(w);
 
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
- if(currentUser.role==="INSTRUTOR"){
-   w.innerHTML=head("Dashboard","Visão geral da plataforma.","","")+`<div class="statGrid"><div class="stat"><small>Usuários</small><strong>${counts.users}</strong></div><div class="stat"><small>Alunos</small><strong>${counts.students}</strong></div><div class="stat"><small>Turmas</small><strong>${counts.classes}</strong></div><div class="stat"><small>Aulas</small><strong>${counts.lessons}</strong></div></div><div class="placeholder"><h4>Acesso do perfil</h4><p>Você está conectado como <b>${roleLabel(currentUser.role)}</b>. Os módulos disponíveis neste perfil estão no menu lateral.</p></div>`;
-   return;
- }
-
+ 
  const enrolledIds=new Set(state.enrollments.map(e=>e.student_id));
  const classes=state.classes;
  const defaultFrom=state.lessons.length?state.lessons.map(l=>l.data).filter(Boolean).sort()[0]:"";
@@ -725,20 +773,24 @@ function dashboardPage(w){
  `<div class="adminDashboardFilters">
    <div class="filterTitle"><i class="fa-solid fa-filter"></i><b>Filtros dos indicadores</b><span>Os números e gráficos abaixo são atualizados pelos filtros.</span></div>
    <div class="adminFilterGrid">
+    <div class="formField"><label>PESQUISAR ALUNO</label><input id="dashStudentFilter" type="search" placeholder="Nome ou e-mail do aluno" autocomplete="off" onkeydown="if(event.key==='Enter')applyAdminDashboardFilters()"></div>
     <div class="formField"><label>TURMA</label><select id="dashClassFilter"><option value="">TODAS AS TURMAS</option>${classes.map(c=>`<option value="${attr(c.id)}">${esc(c.nome)}</option>`).join("")}</select></div>
     <div class="formField"><label>DATA INICIAL</label><input id="dashFrom" type="date" value="${attr(defaultFrom)}"></div>
     <div class="formField"><label>DATA FINAL</label><input id="dashTo" type="date" value="${attr(defaultTo)}"></div>
     <div class="filterActions"><button class="btn primary" type="button" onclick="applyAdminDashboardFilters()"><i class="fa-solid fa-chart-line"></i> ATUALIZAR PAINEL</button><button class="btn" type="button" onclick="resetAdminDashboardFilters()">LIMPAR FILTROS</button></div>
    </div>
  </div>
- <div id="adminDashboardReportArea"></div>`;
+ <div id="adminDashboardReportArea"></div>
+ <div class="onlinePanel" id="onlineUsersPanel"><div class="onlinePanelHead"><div><h3>Usuários online</h3><p>Usuários conectados ao ComunicaTec neste momento.</p></div><span class="onlineCount" id="onlineUsersCount">0</span></div></div>`;
  renderAdminDashboardReport();
+ loadPresence().then(renderOnlineUsers);
 }
 
 function renderAdminDashboardReport(){
  const area=document.getElementById("adminDashboardReportArea");
  if(!area)return;
  const classId=document.getElementById("dashClassFilter")?.value||"";
+ const studentSearch=(document.getElementById("dashStudentFilter")?.value||"").trim().toLocaleLowerCase("pt-BR");
  const from=document.getElementById("dashFrom")?.value||"";
  const to=document.getElementById("dashTo")?.value||"";
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
@@ -747,8 +799,9 @@ function renderAdminDashboardReport(){
  const lessonIds=new Set(lessons.map(l=>l.id));
  const enrollments=state.enrollments.filter(e=>allowedClassIds.includes(e.class_id));
  const studentIds=classId?new Set(enrollments.map(e=>e.student_id)):new Set(students.map(s=>s.id));
- const filteredStudents=students.filter(s=>studentIds.has(s.id));
- const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&studentIds.has(a.student_id));
+ const filteredStudents=students.filter(s=>studentIds.has(s.id) && (!studentSearch || `${s.nome||""} ${s.email||""}`.toLocaleLowerCase("pt-BR").includes(studentSearch)));
+ const filteredStudentIds=new Set(filteredStudents.map(s=>s.id));
+ const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
  const present=attendance.filter(a=>a.presente===true).length;
  const absent=attendance.filter(a=>a.presente===false).length;
  const attendanceRate=attendance.length?Math.round(present/attendance.length*100):0;
@@ -789,7 +842,7 @@ function renderAdminDashboardReport(){
  const maxMonth=Math.max(1,...months.map(x=>x[1]));
 
  area.innerHTML=`<section class="adminReports">
-   <div class="reportSectionTitle"><div><h3>Visão gerencial dos alunos</h3><p>${filteredStudents.length} aluno(s) no recorte atual • ${lessons.length} aula(s) • ${activities.length} atividade(s)</p></div><div class="reportHeaderActions"><span class="reportFilterBadge">${classId?esc(state.classes.find(c=>c.id===classId)?.nome||"Turma"):"Todas as turmas"}</span><button class="tiny" type="button" onclick="exportAdminExcel()" title="Exportar relatório para Excel"><i class="fa-solid fa-file-excel"></i> EXCEL</button><button class="tiny" type="button" onclick="printAdminDashboard()" title="Imprimir ou salvar em PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button><button class="tiny" type="button" onclick="printAdminDashboard()" title="Imprimir relatório"><i class="fa-solid fa-print"></i> IMPRIMIR</button></div></div>
+   <div class="reportSectionTitle"><div><h3>Visão gerencial dos alunos</h3><p>${filteredStudents.length} aluno(s) no recorte atual • ${lessons.length} aula(s) • ${activities.length} atividade(s)</p></div><div class="reportHeaderActions"><span class="reportFilterBadge">${studentSearch?`Aluno: ${esc(document.getElementById("dashStudentFilter")?.value||"")}`:(classId?esc(state.classes.find(c=>c.id===classId)?.nome||"Turma"):"Todas as turmas")}</span><button class="tiny" type="button" onclick="exportAdminExcel()" title="Exportar relatório para Excel"><i class="fa-solid fa-file-excel"></i> EXCEL</button><button class="tiny" type="button" onclick="printAdminDashboard()" title="Imprimir ou salvar em PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button><button class="tiny" type="button" onclick="printAdminDashboard()" title="Imprimir relatório"><i class="fa-solid fa-print"></i> IMPRIMIR</button></div></div>
    <div class="reportMiniGrid reportMiniGrid5">
     <div class="reportMini"><small>Alunos no recorte</small><strong>${filteredStudents.length}</strong></div>
     <div class="reportMini"><small>Sem turma</small><strong>${withoutClass}</strong></div>
@@ -813,8 +866,9 @@ function renderAdminDashboardReport(){
  </section>`;
 }
 function listAttentionStudents(type){
- if(!["ADMIN","COORDENADOR"].includes(currentUser?.role))return toast("Acesso restrito a administradores e coordenadores.");
+ if(!["ADMIN","COORDENADOR","INSTRUTOR"].includes(currentUser?.role))return toast("Acesso restrito a perfis gerenciais.");
  const classId=document.getElementById("dashClassFilter")?.value||"";
+ const studentSearch=(document.getElementById("dashStudentFilter")?.value||"").trim().toLocaleLowerCase("pt-BR");
  const from=document.getElementById("dashFrom")?.value||"";
  const to=document.getElementById("dashTo")?.value||"";
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
@@ -823,9 +877,10 @@ function listAttentionStudents(type){
  const lessonIds=new Set(lessons.map(l=>l.id));
  const enrollments=state.enrollments.filter(e=>allowedClassIds.includes(e.class_id));
  const studentIds=classId?new Set(enrollments.map(e=>e.student_id)):new Set(students.map(s=>s.id));
- const filteredStudents=students.filter(s=>studentIds.has(s.id));
- const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&studentIds.has(a.student_id));
- const activities=state.activities.filter(a=>lessonIds.has(a.lesson_id)&&studentIds.has(a.student_id));
+ const filteredStudents=students.filter(s=>studentIds.has(s.id) && (!studentSearch || `${s.nome||""} ${s.email||""}`.toLocaleLowerCase("pt-BR").includes(studentSearch)));
+ const filteredStudentIds=new Set(filteredStudents.map(s=>s.id));
+ const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
+ const activities=state.activities.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
  let title="", description="", rows=[];
  if(type==="withoutClass"){
   title="Alunos sem turma";
@@ -850,10 +905,11 @@ function listAttentionStudents(type){
 }
 
 function applyAdminDashboardFilters(){renderAdminDashboardReport()}
-function resetAdminDashboardFilters(){const c=document.getElementById("dashClassFilter"),f=document.getElementById("dashFrom"),t=document.getElementById("dashTo");if(c)c.value="";if(f)f.value="";if(t)t.value="";renderAdminDashboardReport()}
+function resetAdminDashboardFilters(){const q=document.getElementById("dashStudentFilter"),c=document.getElementById("dashClassFilter"),f=document.getElementById("dashFrom"),t=document.getElementById("dashTo");if(q)q.value="";if(c)c.value="";if(f)f.value="";if(t)t.value="";renderAdminDashboardReport()}
 
 function getAdminDashboardData(){
  const classId=document.getElementById("dashClassFilter")?.value||"";
+ const studentSearch=(document.getElementById("dashStudentFilter")?.value||"").trim().toLocaleLowerCase("pt-BR");
  const from=document.getElementById("dashFrom")?.value||"";
  const to=document.getElementById("dashTo")?.value||"";
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
@@ -862,9 +918,10 @@ function getAdminDashboardData(){
  const lessonIds=new Set(lessons.map(l=>l.id));
  const enrollments=state.enrollments.filter(e=>allowedClassIds.includes(e.class_id));
  const studentIds=classId?new Set(enrollments.map(e=>e.student_id)):new Set(students.map(s=>s.id));
- const filteredStudents=students.filter(s=>studentIds.has(s.id));
- const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&studentIds.has(a.student_id));
- const activities=state.activities.filter(a=>lessonIds.has(a.lesson_id)&&studentIds.has(a.student_id));
+ const filteredStudents=students.filter(s=>studentIds.has(s.id) && (!studentSearch || `${s.nome||""} ${s.email||""}`.toLocaleLowerCase("pt-BR").includes(studentSearch)));
+ const filteredStudentIds=new Set(filteredStudents.map(s=>s.id));
+ const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
+ const activities=state.activities.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
  const rows=filteredStudents.map(s=>{
   const ens=state.enrollments.filter(e=>e.student_id===s.id&&allowedClassIds.includes(e.class_id));
   const classNames=ens.map(e=>state.classes.find(c=>c.id===e.class_id)?.nome).filter(Boolean);
@@ -1182,13 +1239,13 @@ async function removeStudentFromClass(classId,studentId){
 
 function lessonsPage(w){
  w.innerHTML=head("Aulas","Aulas cadastradas nas turmas. Crie, edite, veja atividades e frequência.","NOVA AULA","newLesson()")+
- `<div class="tableWrap"><table class="dataTable"><thead><tr><th>Data</th><th>Horário</th><th>Turma</th><th>Aula</th><th>Carga</th><th>Ações</th></tr></thead><tbody>${state.lessons.map(l=>{const c=state.classes.find(x=>x.id===l.class_id);return`<tr><td>${fmtDate(l.data)}</td><td>${esc(l.horario||"—")}</td><td>${esc(c?.nome||"—")}</td><td><b>${esc(l.titulo||"—")}</b></td><td>${esc(String(l.carga||"—"))}h</td><td><div class="rowActions"><button class="tiny" onclick="editLesson('${l.id}')">EDITAR</button><button class="tiny" onclick="lessonActivities('${l.id}')">ATIVIDADES</button><button class="tiny" onclick="lessonAttendance('${l.id}')">FREQUÊNCIA</button></div></td></tr>`}).join("")||`<tr><td colspan="6" class="empty">Nenhuma aula cadastrada.</td></tr>`}</tbody></table></div>`;
+ `<div class="tableWrap"><table class="dataTable"><thead><tr><th>Data</th><th>Horário</th><th>Turma</th><th>Aula</th><th>Carga</th><th>Atividade do aluno</th><th>Ações</th></tr></thead><tbody>${state.lessons.map(l=>{const c=state.classes.find(x=>x.id===l.class_id);return`<tr><td>${fmtDate(l.data)}</td><td>${esc(l.horario||"—")}</td><td>${esc(c?.nome||"—")}</td><td><b>${esc(l.titulo||"—")}</b></td><td>${esc(String(l.carga||"—"))}h</td><td>${l.atividade_liberada?`<span class="badge on">LIBERADA • ${Number(l.atividade_tempo_minutos||15)} MIN</span>`:`<span class="badge off">BLOQUEADA</span>`}</td><td><div class="rowActions"><button class="tiny" onclick="editLesson('${l.id}')">EDITAR</button><button class="tiny" onclick="lessonActivities('${l.id}')">ATIVIDADES</button><button class="tiny" onclick="lessonAttendance('${l.id}')">FREQUÊNCIA</button></div></td></tr>`}).join("")||`<tr><td colspan="7" class="empty">Nenhuma aula cadastrada.</td></tr>`}</tbody></table></div>`;
 }
 function classOptions(selected){return state.classes.map(c=>`<option value="${c.id}" ${c.id===selected?"selected":""}>${esc(c.nome)}</option>`).join("")}
-function newLesson(){openForm("Nova aula",`<div class="formGrid"><div class="formField"><label>TURMA</label><select id="lClass">${classOptions("")}</select></div><div class="formField"><label>DATA</label><input id="lDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="formField"><label>HORÁRIO</label><input id="lTime" type="time"></div><div class="formField"><label>CARGA HORÁRIA</label><input id="lCarga" type="number" min="0" step=".5" value="4"></div><div class="formField"><label>TIPO</label><select id="lTipo"><option>Aula</option><option>Oficina</option><option>Evento</option><option>Reunião</option></select></div><div class="formField"><label>TÍTULO</label><input id="lTitulo"></div></div>`,()=>saveLesson(null))}
-function editLesson(id){const l=state.lessons.find(x=>x.id===id);openForm("Editar aula",`<div class="formGrid"><div class="formField"><label>TURMA</label><select id="lClass">${classOptions(l.class_id)}</select></div><div class="formField"><label>DATA</label><input id="lDate" type="date" value="${l.data}"></div><div class="formField"><label>HORÁRIO</label><input id="lTime" type="time" value="${l.horario||""}"></div><div class="formField"><label>CARGA</label><input id="lCarga" type="number" min="0" step=".5" value="${l.carga||0}"></div><div class="formField"><label>TIPO</label><select id="lTipo">${["Aula","Oficina","Evento","Reunião"].map(x=>`<option ${x===l.tipo?"selected":""}>${x}</option>`).join("")}</select></div><div class="formField"><label>TÍTULO</label><input id="lTitulo" value="${attr(l.titulo||"")}"></div></div>`,()=>saveLesson(id))}
+function newLesson(){openForm("Nova aula",`<div class="formGrid"><div class="formField"><label>TURMA</label><select id="lClass">${classOptions("")}</select></div><div class="formField"><label>DATA</label><input id="lDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="formField"><label>HORÁRIO</label><input id="lTime" type="time"></div><div class="formField"><label>CARGA HORÁRIA</label><input id="lCarga" type="number" min="0" step=".5" value="4"></div><div class="formField"><label>TIPO</label><select id="lTipo"><option>Aula</option><option>Oficina</option><option>Evento</option><option>Reunião</option></select></div><div class="formField"><label>TÍTULO</label><input id="lTitulo"></div><div class="lessonActivityConfig"><div class="configRow"><label class="checkLine"><input id="lAtividadeLiberada" type="checkbox"> LIBERAR REGISTRO DE ATIVIDADE PARA O ALUNO</label><div class="formField"><label>TEMPO LIMITE (MINUTOS)</label><input id="lAtividadeTempo" type="number" min="1" max="240" step="1" value="15"></div></div><div class="activityLock">O cronômetro começa somente quando o aluno iniciar a digitação da atividade.</div></div></div>`,()=>saveLesson(null))}
+function editLesson(id){const l=state.lessons.find(x=>x.id===id);openForm("Editar aula",`<div class="formGrid"><div class="formField"><label>TURMA</label><select id="lClass">${classOptions(l.class_id)}</select></div><div class="formField"><label>DATA</label><input id="lDate" type="date" value="${l.data}"></div><div class="formField"><label>HORÁRIO</label><input id="lTime" type="time" value="${l.horario||""}"></div><div class="formField"><label>CARGA</label><input id="lCarga" type="number" min="0" step=".5" value="${l.carga||0}"></div><div class="formField"><label>TIPO</label><select id="lTipo">${["Aula","Oficina","Evento","Reunião"].map(x=>`<option ${x===l.tipo?"selected":""}>${x}</option>`).join("")}</select></div><div class="formField"><label>TÍTULO</label><input id="lTitulo" value="${attr(l.titulo||"")}"></div><div class="lessonActivityConfig"><div class="configRow"><label class="checkLine"><input id="lAtividadeLiberada" type="checkbox" ${l.atividade_liberada?"checked":""}> LIBERAR REGISTRO DE ATIVIDADE PARA O ALUNO</label><div class="formField"><label>TEMPO LIMITE (MINUTOS)</label><input id="lAtividadeTempo" type="number" min="1" max="240" step="1" value="${Number(l.atividade_tempo_minutos||15)}"></div></div><div class="activityLock">O cronômetro começa somente quando o aluno iniciar a digitação da atividade.</div></div></div>`,()=>saveLesson(id))}
 async function saveLesson(id){
- const d={class_id:lClass.value,data:lDate.value,horario:lTime.value,carga:Number(lCarga.value||0),tipo:lTipo.value,titulo:lTitulo.value.trim()};if(!d.class_id||!d.data||!d.titulo)return toast("Preencha turma, data e título.");
+ const d={class_id:lClass.value,data:lDate.value,horario:lTime.value,carga:Number(lCarga.value||0),tipo:lTipo.value,titulo:lTitulo.value.trim(),atividade_liberada:!!document.getElementById("lAtividadeLiberada")?.checked,atividade_tempo_minutos:Math.min(240,Math.max(1,Number(document.getElementById("lAtividadeTempo")?.value||15)))};if(!d.class_id||!d.data||!d.titulo)return toast("Preencha turma, data e título.");
  if(isReal){const r=id?await sb.from("lessons").update(d).eq("id",id):await sb.from("lessons").insert(d);if(r.error)return toast(r.error.message)}else{id?Object.assign(state.lessons.find(x=>x.id===id),d):state.lessons.push({...d,id:"l"+Date.now()})}
  closeModal();toast("Aula salva.");renderPage("Aulas");
 }
@@ -1274,27 +1331,55 @@ function todayPage(w){
  const today=new Date().toISOString().slice(0,10);
  let myEnroll=state.enrollments.filter(e=>e.student_id===currentUser.id).map(e=>e.class_id);
  let lessons=state.lessons.filter(l=>l.data===today&&myEnroll.includes(l.class_id));
- w.innerHTML=head("Aula de hoje","Aqui aparecem somente as aulas da data de hoje das turmas em que você está matriculado.","ATUALIZAR","renderPage('Aula de hoje')");
+ w.innerHTML=head("Aula de hoje","Aqui aparecem somente as aulas da data de hoje das turmas em que você está matriculado.","ATUALIZAR","renderPage('Aula de hoje')")+`<div class="onlinePanel" id="onlineUsersPanel"><div class="onlinePanelHead"><div><h3>Usuários online</h3><p>Quem está conectado ao ComunicaTec neste momento.</p></div><span class="onlineCount" id="onlineUsersCount">0</span></div></div>`;
+ loadPresence().then(renderOnlineUsers);
  if(!lessons.length){w.innerHTML+=`<div class="todayCard"><div class="empty">Não há aula cadastrada para você hoje.</div></div>`;return}
  lessons.forEach(l=>{
   const c=state.classes.find(x=>x.id===l.class_id),act=state.activities.find(a=>a.lesson_id===l.id&&a.student_id===currentUser.id),att=state.attendance.find(a=>a.lesson_id===l.id&&a.student_id===currentUser.id);
   w.innerHTML+=`<div class="todayCard"><h3>${esc(l.titulo)}</h3><div class="todayMeta"><span><small>Turma</small><strong>${esc(c?.nome||"Não informada")}</strong></span><span><small>Data</small><strong>${fmtDate(l.data)}</strong></span><span><small>Horário</small><strong>${esc(l.horario||"Não informado")}</strong></span><span><small>Carga horária</small><strong>${esc(String(l.carga||0))} horas</strong></span></div><p style="font-size:12px;color:var(--muted)">${esc(l.tipo||"Aula")}</p>
-  <div class="activityBox"><label>REGISTRAR ATIVIDADE DA AULA</label><textarea id="act_${l.id}" placeholder="Descreva as atividades desenvolvidas na aula..." ${act?"readonly":""}>${esc(act?.texto||"")}</textarea>${act
-    ? `<div style="margin-top:9px;font-size:10px;color:var(--muted);font-weight:700">Atividade já registrada. O aluno não pode mais alterá-la. Somente o instrutor poderá realizar correções.</div>`
-    : `<button class="action" style="margin-top:9px" onclick="saveActivity('${l.id}')">REGISTRAR ATIVIDADE</button>`}</div>
+  <div class="activityBox"><label>REGISTRAR ATIVIDADE DA AULA</label>${!l.atividade_liberada&&!act
+    ? `<div class="activityLock">O registro de atividade ainda não foi liberado pelo instrutor, coordenador ou administrador.</div>`
+    : act
+      ? `<textarea id="act_${l.id}" readonly>${esc(act.texto||"")}</textarea><div style="margin-top:9px;font-size:10px;color:var(--muted);font-weight:700">Atividade já registrada. O aluno não pode mais alterá-la. Somente o instrutor poderá realizar correções.</div>`
+      : `<div id="timer_${l.id}" class="activityTimer"><span>Aguardando início da digitação</span><strong class="timerValue">${formatTimerMinutes(Number(l.atividade_tempo_minutos||15)*60)}</strong></div><textarea id="act_${l.id}" placeholder="Descreva as atividades desenvolvidas na aula..." oninput="activityTypingStart('${l.id}')"></textarea><button id="actBtn_${l.id}" class="action" style="margin-top:9px" onclick="saveActivity('${l.id}')" disabled>INICIAR DIGITAÇÃO PARA LIBERAR O ENVIO</button>`}</div>
   <p style="font-size:10px;color:var(--muted);margin-bottom:0">Frequência: <b>${att?.presente?"Presente":"Aguardando registro do instrutor"}</b></p></div>`;
  });
 }
+const activityTimers=window.__activityTimers||{};window.__activityTimers=activityTimers;
+function formatTimerMinutes(total){const s=Math.max(0,Math.floor(Number(total)||0));const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0")}
+async function activityTypingStart(lessonId){
+ const lesson=state.lessons.find(l=>l.id===lessonId),input=document.getElementById("act_"+lessonId),timer=document.getElementById("timer_"+lessonId),btn=document.getElementById("actBtn_"+lessonId);
+ if(!lesson||!input||!lesson.atividade_liberada||activityTimers[lessonId]?.started)return;
+ if(!input.value.trim())return;
+ activityTimers[lessonId]={started:true,expiresAt:null,interval:null};
+ if(isReal){
+   const {data,error}=await sb.rpc("start_activity_session",{p_lesson_id:lessonId});
+   if(error){activityTimers[lessonId].started=false;return toast(error.message)}
+   activityTimers[lessonId].expiresAt=new Date(data).getTime();
+ }else{
+   activityTimers[lessonId].expiresAt=Date.now()+Number(lesson.atividade_tempo_minutos||15)*60000;
+ }
+ if(btn){btn.disabled=false;btn.textContent="REGISTRAR ATIVIDADE"}
+ runActivityTimer(lessonId);
+}
+function runActivityTimer(lessonId){
+ const timer=document.getElementById("timer_"+lessonId),btn=document.getElementById("actBtn_"+lessonId),input=document.getElementById("act_"+lessonId),t=activityTimers[lessonId];
+ if(!t||!t.expiresAt)return;
+ clearInterval(t.interval);
+ const tick=()=>{const left=Math.max(0,t.expiresAt-Date.now()),sec=Math.ceil(left/1000);if(timer){timer.classList.toggle("warning",sec<=60&&sec>0);timer.querySelector("span").textContent=sec>0?"Tempo restante":"Tempo encerrado";timer.querySelector(".timerValue").textContent=formatTimerMinutes(sec)}if(sec<=0){clearInterval(t.interval);t.expired=true;if(input)input.disabled=true;if(btn){btn.disabled=true;btn.textContent="TEMPO ENCERRADO"}if(timer)timer.classList.add("expired");toast("O tempo para registrar esta atividade terminou.")}};tick();t.interval=setInterval(tick,1000)}
 async function saveActivity(lessonId){
  const texto=document.getElementById("act_"+lessonId)?.value.trim();if(!texto)return toast("Escreva a atividade desenvolvida.");
  const lesson=state.lessons.find(l=>l.id===lessonId);if(!lesson)return toast("Aula não encontrada.");
  const enrolled=state.enrollments.some(e=>e.class_id===lesson.class_id&&e.student_id===currentUser.id),attendance=state.attendance.find(a=>a.lesson_id===lessonId&&a.student_id===currentUser.id&&a.presente===true);
  if(!enrolled)return toast("Você não está vinculado à turma desta aula.");
  if(!attendance)return toast("Sua atividade só pode ser registrada depois que sua presença for confirmada pelo instrutor.");
+ if(!lesson.atividade_liberada)return toast("O registro de atividade não está liberado para esta aula.");
  const existing=state.activities.find(a=>a.lesson_id===lessonId&&a.student_id===currentUser.id);
  if(existing)return toast("Esta atividade já foi registrada e não pode mais ser alterada pelo aluno. Procure o instrutor para solicitar uma correção.");
- if(isReal){const r=await sb.from("activities").insert({lesson_id:lessonId,student_id:currentUser.id,texto});if(r.error)return toast(r.error.message);await loadState()}
+ const t=activityTimers[lessonId];if(!t?.started||t.expired||!t.expiresAt||Date.now()>t.expiresAt)return toast("O tempo para registrar esta atividade terminou.");
+ if(isReal){const r=await sb.rpc("submit_activity_session",{p_lesson_id:lessonId,p_texto:texto});if(r.error)return toast(r.error.message);await loadState()}
  else state.activities.push({id:"a"+Date.now(),lesson_id:lessonId,student_id:currentUser.id,texto});
+ clearInterval(t.interval);delete activityTimers[lessonId];
  toast("Atividade registrada. A partir de agora, somente o instrutor poderá alterá-la.");renderPage("Aula de hoje");
 }
 
@@ -1522,6 +1607,6 @@ function closeModal(){hideModalClose();document.getElementById("closeModal").tex
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function attr(v){return esc(v)}
 function fmtDate(v){if(!v)return"—";const [y,m,d]=String(v).slice(0,10).split("-");return d+"/"+m+"/"+y}
-async function logout(){closeMobileMenu();if(isReal)await sb.auth.signOut();currentUser=null;dashboard.classList.remove("active");authApp.style.display="flex";authApp.style.visibility="visible";try{localStorage.removeItem("comunicatec_current_page")}catch(e){}document.getElementById("loginForm").reset();view("login")}
+async function logout(){closeMobileMenu();stopPresenceHeartbeat();if(isReal)await sb.auth.signOut();currentUser=null;dashboard.classList.remove("active");authApp.style.display="flex";authApp.style.visibility="visible";try{localStorage.removeItem("comunicatec_current_page")}catch(e){}document.getElementById("loginForm").reset();view("login")}
 </script>
 </body></html>

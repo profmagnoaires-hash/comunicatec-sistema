@@ -199,7 +199,13 @@ img{max-width:100%;height:auto}
  body.printingAdminDashboard .adminReportCard{break-inside:avoid;page-break-inside:avoid;box-shadow:none!important}
  body.printingAdminDashboard .reportHeaderActions,body.printingAdminDashboard .adminDashboardFilters{display:none!important}
  body.printingAdminDashboard .adminChartGrid{grid-template-columns:1fr 1fr!important}
-}</style>
+}
+/* V63 — Resumo individual do aluno e aulas liberadas após a data */
+.studentSummary{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px;margin:18px 0;box-shadow:0 8px 24px rgba(0,0,0,.03)}
+.studentSummaryHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.studentSummaryHead h3{margin:0;font-size:15px}.studentSummaryHead p{margin:4px 0 0;color:var(--muted);font-size:10px}.studentSummaryCards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin-bottom:16px}.studentSummaryCard{background:#f8faff;border:1px solid var(--line);border-radius:12px;padding:12px}.studentSummaryCard small{display:block;color:var(--muted);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}.studentSummaryCard strong{display:block;color:var(--blue);font-size:19px;margin-top:5px}.studentSummaryCard span{display:block;color:var(--muted);font-size:8px;margin-top:2px}.studentSummaryProgress{height:8px;background:#edf1f7;border-radius:999px;overflow:hidden;margin-top:8px}.studentSummaryProgress i{display:block;height:100%;background:var(--green);border-radius:999px}.studentSummaryGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.studentSummaryBlock{border:1px solid var(--line);border-radius:12px;padding:13px;min-width:0}.studentSummaryBlock h4{margin:0 0 10px;font-size:11px}.studentSummaryTable{width:100%;border-collapse:collapse;font-size:9px}.studentSummaryTable th,.studentSummaryTable td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}.studentSummaryTable th{background:#f3f5f9;font-size:8px;text-transform:uppercase}.studentStatus{display:inline-flex;align-items:center;justify-content:center;padding:4px 7px;border-radius:999px;font-size:7px;font-weight:900;white-space:nowrap}.studentStatus.present{background:#e8fff8;color:#087b60}.studentStatus.absent{background:#fff0ef;color:#c33b2e}.studentStatus.pending{background:#f1f3f7;color:#687386}.studentStatus.activity{background:#eaf0ff;color:#234db5}.studentEmpty{font-size:10px;color:var(--muted);padding:8px 2px}.studentLessonList{max-height:330px;overflow:auto}.studentActivityList{display:grid;gap:8px;max-height:330px;overflow:auto}.studentActivityItem{border:1px solid var(--line);border-radius:10px;padding:9px}.studentActivityItem strong{display:block;font-size:9px}.studentActivityItem small{display:block;color:var(--muted);font-size:8px;margin-top:3px}.studentActivityItem p{margin:7px 0 0;font-size:9px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}.studentReleased{background:#e8fff8;color:#087b60}.studentNotReleased{background:#f1f3f7;color:#687386}
+@media(max-width:900px){.studentSummaryCards{grid-template-columns:repeat(3,minmax(0,1fr))}.studentSummaryGrid{grid-template-columns:1fr}}
+@media(max-width:700px){.studentSummary{padding:12px}.studentSummaryHead{align-items:flex-start;flex-direction:column}.studentSummaryCards{grid-template-columns:1fr 1fr;gap:8px}.studentSummaryCard strong{font-size:17px}.studentSummaryTable{font-size:8px}.studentSummaryTable th,.studentSummaryTable td{padding:6px 4px}.studentLessonList,.studentActivityList{max-height:none}.studentSummaryTable th:nth-child(2),.studentSummaryTable td:nth-child(2){white-space:nowrap}}
+</style>
 
 <style>
 @media print{
@@ -773,7 +779,11 @@ function dashboardPage(w){
    classes:state.classes.length,
    lessons:state.lessons.length
  };
- if(currentUser.role==="ALUNO")return todayPage(w);
+ if(currentUser.role==="ALUNO"){
+   w.innerHTML=head("Dashboard","Seu resumo individual de frequência e atividades no ComunicaTec.")+`<div class="onlinePanel" id="onlineUsersPanel"><div class="onlinePanelHead"><div><h3>Usuários online</h3><p>Quem está conectado ao ComunicaTec neste momento.</p></div><span class="onlineCount" id="onlineUsersCount">0</span></div></div>`+buildStudentDashboardSummary();
+   loadPresence().then(renderOnlineUsers);
+   return;
+ }
 
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
  
@@ -1391,22 +1401,65 @@ function chooseReportForStudent(studentId){
 function chooseReport(){
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");openModal("Gerar relatório",`<div class="formField"><label>ALUNO</label><select id="reportStudent">${students.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("")}</select></div><div class="formField" style="margin-top:12px"><label>MÊS</label><input id="reportMonth" type="month" value="${new Date().toISOString().slice(0,7)}"></div><button class="btn primary" style="margin-top:14px" onclick="generateReport(document.getElementById('reportStudent').value,document.getElementById('reportMonth').value)">GERAR</button>`)}
 
+function buildStudentDashboardSummary(){
+ const today=new Date().toISOString().slice(0,10);
+ const currentMonth=today.slice(0,7);
+ const myEnroll=state.enrollments.filter(e=>e.student_id===currentUser.id);
+ const classIds=new Set(myEnroll.map(e=>e.class_id));
+ const myLessons=state.lessons.filter(l=>classIds.has(l.class_id)).sort((a,b)=>String(b.data||"").localeCompare(String(a.data||""))||String(b.horario||"").localeCompare(String(a.horario||"")));
+ const myAttendance=state.attendance.filter(a=>a.student_id===currentUser.id);
+ const myActivities=state.activities.filter(a=>a.student_id===currentUser.id);
+ const recorded=myLessons.map(l=>myAttendance.find(a=>a.lesson_id===l.id)).filter(Boolean);
+ const present=recorded.filter(a=>a.presente===true).length;
+ const absent=recorded.filter(a=>a.presente===false).length;
+ const pending=Math.max(0,myLessons.length-recorded.length);
+ const overallPct=recorded.length?Math.round(present/recorded.length*100):0;
+ const monthLessons=myLessons.filter(l=>String(l.data||"").slice(0,7)===currentMonth);
+ const monthAtt=monthLessons.map(l=>myAttendance.find(a=>a.lesson_id===l.id)).filter(Boolean);
+ const monthPresent=monthAtt.filter(a=>a.presente===true).length;
+ const monthPct=monthAtt.length?Math.round(monthPresent/monthAtt.length*100):0;
+ const released=myLessons.filter(l=>l.atividade_liberada).length;
+ const activityLessons=new Set(myActivities.map(a=>a.lesson_id));
+ const pendingActivities=myLessons.filter(l=>l.atividade_liberada&&!activityLessons.has(l.id)).length;
+ const lessonRows=myLessons.slice(0,80);
+ const activityRows=myActivities.map(a=>({a,l:myLessons.find(l=>l.id===a.lesson_id)})).filter(x=>x.l).sort((a,b)=>String(b.l.data||"").localeCompare(String(a.l.data||""))).slice(0,30);
+ return `<div class="studentSummary">
+   <div class="studentSummaryHead"><div><h3>Meu resumo individual</h3><p>Frequência e atividades registradas nas suas turmas. Frequência geral considera os registros de presença já lançados.</p></div><span class="reportFilterBadge">Mês atual: ${esc(currentMonth.split('-').reverse().join('/'))}</span></div>
+   <div class="studentSummaryCards">
+    <div class="studentSummaryCard"><small>Aulas</small><strong>${myLessons.length}</strong><span>Total nas suas turmas</span></div>
+    <div class="studentSummaryCard"><small>Presentes</small><strong>${present}</strong><span>Registros confirmados</span></div>
+    <div class="studentSummaryCard"><small>Ausentes</small><strong>${absent}</strong><span>Registros confirmados</span></div>
+    <div class="studentSummaryCard"><small>Aguardando</small><strong>${pending}</strong><span>Sem registro de frequência</span></div>
+    <div class="studentSummaryCard"><small>Frequência geral</small><strong>${overallPct}%</strong><div class="studentSummaryProgress"><i style="width:${Math.min(100,Math.max(0,overallPct))}%"></i></div></div>
+    <div class="studentSummaryCard"><small>Frequência no mês</small><strong>${monthPct}%</strong><span>${monthPresent}/${monthAtt.length} registros</span></div>
+   </div>
+   <div class="studentSummaryGrid">
+    <div class="studentSummaryBlock"><h4>Frequência por aula</h4><div class="studentLessonList"><table class="studentSummaryTable"><thead><tr><th>Data</th><th>Aula</th><th>Turma</th><th>Frequência</th><th>Atividade</th></tr></thead><tbody>${lessonRows.map(l=>{const c=state.classes.find(x=>x.id===l.class_id),att=myAttendance.find(a=>a.lesson_id===l.id),act=state.activities.find(a=>a.lesson_id===l.id&&a.student_id===currentUser.id);const attLabel=att?(att.presente?'PRESENTE':'AUSENTE'):'AGUARDANDO';const attClass=att?(att.presente?'present':'absent'):'pending';return `<tr><td>${fmtDate(l.data)}</td><td><b>${esc(l.titulo||'—')}</b></td><td>${esc(c?.nome||'—')}</td><td><span class="studentStatus ${attClass}">${attLabel}</span></td><td><span class="studentStatus ${act?'activity':'studentNotReleased'}">${act?'CADASTRADA':(l.atividade_liberada?'LIBERADA':'NÃO LIBERADA')}</span></td></tr>`}).join('')||`<tr><td colspan="5" class="studentEmpty">Nenhuma aula encontrada nas suas turmas.</td></tr>`}</tbody></table></div></div>
+    <div class="studentSummaryBlock"><h4>Atividades cadastradas</h4><div class="studentActivityList">${activityRows.map(x=>`<div class="studentActivityItem"><strong>${esc(x.l.titulo||'Aula')}</strong><small>${fmtDate(x.l.data)} • ${esc(state.classes.find(c=>c.id===x.l.class_id)?.nome||'Turma não informada')}</small><p>${esc(x.a.texto||'')}</p></div>`).join('')||`<div class="studentEmpty">Nenhuma atividade cadastrada até o momento.</div>`}</div><div style="margin-top:10px;font-size:9px;color:var(--muted)"><b>${myActivities.length}</b> atividade(s) cadastrada(s) • <b>${released}</b> aula(s) liberada(s) • <b>${pendingActivities}</b> atividade(s) liberada(s) aguardando cadastro.</div></div>
+   </div>
+ </div>`;
+}
+
 function todayPage(w){
  const today=new Date().toISOString().slice(0,10);
- let myEnroll=state.enrollments.filter(e=>e.student_id===currentUser.id).map(e=>e.class_id);
- let lessons=state.lessons.filter(l=>l.data===today&&myEnroll.includes(l.class_id));
- w.innerHTML=head("Aula de hoje","Aqui aparecem somente as aulas da data de hoje das turmas em que você está matriculado.","ATUALIZAR","renderPage('Aula de hoje')")+`<div class="onlinePanel" id="onlineUsersPanel"><div class="onlinePanelHead"><div><h3>Usuários online</h3><p>Quem está conectado ao ComunicaTec neste momento.</p></div><span class="onlineCount" id="onlineUsersCount">0</span></div></div>`;
+ const myEnroll=state.enrollments.filter(e=>e.student_id===currentUser.id).map(e=>e.class_id);
+ // Aulas de hoje continuam visíveis; qualquer aula com atividade liberada permanece disponível mesmo depois da sua data.
+ const lessons=state.lessons.filter(l=>myEnroll.includes(l.class_id)&&(l.data===today||l.atividade_liberada)).sort((a,b)=>String(b.data||"").localeCompare(String(a.data||""))||String(a.horario||"").localeCompare(String(b.horario||"")));
+ const todayLessons=lessons.filter(l=>l.data===today);
+ const releasedPast=lessons.filter(l=>l.data<today&&l.atividade_liberada);
+ w.innerHTML=head("Aulas disponíveis para você","Aulas de hoje e aulas anteriores que foram liberadas para registro de atividade.","ATUALIZAR","renderPage('Aula de hoje')")+`<div class="onlinePanel" id="onlineUsersPanel"><div class="onlinePanelHead"><div><h3>Usuários online</h3><p>Quem está conectado ao ComunicaTec neste momento.</p></div><span class="onlineCount" id="onlineUsersCount">0</span></div></div>`+`<div class="reportSectionTitle" style="margin-top:18px"><div><h3>Aulas disponíveis para você</h3><p>${todayLessons.length} aula(s) de hoje • ${releasedPast.length} aula(s) anterior(es) liberada(s)</p></div></div>`;
  loadPresence().then(renderOnlineUsers);
- if(!lessons.length){w.innerHTML+=`<div class="todayCard"><div class="empty">Não há aula cadastrada para você hoje.</div></div>`;return}
+ if(!lessons.length){w.innerHTML+=`<div class="todayCard"><div class="empty">Não há aula disponível para você. Quando uma aula tiver o registro de atividade liberado, ela continuará aparecendo aqui mesmo após a data da aula.</div></div>`;return}
  lessons.forEach(l=>{
   const c=state.classes.find(x=>x.id===l.class_id),act=state.activities.find(a=>a.lesson_id===l.id&&a.student_id===currentUser.id),att=state.attendance.find(a=>a.lesson_id===l.id&&a.student_id===currentUser.id);
-  w.innerHTML+=`<div class="todayCard"><h3>${esc(l.titulo)}</h3><div class="todayMeta"><span><small>Turma</small><strong>${esc(c?.nome||"Não informada")}</strong></span><span><small>Data</small><strong>${fmtDate(l.data)}</strong></span><span><small>Horário</small><strong>${esc(l.horario||"Não informado")}</strong></span><span><small>Carga horária</small><strong>${esc(String(l.carga||0))} horas</strong></span></div><p style="font-size:12px;color:var(--muted)">${esc(l.tipo||"Aula")}</p>
+  const past=l.data<today;
+  w.innerHTML+=`<div class="todayCard"><h3>${esc(l.titulo)} ${past?`<span class="studentStatus activity" style="vertical-align:middle">AULA ANTERIOR LIBERADA</span>`:''}</h3><div class="todayMeta"><span><small>Turma</small><strong>${esc(c?.nome||"Não informada")}</strong></span><span><small>Data</small><strong>${fmtDate(l.data)}</strong></span><span><small>Horário</small><strong>${esc(l.horario||"Não informado")}</strong></span><span><small>Carga horária</small><strong>${esc(String(l.carga||0))} horas</strong></span></div><p style="font-size:12px;color:var(--muted)">${esc(l.tipo||"Aula")}</p>
   <div class="activityBox"><label>REGISTRAR ATIVIDADE DA AULA</label>${!l.atividade_liberada&&!act
     ? `<div class="activityLock">O registro de atividade ainda não foi liberado pelo instrutor, coordenador ou administrador.</div>`
     : act
       ? `<textarea id="act_${l.id}" readonly>${esc(act.texto||"")}</textarea><div style="margin-top:9px;font-size:10px;color:var(--muted);font-weight:700">Atividade já registrada. O aluno não pode mais alterá-la. Somente o instrutor poderá realizar correções.</div>`
       : `<div id="timer_${l.id}" class="activityTimer"><span>Aguardando início da digitação</span><strong class="timerValue">${formatTimerMinutes(Number(l.atividade_tempo_minutos||15)*60)}</strong></div><textarea id="act_${l.id}" placeholder="Descreva as atividades desenvolvidas na aula..." oninput="activityTypingStart('${l.id}')"></textarea><button id="actBtn_${l.id}" class="action" style="margin-top:9px" onclick="saveActivity('${l.id}')" disabled>INICIAR DIGITAÇÃO PARA LIBERAR O ENVIO</button>`}</div>
-  <p style="font-size:10px;color:var(--muted);margin-bottom:0">Frequência: <b>${att?.presente?"Presente":"Aguardando registro do instrutor"}</b></p></div>`;
+  <p style="font-size:10px;color:var(--muted);margin-bottom:0">Frequência: <b>${att?(att.presente?"Presente":"Ausente"):"Aguardando registro do instrutor"}</b></p></div>`;
  });
 }
 const activityTimers=window.__activityTimers||{};window.__activityTimers=activityTimers;

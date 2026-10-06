@@ -257,7 +257,7 @@ img{max-width:100%;height:auto}
 .onlinePanel:has(.onlineUser){min-height:100px}.onlinePanel{display:block}.onlinePanel > .onlineUser{display:inline-flex;vertical-align:top;margin:0 8px 8px 0}.onlineUser{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:#fbfcff;border-radius:12px;padding:9px 12px;min-width:185px;max-width:260px}.onlineAvatar{position:relative;width:42px;height:42px;border-radius:50%;background:var(--green);color:var(--blue);display:grid;place-items:center;font-size:12px;font-weight:900;overflow:visible;flex:0 0 42px}.onlineAvatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}.onlineDot{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#18b76b;border:2px solid #fff}.onlineUserText{min-width:0}.onlineUserText strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.onlineUserText small{display:block;color:var(--muted);font-size:9px;margin-top:3px;font-weight:700}.onlineEmpty{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:11px;padding:10px 2px}.onlineEmpty i{font-size:20px;color:#b8c0cf}
 
 @media(max-width:800px){.formGrid{grid-template-columns:1fr}.statGrid{grid-template-columns:1fr 1fr}.workspace-head{align-items:stretch;flex-direction:column}.reportPaper{padding:18px}.signatureArea{gap:20px}}
-@media print{body{background:#fff!important}.authApp,.side,.bar,.workspace-head,.toolbar,.signatureUpload,.reportActions,#noPrint,.modal,.toast{display:none!important}.dashboard,.main,.content{display:block!important;width:100%!important;min-height:0!important;padding:0!important}.reportPaper{display:block!important;box-shadow:none!important;border:0!important;max-width:none!important;width:100%!important;margin:0!important}.reportTable{font-size:9px}}
+@media print{body{background:#fff!important}.authApp,.side,.bar,.workspace-head,.toolbar,.signatureUpload,.reportActions,.reportMonthChooser,#noPrint,.modal,.toast{display:none!important}.dashboard,.main,.content{display:block!important;width:100%!important;min-height:0!important;padding:0!important}.reportPaper{display:block!important;box-shadow:none!important;border:0!important;max-width:none!important;width:100%!important;margin:0!important}.reportTable{font-size:9px}}
 </style>
 <style>
 /* V25 — refinamento visual e responsividade */
@@ -1370,10 +1370,15 @@ async function saveLessonAttendance(lessonId){
 
 function reportsPage(w){
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
+ const currentMonth=new Date().toISOString().slice(0,7);
  w.innerHTML=head("Relatórios","Relatórios dos alunos e das atividades.","","")+
  `<div class="placeholder">
    <h4>Relatório mensal de atividade do aluno</h4>
-   <p style="margin-bottom:14px">Selecione um aluno e o período para visualizar o relatório institucional.</p>
+   <p style="margin-bottom:14px">Escolha o mês primeiro e depois selecione o aluno cujo relatório deseja visualizar ou imprimir.</p>
+   <div class="reportMonthChooser" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:12px 0 16px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:12px">
+     <div class="formField" style="margin:0;min-width:210px;max-width:300px;flex:1"><label>MÊS DO RELATÓRIO</label><input id="reportsPageMonth" type="month" value="${currentMonth}"></div>
+     <span style="font-size:10px;color:var(--muted);font-weight:700;padding-bottom:9px">O mês escolhido será usado ao abrir qualquer relatório abaixo.</span>
+   </div>
    <div class="tableWrap"><table class="dataTable">
     <thead><tr><th>Aluno</th><th>E-mail</th><th>Ação</th></tr></thead>
     <tbody>
@@ -1389,7 +1394,7 @@ function reportsPage(w){
 
 function chooseReportForStudent(studentId){
  const p=state.profiles.find(x=>x.id===studentId);
- const month=new Date().toISOString().slice(0,7);
+ const month=document.getElementById("reportsPageMonth")?.value||new Date().toISOString().slice(0,7);
  openModal("Relatório de "+(p?.nome||"Aluno"),`
   <div class="formField">
    <label>MÊS DO RELATÓRIO</label>
@@ -1504,10 +1509,21 @@ function studentReportPage(w){
  const signatureKey="signature_"+currentUser.id;
  const sig=currentUser.signature_data||window.__signatures?.[signatureKey]||"";
  window.__signatures=window.__signatures||{};
- w.innerHTML=head("Meu relatório","Relatório mensal de atividade do aluno.","IMPRIMIR / PDF","printReport()")+
- `<div class="signatureUpload"><p><b>ASSINATURA DIGITAL DO ALUNO</b><br>Selecione uma imagem da sua assinatura. A assinatura será vinculada ao perfil do aluno e armazenada no Supabase Storage.</p><input id="signatureInput" type="file" accept="image/png,image/jpeg,image/webp" onchange="readSignature(this)">${sig?`<button class="tiny" style="margin-top:8px" onclick="removeSignature()">REMOVER ASSINATURA</button>`:""}</div>
+ const currentMonth=new Date().toISOString().slice(0,7);
+ w.innerHTML=head("Meu relatório","Relatório mensal de atividade do aluno.","","")+
+ `<div class="reportMonthChooser" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:12px 0;padding:12px;background:#fff;border:1px solid var(--line);border-radius:12px">
+   <div class="formField" style="margin:0;min-width:210px;flex:1"><label>ESCOLHA O MÊS DO RELATÓRIO</label><input id="studentReportMonth" type="month" value="${currentMonth}"></div>
+   <button class="btn primary" type="button" onclick="showStudentReportMonth()"><i class="fa-solid fa-file-lines"></i> VISUALIZAR MÊS</button>
+   <button class="btn" type="button" onclick="printReport()"><i class="fa-solid fa-print"></i> IMPRIMIR / PDF</button>
+ </div>
+ <div class="signatureUpload"><p><b>ASSINATURA DIGITAL DO ALUNO</b><br>Selecione uma imagem da sua assinatura. A assinatura será vinculada ao perfil do aluno e armazenada no Supabase Storage.</p><input id="signatureInput" type="file" accept="image/png,image/jpeg,image/webp" onchange="readSignature(this)">${sig?`<button class="tiny" style="margin-top:8px" onclick="removeSignature()">REMOVER ASSINATURA</button>`:""}</div>
  <div id="reportPreview"></div>`;
- renderReportPreview(currentUser.id,new Date().toISOString().slice(0,7));
+ renderReportPreview(currentUser.id,currentMonth);
+}
+function showStudentReportMonth(){
+ const month=document.getElementById("studentReportMonth")?.value;
+ if(!month)return toast("Escolha o mês do relatório.");
+ renderReportPreview(currentUser.id,month);
 }
 async function readSignature(input){
  const f=input.files?.[0];

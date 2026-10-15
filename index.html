@@ -510,6 +510,7 @@ img{max-width:100%;height:auto}
  profiles(id,nome,email,telefone,perfil,ativo,signature_data,avatar_data,created_at)
  classes(id,nome,descricao,coordenador_id,instrutor_id,created_at)
  enrollments(id,class_id,student_id,created_at)
+ lesson_enrollments(id,lesson_id,student_id,created_at)
  lessons(id,class_id,data,horario,carga,tipo,titulo,created_at)
  attendance(id,lesson_id,student_id,presente,by_user_id,created_at)
  activities(id,lesson_id,student_id,texto,created_at)
@@ -522,7 +523,7 @@ img{max-width:100%;height:auto}
 const SUPABASE_URL="https://mkpydqlafyjswtyvogou.supabase.co";
 const SUPABASE_KEY="sb_publishable_8yWliKaU2ya-U2bDDAxCvA_4MwG3NzI";
 let sb=null,isReal=true,currentUser=null;
-let state={profiles:[],classes:[],lessons:[],enrollments:[],activities:[],attendance:[],notifications:[],notificationReads:[],presence:[]};
+let state={profiles:[],classes:[],lessons:[],enrollments:[],lessonEnrollments:[],activities:[],attendance:[],notifications:[],notificationReads:[],presence:[]};
 let presenceTimer=null,presenceRefreshTimer=null;
 
 
@@ -623,13 +624,14 @@ async function enterReal(user){
 
 async function loadState(){
  if(!isReal)return;
- const [p,c,e,l,a,at]=await Promise.all([
+ const [p,c,e,l,a,at,le]=await Promise.all([
   sb.from("profiles").select("id,nome,email,telefone,funcao,perfil,ativo,signature_data,avatar_data,created_at").order("nome"),
   sb.from("classes").select("*").order("nome"),
   sb.from("enrollments").select("*"),
   sb.from("lessons").select("*").order("data",{ascending:false}),
   sb.from("activities").select("*"),
-  sb.from("attendance").select("*")
+  sb.from("attendance").select("*"),
+  sb.from("lesson_enrollments").select("*")
  ]);
  const failures=[
   ["profiles",p],
@@ -637,7 +639,8 @@ async function loadState(){
   ["enrollments",e],
   ["lessons",l],
   ["activities",a],
-  ["attendance",at]
+  ["attendance",at],
+  ["lesson_enrollments",le]
  ].filter(([,r])=>r.error);
  if(failures.length){
   const [table,result]=failures[0];
@@ -649,6 +652,7 @@ async function loadState(){
  state.lessons=l.data||[];
  state.activities=a.data||[];
  state.attendance=at.data||[];
+ state.lessonEnrollments=le.data||[];
  state.myCoordinator=null;
  if(currentUser?.role==="ALUNO"){
    try{
@@ -961,7 +965,8 @@ function renderMonthlyAttendanceReport(){
  const monthName=new Date(month+"-02").toLocaleDateString("pt-BR",{month:"long",year:"numeric"}).toUpperCase();
  const blocks=students.map(s=>{
    const ens=state.enrollments.filter(e=>e.student_id===s.id&&allowedClassIds.includes(e.class_id));
-   const studentLessons=monthLessons.filter(l=>ens.some(e=>e.class_id===l.class_id));
+   const assignedLessonIds=new Set(state.lessonEnrollments.filter(e=>e.student_id===s.id).map(e=>e.lesson_id));
+   const studentLessons=monthLessons.filter(l=>assignedLessonIds.has(l.id));
    const records=studentLessons.map(l=>({l,a:state.attendance.find(a=>a.lesson_id===l.id&&a.student_id===s.id)}));
    const registered=records.filter(x=>x.a&&typeof x.a.presente!=="undefined");
    const present=registered.filter(x=>x.a.presente===true).length;
@@ -1311,16 +1316,51 @@ async function removeStudentFromClass(classId,studentId){
  toast("Aluno removido da turma.");classStudents(classId);
 }
 
+function manageLessonStudents(lessonId){
+ const lesson=state.lessons.find(l=>l.id===lessonId);if(!lesson)return toast("Aula não encontrada.");
+ const classId=lesson.class_id,assigned=state.lessonEnrollments.filter(e=>e.lesson_id===lessonId),assignedIds=new Set(assigned.map(e=>e.student_id));
+ const classStudentIds=new Set(state.enrollments.filter(e=>e.class_id===classId).map(e=>e.student_id));
+ const assignedProfiles=assigned.map(e=>state.profiles.find(p=>p.id===e.student_id)).filter(Boolean);
+ const available=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&p.ativo&&classStudentIds.has(p.id)&&!assignedIds.has(p.id));
+ openModal("Gerenciar alunos — "+(lesson.titulo||"Aula"),`<p style="font-size:11px;color:var(--muted)">As alterações valem somente para esta aula. A matrícula do aluno na turma e a participação dele em outras aulas não serão alteradas.</p><div class="formField"><label>ADICIONAR ALUNO A ESTA AULA</label><select id="lessonEnrollStudent"><option value="">Selecione um aluno da turma</option>${available.map(p=>`<option value="${p.id}">${esc(p.nome)} — ${esc(p.email||"")}</option>`).join("")}</select><button class="btn primary" style="margin-top:9px" onclick="addStudentToLesson('${lessonId}')">INCLUIR NESTA AULA</button></div><div style="margin-top:18px"><b>ALUNOS DESTA AULA (${assignedProfiles.length})</b></div><div class="tableWrap" style="margin-top:8px"><table class="dataTable"><thead><tr><th>Aluno</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>${assignedProfiles.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.email||"")}</td><td><button class="tiny danger" onclick="removeStudentFromLesson('${lessonId}','${p.id}')">EXCLUIR DESTA AULA</button></td></tr>`).join("")||`<tr><td colspan="3" class="empty">Nenhum aluno vinculado a esta aula.</td></tr>`}</tbody></table></div>${available.length?"":`<p style="font-size:10px;color:var(--muted);margin-top:8px">Todos os alunos matriculados nesta turma já estão vinculados a esta aula. Para adicionar outro aluno, matricule-o na turma primeiro.</p>`}`);showModalClose();
+}
+async function addStudentToLesson(lessonId){
+ const lesson=state.lessons.find(l=>l.id===lessonId),studentId=document.getElementById("lessonEnrollStudent")?.value;
+ if(!lesson)return toast("Aula não encontrada.");if(!studentId)return toast("Selecione um aluno.");
+ if(!state.enrollments.some(e=>e.class_id===lesson.class_id&&e.student_id===studentId))return toast("O aluno precisa estar matriculado na turma desta aula.");
+ if(state.lessonEnrollments.some(e=>e.lesson_id===lessonId&&e.student_id===studentId))return toast("Este aluno já está nesta aula.");
+ if(isReal){const {error}=await sb.from("lesson_enrollments").insert({lesson_id:lessonId,student_id:studentId});if(error)return toast(error.message);await loadState()}
+ else state.lessonEnrollments.push({id:"le"+Date.now(),lesson_id:lessonId,student_id:studentId});
+ toast("Aluno incluído somente nesta aula.");manageLessonStudents(lessonId);
+}
+async function removeStudentFromLesson(lessonId,studentId){
+ if(!confirm("Excluir este aluno somente desta aula? A matrícula na turma e as demais aulas serão mantidas."))return;
+ if(isReal){const {error}=await sb.from("lesson_enrollments").delete().eq("lesson_id",lessonId).eq("student_id",studentId);if(error)return toast(error.message);await loadState()}
+ else state.lessonEnrollments=state.lessonEnrollments.filter(e=>!(e.lesson_id===lessonId&&e.student_id===studentId));
+ toast("Aluno excluído somente desta aula. As outras aulas não foram alteradas.");manageLessonStudents(lessonId);
+}
+
 function lessonsPage(w){
  w.innerHTML=head("Aulas","Aulas cadastradas nas turmas. Crie, edite, veja atividades e frequência.","NOVA AULA","newLesson()")+
- `<div class="tableWrap"><table class="dataTable"><thead><tr><th>Data</th><th>Horário</th><th>Turma</th><th>Aula</th><th>Carga</th><th>Atividade do aluno</th><th>Ações</th></tr></thead><tbody>${state.lessons.map(l=>{const c=state.classes.find(x=>x.id===l.class_id);return`<tr><td>${fmtDate(l.data)}</td><td>${esc(l.horario||"—")}</td><td>${esc(c?.nome||"—")}</td><td><b>${esc(l.titulo||"—")}</b></td><td>${esc(String(l.carga||"—"))}h</td><td>${l.atividade_liberada?`<span class="badge on">LIBERADA • ${Number(l.atividade_tempo_minutos||15)} MIN</span>`:`<span class="badge off">BLOQUEADA</span>`}</td><td><div class="rowActions"><button class="tiny" onclick="editLesson('${l.id}')">EDITAR</button><button class="tiny" onclick="lessonActivities('${l.id}')">ATIVIDADES</button><button class="tiny" onclick="lessonAttendance('${l.id}')">FREQUÊNCIA</button></div></td></tr>`}).join("")||`<tr><td colspan="7" class="empty">Nenhuma aula cadastrada.</td></tr>`}</tbody></table></div>`;
+ `<div class="tableWrap"><table class="dataTable"><thead><tr><th>Data</th><th>Horário</th><th>Turma</th><th>Aula</th><th>Carga</th><th>Atividade do aluno</th><th>Ações</th></tr></thead><tbody>${state.lessons.map(l=>{const c=state.classes.find(x=>x.id===l.class_id);return`<tr><td>${fmtDate(l.data)}</td><td>${esc(l.horario||"—")}</td><td>${esc(c?.nome||"—")}</td><td><b>${esc(l.titulo||"—")}</b></td><td>${esc(String(l.carga||"—"))}h</td><td>${l.atividade_liberada?`<span class="badge on">LIBERADA • ${Number(l.atividade_tempo_minutos||15)} MIN</span>`:`<span class="badge off">BLOQUEADA</span>`}</td><td><div class="rowActions"><button class="tiny" onclick="editLesson('${l.id}')">EDITAR</button><button class="tiny" onclick="manageLessonStudents('${l.id}')" title="Gerenciar alunos somente nesta aula">GERENCIAR ALUNOS</button><button class="tiny" onclick="lessonActivities('${l.id}')">ATIVIDADES</button><button class="tiny" onclick="lessonAttendance('${l.id}')">FREQUÊNCIA</button></div></td></tr>`}).join("")||`<tr><td colspan="7" class="empty">Nenhuma aula cadastrada.</td></tr>`}</tbody></table></div>`;
 }
 function classOptions(selected){return state.classes.map(c=>`<option value="${c.id}" ${c.id===selected?"selected":""}>${esc(c.nome)}</option>`).join("")}
 function newLesson(){openForm("Nova aula",`<div class="formGrid"><div class="formField"><label>TURMA</label><select id="lClass">${classOptions("")}</select></div><div class="formField"><label>DATA</label><input id="lDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="formField"><label>HORÁRIO</label><input id="lTime" type="time"></div><div class="formField"><label>CARGA HORÁRIA</label><input id="lCarga" type="number" min="0" step=".5" value="4"></div><div class="formField"><label>TIPO</label><select id="lTipo"><option>Aula</option><option>Oficina</option><option>Evento</option><option>Reunião</option></select></div><div class="formField"><label>TÍTULO</label><input id="lTitulo"></div><div class="lessonActivityConfig"><div class="configRow"><label class="checkLine"><input id="lAtividadeLiberada" type="checkbox"> LIBERAR REGISTRO DE ATIVIDADE PARA O ALUNO</label><div class="formField"><label>TEMPO LIMITE (MINUTOS)</label><input id="lAtividadeTempo" type="number" min="1" max="240" step="1" value="15"></div></div><div class="activityLock">O cronômetro começa somente quando o aluno iniciar a digitação da atividade.</div></div></div>`,()=>saveLesson(null))}
 function editLesson(id){const l=state.lessons.find(x=>x.id===id);openForm("Editar aula",`<div class="formGrid"><div class="formField"><label>TURMA</label><select id="lClass">${classOptions(l.class_id)}</select></div><div class="formField"><label>DATA</label><input id="lDate" type="date" value="${l.data}"></div><div class="formField"><label>HORÁRIO</label><input id="lTime" type="time" value="${l.horario||""}"></div><div class="formField"><label>CARGA</label><input id="lCarga" type="number" min="0" step=".5" value="${l.carga||0}"></div><div class="formField"><label>TIPO</label><select id="lTipo">${["Aula","Oficina","Evento","Reunião"].map(x=>`<option ${x===l.tipo?"selected":""}>${x}</option>`).join("")}</select></div><div class="formField"><label>TÍTULO</label><input id="lTitulo" value="${attr(l.titulo||"")}"></div><div class="lessonActivityConfig"><div class="configRow"><label class="checkLine"><input id="lAtividadeLiberada" type="checkbox" ${l.atividade_liberada?"checked":""}> LIBERAR REGISTRO DE ATIVIDADE PARA O ALUNO</label><div class="formField"><label>TEMPO LIMITE (MINUTOS)</label><input id="lAtividadeTempo" type="number" min="1" max="240" step="1" value="${Number(l.atividade_tempo_minutos||15)}"></div></div><div class="activityLock">O cronômetro começa somente quando o aluno iniciar a digitação da atividade.</div></div></div>`,()=>saveLesson(id))}
 async function saveLesson(id){
  const d={class_id:lClass.value,data:lDate.value,horario:lTime.value,carga:Number(lCarga.value||0),tipo:lTipo.value,titulo:lTitulo.value.trim(),atividade_liberada:!!document.getElementById("lAtividadeLiberada")?.checked,atividade_tempo_minutos:Math.min(240,Math.max(1,Number(document.getElementById("lAtividadeTempo")?.value||15)))};if(!d.class_id||!d.data||!d.titulo)return toast("Preencha turma, data e título.");
- if(isReal){const r=id?await sb.from("lessons").update(d).eq("id",id):await sb.from("lessons").insert(d);if(r.error)return toast(r.error.message)}else{id?Object.assign(state.lessons.find(x=>x.id===id),d):state.lessons.push({...d,id:"l"+Date.now()})}
+ if(isReal){
+  if(id){const r=await sb.from("lessons").update(d).eq("id",id);if(r.error)return toast(r.error.message)}
+  else{
+   const r=await sb.from("lessons").insert(d).select("id").single();if(r.error)return toast(r.error.message);
+   const roster=state.enrollments.filter(e=>e.class_id===d.class_id).map(e=>({lesson_id:r.data.id,student_id:e.student_id}));
+   if(roster.length){const er=await sb.from("lesson_enrollments").insert(roster);if(er.error){toast("A aula foi criada, mas não foi possível vincular automaticamente os alunos: "+er.error.message);await loadState();closeModal();return renderPage("Aulas")}}
+  }
+  await loadState();
+ }else{
+  if(id){Object.assign(state.lessons.find(x=>x.id===id),d)}
+  else{const newId="l"+Date.now();state.lessons.push({...d,id:newId});state.enrollments.filter(e=>e.class_id===d.class_id).forEach(e=>state.lessonEnrollments.push({id:"le"+Date.now()+e.student_id,lesson_id:newId,student_id:e.student_id}))}
+ }
  closeModal();toast("Aula salva.");renderPage("Aulas");
 }
 function lessonActivities(id){
@@ -1355,11 +1395,11 @@ async function saveInstructorActivity(activityId){
  lessonActivities(a.lesson_id);
 }
 function lessonAttendance(id){
- const l=state.lessons.find(x=>x.id===id),ens=state.enrollments.filter(e=>e.class_id===l?.class_id);
- openModal("Frequência — "+(l?.titulo||""),`<p style="font-size:11px;color:var(--muted)">Somente alunos vinculados à turma podem receber presença nesta aula.</p><div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>Presença</th></tr></thead><tbody>${ens.map(e=>{const p=state.profiles.find(x=>x.id===e.student_id),a=state.attendance.find(x=>x.lesson_id===id&&x.student_id===e.student_id);return`<tr><td>${esc(p?.nome||"—")}</td><td><select id="att_${id}_${e.student_id}" style="padding:7px;border:1px solid var(--line);border-radius:8px"><option value="true" ${a?.presente===true?"selected":""}>PRESENTE</option><option value="false" ${a?.presente===false?"selected":""}>AUSENTE</option></select></td></tr>`}).join("")||`<tr><td colspan="2" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div><button class="btn primary" style="margin-top:12px" onclick="saveLessonAttendance('${id}')">SALVAR FREQUÊNCIA</button>`);showModalClose();
+ const l=state.lessons.find(x=>x.id===id),ens=state.lessonEnrollments.filter(e=>e.lesson_id===id);
+ openModal("Frequência — "+(l?.titulo||""),`<p style="font-size:11px;color:var(--muted)">Somente alunos vinculados especificamente a esta aula podem receber presença.</p><div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>Presença</th></tr></thead><tbody>${ens.map(e=>{const p=state.profiles.find(x=>x.id===e.student_id),a=state.attendance.find(x=>x.lesson_id===id&&x.student_id===e.student_id);return`<tr><td>${esc(p?.nome||"—")}</td><td><select id="att_${id}_${e.student_id}" style="padding:7px;border:1px solid var(--line);border-radius:8px"><option value="true" ${a?.presente===true?"selected":""}>PRESENTE</option><option value="false" ${a?.presente===false?"selected":""}>AUSENTE</option></select></td></tr>`}).join("")||`<tr><td colspan="2" class="empty">Nenhum aluno vinculado.</td></tr>`}</tbody></table></div><button class="btn primary" style="margin-top:12px" onclick="saveLessonAttendance('${id}')">SALVAR FREQUÊNCIA</button>`);showModalClose();
 }
 async function saveLessonAttendance(lessonId){
- const l=state.lessons.find(x=>x.id===lessonId),ens=state.enrollments.filter(e=>e.class_id===l?.class_id);
+ const l=state.lessons.find(x=>x.id===lessonId),ens=state.lessonEnrollments.filter(e=>e.lesson_id===lessonId);
  for(const e of ens){
   const presente=document.getElementById(`att_${lessonId}_${e.student_id}`)?.value==="true",existing=state.attendance.find(a=>a.lesson_id===lessonId&&a.student_id===e.student_id);
   if(isReal){const r=existing?await sb.from("attendance").update({presente,by_user_id:currentUser.id}).eq("id",existing.id):await sb.from("attendance").insert({lesson_id:lessonId,student_id:e.student_id,presente,by_user_id:currentUser.id});if(r.error)return toast(r.error.message)}
@@ -1404,9 +1444,8 @@ function chooseReport(){
 function buildStudentDashboardSummary(){
  const today=new Date().toISOString().slice(0,10);
  const currentMonth=today.slice(0,7);
- const myEnroll=state.enrollments.filter(e=>e.student_id===currentUser.id);
- const classIds=new Set(myEnroll.map(e=>e.class_id));
- const myLessons=state.lessons.filter(l=>classIds.has(l.class_id)).sort((a,b)=>String(b.data||"").localeCompare(String(a.data||""))||String(b.horario||"").localeCompare(String(a.horario||"")));
+ const myLessonIds=new Set(state.lessonEnrollments.filter(e=>e.student_id===currentUser.id).map(e=>e.lesson_id));
+ const myLessons=state.lessons.filter(l=>myLessonIds.has(l.id)).sort((a,b)=>String(b.data||"").localeCompare(String(a.data||""))||String(b.horario||"").localeCompare(String(a.horario||"")));
  const myAttendance=state.attendance.filter(a=>a.student_id===currentUser.id);
  const myActivities=state.activities.filter(a=>a.student_id===currentUser.id);
  const recorded=myLessons.map(l=>myAttendance.find(a=>a.lesson_id===l.id)).filter(Boolean);
@@ -1442,9 +1481,9 @@ function buildStudentDashboardSummary(){
 
 function todayPage(w){
  const today=new Date().toISOString().slice(0,10);
- const myEnroll=state.enrollments.filter(e=>e.student_id===currentUser.id).map(e=>e.class_id);
+ const myLessonIds=new Set(state.lessonEnrollments.filter(e=>e.student_id===currentUser.id).map(e=>e.lesson_id));
  // Aulas de hoje continuam visíveis; qualquer aula com atividade liberada permanece disponível mesmo depois da sua data.
- const lessons=state.lessons.filter(l=>myEnroll.includes(l.class_id)&&(l.data===today||l.atividade_liberada)).sort((a,b)=>String(b.data||"").localeCompare(String(a.data||""))||String(a.horario||"").localeCompare(String(b.horario||"")));
+ const lessons=state.lessons.filter(l=>myLessonIds.has(l.id)&&(l.data===today||l.atividade_liberada)).sort((a,b)=>String(b.data||"").localeCompare(String(a.data||""))||String(a.horario||"").localeCompare(String(b.horario||"")));
  const todayLessons=lessons.filter(l=>l.data===today);
  const releasedPast=lessons.filter(l=>l.data<today&&l.atividade_liberada);
  w.innerHTML=head("Aulas disponíveis para você","Aulas de hoje e aulas anteriores que foram liberadas para registro de atividade.","ATUALIZAR","renderPage('Aula de hoje')")+`<div class="onlinePanel" id="onlineUsersPanel"><div class="onlinePanelHead"><div><h3>Usuários online</h3><p>Quem está conectado ao ComunicaTec neste momento.</p></div><span class="onlineCount" id="onlineUsersCount">0</span></div></div>`+`<div class="reportSectionTitle" style="margin-top:18px"><div><h3>Aulas disponíveis para você</h3><p>${todayLessons.length} aula(s) de hoje • ${releasedPast.length} aula(s) anterior(es) liberada(s)</p></div></div>`;
@@ -1487,8 +1526,8 @@ function runActivityTimer(lessonId){
 async function saveActivity(lessonId){
  const texto=document.getElementById("act_"+lessonId)?.value.trim();if(!texto)return toast("Escreva a atividade desenvolvida.");
  const lesson=state.lessons.find(l=>l.id===lessonId);if(!lesson)return toast("Aula não encontrada.");
- const enrolled=state.enrollments.some(e=>e.class_id===lesson.class_id&&e.student_id===currentUser.id),attendance=state.attendance.find(a=>a.lesson_id===lessonId&&a.student_id===currentUser.id&&a.presente===true);
- if(!enrolled)return toast("Você não está vinculado à turma desta aula.");
+ const enrolled=state.lessonEnrollments.some(e=>e.lesson_id===lessonId&&e.student_id===currentUser.id),attendance=state.attendance.find(a=>a.lesson_id===lessonId&&a.student_id===currentUser.id&&a.presente===true);
+ if(!enrolled)return toast("Você não está vinculado a esta aula.");
  if(!attendance)return toast("Sua atividade só pode ser registrada depois que sua presença for confirmada pelo instrutor.");
  if(!lesson.atividade_liberada)return toast("O registro de atividade não está liberado para esta aula.");
  const existing=state.activities.find(a=>a.lesson_id===lessonId&&a.student_id===currentUser.id);
@@ -1572,7 +1611,8 @@ function buildReport(studentId,month){
  const p=state.profiles.find(x=>x.id===studentId)||currentUser;
  const sig=p.signature_data||((studentId===currentUser.id)?(currentUser.signature_data||""):(window.__signatures?.["signature_"+studentId]||""));
  const enrolledClassIds=state.enrollments.filter(e=>e.student_id===studentId).map(e=>e.class_id);
- const monthLessons=state.lessons.filter(l=>String(l.data||"").slice(0,7)===month&&enrolledClassIds.includes(l.class_id));
+ const assignedLessonIds=new Set(state.lessonEnrollments.filter(e=>e.student_id===studentId).map(e=>e.lesson_id));
+ const monthLessons=state.lessons.filter(l=>String(l.data||"").slice(0,7)===month&&assignedLessonIds.has(l.id));
  const classCandidates=[...monthLessons.map(l=>state.classes.find(c=>c.id===l.class_id)),...enrolledClassIds.map(id=>state.classes.find(c=>c.id===id))].filter(Boolean);
  const coordId=classCandidates.find(c=>c.coordenador_id)?.coordenador_id||null;
  const coord=(studentId===currentUser?.id && currentUser?.role==="ALUNO" && state.myCoordinator)

@@ -429,6 +429,60 @@ img{max-width:100%;height:auto}
 /* V49 — formulário Nova mensagem padronizado com os demais formulários */
 .notificationFormHint{font-size:9px;color:var(--muted);margin-top:5px}
 </style>
+
+<style id="v69-report-print-fix">
+@page { size: A4 portrait; margin: 7mm; }
+@media print {
+  html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-size: 9pt !important; }
+  body * { box-sizing: border-box !important; }
+  #workspace { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  #printArea, .reportPaper { display: block !important; position: static !important; width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; zoom: .97; }
+  .reportHeader { font-size: 9.5pt !important; line-height: 1.18 !important; }
+  .reportHeader img, .reportHeader .republicaBrasao { width: 44px !important; height: 44px !important; margin: 0 auto 3px !important; }
+  .reportTitle { font-size: 14pt !important; margin: 12px 0 9px !important; }
+  .reportSectionTitle { font-size: 9.5pt !important; padding: 5px 6px !important; margin-top: 9px !important; }
+  .reportInfo { font-size: 9pt !important; table-layout: fixed !important; }
+  .reportInfo td { padding: 5px 6px !important; line-height: 1.18 !important; overflow-wrap: anywhere !important; }
+  .reportTable { margin-top: 7px !important; font-size: 9pt !important; table-layout: fixed !important; }
+  .reportTable th, .reportTable td { padding: 5px 6px !important; font-size: 9pt !important; line-height: 1.18 !important; overflow-wrap: anywhere !important; }
+  .reportTable tr, .reportInfo tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+  .reportPaper > div[style*="text-align:right"] { margin-top: 14px !important; font-size: 9pt !important; }
+  .signatureArea { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 34px !important; margin-top: 30px !important; break-inside: avoid !important; page-break-inside: avoid !important; font-size: 9pt !important; }
+  .signatureArea .line { min-height: 30px !important; padding-top: 5px !important; position: relative !important; }
+  .signatureImg { display: block !important; visibility: visible !important; opacity: 1 !important; max-width: 145px !important; max-height: 35px !important; width: auto !important; height: auto !important; object-fit: contain !important; margin: -31px auto 1px !important; position: relative !important; z-index: 2 !important; }
+  .authApp, .side, .bar, .workspace-head, .toolbar, .signatureUpload, .reportActions, #noPrint, .modal, .toast, .reportHeaderActions, .adminDashboardFilters { display: none !important; }
+}
+</style>
+
+
+<style id="v71-espacamento-data-assinaturas">
+@media print {
+  #printArea .reportTable { margin-bottom: 0 !important; }
+  #printArea > div[style*="text-align:right"] { margin-top: 24px !important; margin-bottom: 0 !important; line-height: 1.4 !important; }
+  #printArea .signatureArea { margin-top: 42px !important; gap: 34px !important; }
+}
+@media screen {
+  #printArea > div[style*="text-align:right"] { margin-top: 24px !important; }
+  #printArea .signatureArea { margin-top: 42px !important; }
+}
+</style>
+
+
+<style id="v72-assinatura-maior-espacamento-data">
+/* V72: assinatura do aluno maior e mais espaço entre data e assinaturas */
+@media print {
+  #printArea > div[style*="text-align:right"] { margin-top: 28px !important; margin-bottom: 0 !important; line-height: 1.5 !important; }
+  #printArea .signatureArea { margin-top: 68px !important; gap: 34px !important; }
+  #printArea .signatureImg { max-width: 220px !important; max-height: 58px !important; width: auto !important; height: auto !important; margin: -49px auto 2px !important; }
+}
+@media screen {
+  #printArea > div[style*="text-align:right"] { margin-top: 28px !important; }
+  #printArea .signatureArea { margin-top: 68px !important; }
+  #printArea .signatureImg { max-width: 220px !important; max-height: 58px !important; width: auto !important; height: auto !important; margin: -49px auto 2px !important; }
+}
+</style>
+
 </head>
 <body>
 
@@ -1641,15 +1695,22 @@ function generateReport(studentId,month){
  <div id="reportPreview"></div>`;
  renderReportPreview(studentId,month);
 }
-function printReport(){
+async function printReport(){
  const report=document.getElementById("printArea");
  if(!report){
   toast("Gere o relatório antes de imprimir.");
   return;
  }
+ // Aguarda as imagens do relatório (incluindo a assinatura) carregarem antes de abrir a impressão.
+ const images=[...report.querySelectorAll("img")];
+ await Promise.all(images.map(img=>{
+   if(img.complete && img.naturalWidth>0) return Promise.resolve();
+   if(typeof img.decode==="function") return img.decode().catch(()=>{});
+   return new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;setTimeout(resolve,1500)});
+ }));
  report.scrollIntoView({block:"start"});
  document.title="Relatório Mensal de Atividade - ComunicaTec";
- setTimeout(()=>window.print(),100);
+ setTimeout(()=>window.print(),250);
 }
 
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#0030DC">
-<title>ComunicaTec • Gestão de Alunos</title><meta name="comunicatec-version" content="V74 — indicadores do mês atual + meta mensal de 40h">
+<title>ComunicaTec • Gestão de Alunos</title><meta name="comunicatec-version" content="V78 — edição de atividades por ADMIN, COORDENADOR e INSTRUTOR">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -345,7 +345,7 @@ img{max-width:100%;height:auto}
 /* V52 — painel gerencial avançado do ADMIN */
 .adminDashboardFilters{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;margin:0 0 18px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
 .filterTitle{display:flex;align-items:center;gap:8px;margin-bottom:12px}.filterTitle i{color:var(--blue)}.filterTitle b{font-size:12px}.filterTitle span{font-size:9px;color:var(--muted);font-weight:700}
-.adminFilterGrid{display:grid;grid-template-columns:1.35fr 1.1fr .8fr .8fr auto;gap:10px;align-items:end}.adminFilterGrid .formField{margin:0}.filterActions{display:flex;gap:7px;align-items:center}.filterActions .btn{height:40px;white-space:nowrap}
+.adminFilterGrid{display:grid;grid-template-columns:1.15fr 1fr 1fr 1fr .8fr auto;gap:10px;align-items:end}.adminFilterGrid .formField{margin:0}.filterActions{display:flex;gap:7px;align-items:center}.filterActions .btn{height:40px;white-space:nowrap}
 .reportSectionTitle{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 4px}.reportPaper .reportSectionTitle{display:block;text-align:center;width:100%;box-sizing:border-box}.reportSectionTitle h3{margin:0;font-size:16px}.reportSectionTitle p{margin:4px 0 0;font-size:10px;color:var(--muted)}.reportFilterBadge{padding:7px 10px;border-radius:999px;background:#edf3ff;color:var(--blue);font-size:9px;font-weight:900}
 .adminChartGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.chartCard{min-height:220px}.barChart{display:grid;gap:12px;padding-top:6px}.chartRow{display:grid;gap:5px}.chartLabel{display:flex;justify-content:space-between;gap:10px;font-size:9px;color:#475467}.chartLabel span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:82%}.chartLabel b{color:var(--text)}.chartTrack{height:9px;background:#edf1f7;border-radius:99px;overflow:hidden}.chartTrack i{display:block;height:100%;background:var(--blue);border-radius:99px;min-width:2px}
 .monthChart{height:165px;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;border-bottom:1px solid #e7ebf2;padding:0 6px 4px}.monthCol{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:34px}.monthValue{font-size:9px;font-weight:900;color:var(--blue)}.monthBar{width:22px;background:var(--green);border-radius:6px 6px 2px 2px;min-height:8px}.monthCol small{font-size:8px;color:var(--muted)}
@@ -851,10 +851,11 @@ function dashboardPage(w){
  w.innerHTML=head("Dashboard","Visão geral e indicadores gerenciais dos alunos.","ATUALIZAR","loadState().then(()=>renderPage('Dashboard'))")+
  `<div class="onlinePanel" id="onlineUsersPanel"><div class="onlinePanelHead"><div><h3>Usuários online</h3><p>Usuários conectados ao ComunicaTec neste momento.</p></div><span class="onlineCount" id="onlineUsersCount">0</span></div></div>
  <div class="adminDashboardFilters">
-   <div class="filterTitle"><i class="fa-solid fa-filter"></i><b>Filtros dos indicadores</b><span>Escolha o mês e refine a consulta por aluno ou turma.</span></div>
+   <div class="filterTitle"><i class="fa-solid fa-filter"></i><b>Filtros dos indicadores</b><span>Escolha o mês e refine a consulta por aluno, turma, coordenador ou instrutor.</span></div>
    <div class="adminFilterGrid">
     <div class="formField"><label>PESQUISAR ALUNO</label><input id="dashStudentFilter" type="search" placeholder="Nome ou e-mail do aluno" autocomplete="off" onkeydown="if(event.key==='Enter')applyAdminDashboardFilters()"></div>
-    <div class="formField"><label>TURMA</label><select id="dashClassFilter"><option value="">TODAS AS TURMAS</option>${classes.map(c=>`<option value="${attr(c.id)}">${esc(c.nome)}</option>`).join("")}</select></div>
+    <div class="formField"><label>TURMA</label><select id="dashClassFilter" onchange="applyAdminDashboardFilters()"><option value="">TODAS AS TURMAS</option>${classes.map(c=>`<option value="${attr(c.id)}">${esc(c.nome)}</option>`).join("")}</select></div>
+    ${currentUser?.role==="ADMIN"?`<div class="formField"><label>COORDENADOR</label><select id="dashCoordinatorFilter" onchange="applyAdminDashboardFilters()"><option value="">TODOS OS COORDENADORES</option>${state.profiles.filter(p=>String(p.perfil).toUpperCase()==="COORDENADOR"&&p.ativo===true).sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","pt-BR")).map(p=>`<option value="${attr(p.id)}">${esc(p.nome||p.email||"Coordenador")}</option>`).join("")}</select></div><div class="formField"><label>INSTRUTOR</label><select id="dashInstructorFilter" onchange="applyAdminDashboardFilters()"><option value="">TODOS OS INSTRUTORES</option>${state.profiles.filter(p=>String(p.perfil).toUpperCase()==="INSTRUTOR"&&p.ativo===true).sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","pt-BR")).map(p=>`<option value="${attr(p.id)}">${esc(p.nome||p.email||"Instrutor")}</option>`).join("")}</select></div>`:``}
      <div class="formField"><label>MÊS DE REFERÊNCIA</label><input id="dashMonth" type="month" value="${attr(getCurrentMonthRange().month)}" onchange="applyAdminDashboardFilters()"></div>
     <div class="filterActions"><button class="btn primary" type="button" onclick="applyAdminDashboardFilters()"><i class="fa-solid fa-chart-line"></i> ATUALIZAR PAINEL</button><button class="btn" type="button" onclick="resetAdminDashboardFilters()">LIMPAR FILTROS</button><button class="btn" type="button" onclick="openMonthlyAttendanceReport()"><i class="fa-solid fa-calendar-check"></i> FREQUÊNCIA MENSAL</button></div>
    </div>
@@ -881,18 +882,26 @@ function getStudentMonthlyWorkload(studentId, month, allowedClassIds=null){
   return lesson&&String(lesson.data||"").slice(0,7)===month&&(!allowedClassIds||allowedClassIds.includes(lesson.class_id)) ? sum+(Number(lesson.carga)||0) : sum;
  },0);
 }
+function hasDashboardClassScope(){return !!(document.getElementById("dashClassFilter")?.value||(currentUser?.role==="ADMIN"&&(document.getElementById("dashCoordinatorFilter")?.value||document.getElementById("dashInstructorFilter")?.value)));}
+function getDashboardAllowedClassIds(){
+ const classId=document.getElementById("dashClassFilter")?.value||"";
+ const coordinatorId=currentUser?.role==="ADMIN"?(document.getElementById("dashCoordinatorFilter")?.value||""):"";
+ const instructorId=currentUser?.role==="ADMIN"?(document.getElementById("dashInstructorFilter")?.value||""):"";
+ return state.classes.filter(c=>(!classId||c.id===classId)&&(!coordinatorId||c.coordenador_id===coordinatorId)&&(!instructorId||c.instrutor_id===instructorId)).map(c=>c.id);
+}
 function renderAdminDashboardReport(){
  const area=document.getElementById("adminDashboardReportArea"); if(!area)return;
  const {month,from,to}=getDashboardMonthRange();
  const classId=document.getElementById("dashClassFilter")?.value||"";
  const studentSearch=(document.getElementById("dashStudentFilter")?.value||"").trim().toLocaleLowerCase("pt-BR");
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&p.ativo===true);
- const allowedClassIds=classId?[classId]:state.classes.map(c=>c.id);
+ const allowedClassIds=getDashboardAllowedClassIds();
  const lessons=state.lessons.filter(l=>allowedClassIds.includes(l.class_id)&&String(l.data||"")>=from&&String(l.data||"")<=to);
  const lessonIds=new Set(lessons.map(l=>l.id));
  const enrollments=state.enrollments.filter(e=>allowedClassIds.includes(e.class_id));
  const assignedIds=new Set(state.lessonEnrollments.map(e=>e.student_id));
- const studentIds=classId?new Set([...enrollments.map(e=>e.student_id),...state.lessonEnrollments.filter(le=>lessonIds.has(le.lesson_id)).map(le=>le.student_id)]):new Set(students.map(s=>s.id));
+ const hasClassScope=hasDashboardClassScope();
+ const studentIds=hasClassScope?new Set([...enrollments.map(e=>e.student_id),...state.lessonEnrollments.filter(le=>lessonIds.has(le.lesson_id)).map(le=>le.student_id)]):new Set(students.map(s=>s.id));
  const filteredStudents=students.filter(s=>studentIds.has(s.id)&&(!studentSearch||`${s.nome||""} ${s.email||""}`.toLocaleLowerCase("pt-BR").includes(studentSearch)));
  const filteredStudentIds=new Set(filteredStudents.map(s=>s.id));
  const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
@@ -947,11 +956,11 @@ function listAttentionStudents(type){
  const studentSearch=(document.getElementById("dashStudentFilter")?.value||"").trim().toLocaleLowerCase("pt-BR");
   const {from,to}=getDashboardMonthRange();
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO");
- const allowedClassIds=classId?[classId]:state.classes.map(c=>c.id);
+ const allowedClassIds=getDashboardAllowedClassIds();
  const lessons=state.lessons.filter(l=>allowedClassIds.includes(l.class_id)&&(!from||String(l.data)>=from)&&(!to||String(l.data)<=to));
  const lessonIds=new Set(lessons.map(l=>l.id));
  const enrollments=state.enrollments.filter(e=>allowedClassIds.includes(e.class_id));
- const studentIds=classId?new Set(enrollments.map(e=>e.student_id)):new Set(students.map(s=>s.id));
+ const studentIds=hasDashboardClassScope()?new Set([...enrollments.map(e=>e.student_id),...state.lessonEnrollments.filter(le=>state.lessons.some(l=>l.id===le.lesson_id&&allowedClassIds.includes(l.class_id))).map(le=>le.student_id)]):new Set(students.map(s=>s.id));
  const filteredStudents=students.filter(s=>studentIds.has(s.id) && (!studentSearch || `${s.nome||""} ${s.email||""}`.toLocaleLowerCase("pt-BR").includes(studentSearch)));
  const filteredStudentIds=new Set(filteredStudents.map(s=>s.id));
  const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
@@ -983,8 +992,8 @@ function getDashboardFilteredStudents(){
  const classId=document.getElementById("dashClassFilter")?.value||"";
  const studentSearch=(document.getElementById("dashStudentFilter")?.value||"").trim().toLocaleLowerCase("pt-BR");
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&p.ativo===true);
- const allowedClassIds=classId?[classId]:state.classes.map(c=>c.id);
- const studentIds=classId?new Set(state.enrollments.filter(e=>allowedClassIds.includes(e.class_id)).map(e=>e.student_id)):new Set(students.map(s=>s.id));
+ const allowedClassIds=getDashboardAllowedClassIds();
+ const studentIds=hasDashboardClassScope()?new Set([...state.enrollments.filter(e=>allowedClassIds.includes(e.class_id)).map(e=>e.student_id),...state.lessonEnrollments.filter(le=>state.lessons.some(l=>l.id===le.lesson_id&&allowedClassIds.includes(l.class_id))).map(le=>le.student_id)]):new Set(students.map(s=>s.id));
  return students.filter(s=>studentIds.has(s.id)&&(!studentSearch||`${s.nome||""} ${s.email||""}`.toLocaleLowerCase("pt-BR").includes(studentSearch))).sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","pt-BR"));
 }
 function openMonthlyAttendanceReport(){
@@ -1006,7 +1015,7 @@ function renderMonthlyAttendanceReport(){
  const month=document.getElementById("monthlyAttendanceMonth")?.value||getCurrentMonthRange().month;
  const selected=document.getElementById("monthlyAttendanceStudent")?.value||"";
  const classId=document.getElementById("dashClassFilter")?.value||"";
- const allowedClassIds=classId?[classId]:state.classes.map(c=>c.id);
+ const allowedClassIds=getDashboardAllowedClassIds();
  let students=getDashboardFilteredStudents(); if(selected)students=students.filter(s=>s.id===selected);
  const monthLessons=state.lessons.filter(l=>String(l.data||"").slice(0,7)===month&&allowedClassIds.includes(l.class_id)).sort((a,b)=>String(a.data).localeCompare(String(b.data))||(String(a.horario||"").localeCompare(String(b.horario||""))));
  const monthName=new Date(month+"-02T12:00:00").toLocaleDateString("pt-BR",{month:"long",year:"numeric"}).toUpperCase();
@@ -1045,17 +1054,17 @@ function applyAdminDashboardFilters(){
  }
  renderAdminDashboardReport();
 }
-function resetAdminDashboardFilters(){const q=document.getElementById("dashStudentFilter"),c=document.getElementById("dashClassFilter"),m=document.getElementById("dashMonth");if(q)q.value="";if(c)c.value="";if(m)m.value=getCurrentMonthRange().month;renderAdminDashboardReport()}
+function resetAdminDashboardFilters(){const q=document.getElementById("dashStudentFilter"),c=document.getElementById("dashClassFilter"),co=document.getElementById("dashCoordinatorFilter"),ins=document.getElementById("dashInstructorFilter"),m=document.getElementById("dashMonth");if(q)q.value="";if(c)c.value="";if(co)co.value="";if(ins)ins.value="";if(m)m.value=getCurrentMonthRange().month;renderAdminDashboardReport()}
 
 function getAdminDashboardData(){
  const {month,from,to}=getDashboardMonthRange();
  const classId=document.getElementById("dashClassFilter")?.value||"";
  const studentSearch=(document.getElementById("dashStudentFilter")?.value||"").trim().toLocaleLowerCase("pt-BR");
  const students=state.profiles.filter(p=>String(p.perfil).toUpperCase()==="ALUNO"&&p.ativo===true);
- const allowedClassIds=classId?[classId]:state.classes.map(c=>c.id);
+ const allowedClassIds=getDashboardAllowedClassIds();
  const lessons=state.lessons.filter(l=>allowedClassIds.includes(l.class_id)&&String(l.data||"")>=from&&String(l.data||"")<=to);
  const enrollments=state.enrollments.filter(e=>allowedClassIds.includes(e.class_id));
- const studentIds=classId?new Set(enrollments.map(e=>e.student_id)):new Set(students.map(s=>s.id));
+ const studentIds=hasDashboardClassScope()?new Set([...enrollments.map(e=>e.student_id),...state.lessonEnrollments.filter(le=>state.lessons.some(l=>l.id===le.lesson_id&&allowedClassIds.includes(l.class_id))).map(le=>le.student_id)]):new Set(students.map(s=>s.id));
  const filteredStudents=students.filter(s=>studentIds.has(s.id)&&(!studentSearch||`${s.nome||""} ${s.email||""}`.toLocaleLowerCase("pt-BR").includes(studentSearch)));
  const filteredStudentIds=new Set(filteredStudents.map(s=>s.id)), lessonIds=new Set(lessons.map(l=>l.id));
  const attendance=state.attendance.filter(a=>lessonIds.has(a.lesson_id)&&filteredStudentIds.has(a.student_id));
@@ -1411,35 +1420,45 @@ async function saveLesson(id){
  }
  closeModal();toast("Aula salva.");renderPage("Aulas");
 }
+function canManageStudentActivity(activity){
+ if(!activity)return false;
+ const role=String(currentUser?.role||"").toUpperCase();
+ if(role==="ADMIN")return true;
+ if(!["COORDENADOR","INSTRUTOR"].includes(role))return false;
+ const lesson=state.lessons.find(x=>x.id===activity.lesson_id);
+ const cls=state.classes.find(x=>x.id===lesson?.class_id);
+ if(!cls)return false;
+ return role==="COORDENADOR" ? cls.coordenador_id===currentUser.id : cls.instrutor_id===currentUser.id;
+}
 function lessonActivities(id){
  const l=state.lessons.find(x=>x.id===id),acts=state.activities.filter(a=>a.lesson_id===id);
- const canEdit=String(currentUser?.role||"").toUpperCase()==="INSTRUTOR";
- openModal("Atividades — "+(l?.titulo||""),`<div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>Atividade registrada</th>${canEdit?"<th>Ação</th>":""}</tr></thead><tbody>${acts.map(a=>{
-  const p=state.profiles.find(x=>x.id===a.student_id);
-  return`<tr><td>${esc(p?.nome||"—")}</td><td>${esc(a.texto||"—")}</td>${canEdit?`<td><button class="tiny" onclick="editStudentActivity('${a.id}')">EDITAR</button></td>`:""}</tr>`;
- }).join("")||`<tr><td colspan="${canEdit?3:2}" class="empty">Nenhuma atividade registrada.</td></tr>`}</tbody></table></div>${canEdit?`<p style="font-size:10px;color:var(--muted);margin-top:10px">O instrutor é o único perfil autorizado a corrigir uma atividade já registrada pelo aluno.</p>`:""}`);showModalClose()}
+ const canEditAny=acts.some(canManageStudentActivity);
+ openModal("Atividades — "+(l?.titulo||""),`<div class="tableWrap"><table class="dataTable"><thead><tr><th>Aluno</th><th>Atividade registrada</th><th>Ação</th></tr></thead><tbody>${acts.map(a=>{
+  const p=state.profiles.find(x=>x.id===a.student_id),canEdit=canManageStudentActivity(a);
+  return`<tr><td>${esc(p?.nome||"—")}</td><td>${esc(a.texto||"—")}</td><td>${canEdit?`<button class="tiny" onclick="editStudentActivity('${a.id}')"><i class="fa-solid fa-pen"></i> EDITAR ATIVIDADE</button>`:`<span style="font-size:9px;color:var(--muted)">Somente visualização</span>`}</td></tr>`;
+ }).join("")||`<tr><td colspan="3" class="empty">Nenhuma atividade registrada.</td></tr>`}</tbody></table></div>${canEditAny?`<p style="font-size:10px;color:var(--muted);margin-top:10px">Você pode editar atividades das turmas sob sua responsabilidade. O ADMIN pode editar todas as atividades.</p>`:`<p style="font-size:10px;color:var(--muted);margin-top:10px">Você não possui permissão para editar atividades desta aula.</p>`}`);showModalClose()}
 function editStudentActivity(activityId){
  const a=state.activities.find(x=>x.id===activityId);
  if(!a)return toast("Atividade não encontrada.");
- if(String(currentUser?.role||"").toUpperCase()!=="INSTRUTOR")return toast("Somente o instrutor pode alterar atividades já registradas.");
+ if(!canManageStudentActivity(a))return toast("Você não tem permissão para editar esta atividade.");
  openModal("Editar atividade do aluno",`
   <div class="formField"><label>ATIVIDADE REGISTRADA</label><textarea id="editActivityText" style="width:100%;min-height:160px">${esc(a.texto||"")}</textarea></div>
   <button class="btn primary" style="margin-top:12px" onclick="saveInstructorActivity('${a.id}')">SALVAR ALTERAÇÃO</button>
  `);
 }
 async function saveInstructorActivity(activityId){
- if(String(currentUser?.role||"").toUpperCase()!=="INSTRUTOR")return toast("Somente o instrutor pode alterar atividades já registradas.");
  const a=state.activities.find(x=>x.id===activityId);
  const texto=document.getElementById("editActivityText")?.value.trim();
  if(!a)return toast("Atividade não encontrada.");
+ if(!canManageStudentActivity(a))return toast("Você não tem permissão para editar esta atividade.");
  if(!texto)return toast("A atividade não pode ficar vazia.");
  if(isReal){
   const r=await sb.from("activities").update({texto}).eq("id",activityId);
-  if(r.error)return toast(r.error.message);
+  if(r.error)return toast("Não foi possível atualizar. Verifique as permissões do Supabase: "+r.error.message);
   await loadState();
  }else a.texto=texto;
  closeModal();
- toast("Atividade atualizada pelo instrutor.");
+ toast("Atividade atualizada com sucesso.");
  lessonActivities(a.lesson_id);
 }
 function lessonAttendance(id){

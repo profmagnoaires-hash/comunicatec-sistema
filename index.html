@@ -481,6 +481,8 @@ img{max-width:100%;height:auto}
   #printArea .signatureArea { margin-top: 68px !important; }
   #printArea .signatureImg { max-width: 220px !important; max-height: 58px !important; width: auto !important; height: auto !important; margin: -49px auto 2px !important; }
 }
+
+.platformCredit{margin:28px 0 10px;padding:12px 4px;text-align:center;color:var(--muted);font-size:11px;border-top:1px solid var(--line)}.platformCredit strong{color:var(--text)}.platformVersion{display:inline-block;margin-left:5px;padding:3px 8px;border-radius:20px;background:var(--soft);color:var(--primary);font-weight:800}.equipmentStatus{display:inline-flex;align-items:center;gap:7px;font-weight:700}.equipmentStatus:before{content:"";width:9px;height:9px;border-radius:50%;background:#16a34a;display:inline-block}.equipmentStatus.loaned:before{background:#f59e0b}.equipmentStatus.maintenance:before{background:#dc2626}.equipmentGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.equipmentCard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px}.equipmentCard h3{margin:0 0 7px;font-size:15px}.equipmentCard p{margin:5px 0;color:var(--muted);font-size:12px}.equipmentActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
 </style>
 
 </head>
@@ -549,7 +551,7 @@ img{max-width:100%;height:auto}
 </aside>
 <section class="main">
 <header class="bar"><div class="barLeft"><button id="mobileMenuBtn" class="mobileMenuBtn" aria-label="Abrir menu" style="display:none">☰</button><h3 id="dashTitle">Painel</h3></div><button class="user" id="headerProfileBtn" type="button" title="Meu perfil"><div id="avatar" class="avatar">U</div><span id="userName">Usuário</span></button></header>
-<main class="content"><div id="workspace"></div></main>
+<main class="content"><div id="workspace"></div><footer class="platformCredit">Desenvolvido por <strong>Magno Aires</strong> <span>•</span> ComunicaTec <span class="platformVersion">V79</span></footer></main>
 </section>
 <nav id="mobileNav" class="mobileBottomNav"></nav>
 </div>
@@ -577,7 +579,7 @@ img{max-width:100%;height:auto}
 const SUPABASE_URL="https://mkpydqlafyjswtyvogou.supabase.co";
 const SUPABASE_KEY="sb_publishable_8yWliKaU2ya-U2bDDAxCvA_4MwG3NzI";
 let sb=null,isReal=true,currentUser=null;
-let state={profiles:[],classes:[],lessons:[],enrollments:[],lessonEnrollments:[],activities:[],attendance:[],notifications:[],notificationReads:[],presence:[]};
+let state={profiles:[],classes:[],lessons:[],enrollments:[],lessonEnrollments:[],activities:[],attendance:[],notifications:[],notificationReads:[],presence:[],equipment:[]};
 let presenceTimer=null,presenceRefreshTimer=null;
 
 
@@ -678,14 +680,15 @@ async function enterReal(user){
 
 async function loadState(){
  if(!isReal)return;
- const [p,c,e,l,a,at,le]=await Promise.all([
+ const [p,c,e,l,a,at,le,eq]=await Promise.all([
   sb.from("profiles").select("id,nome,email,telefone,funcao,perfil,ativo,signature_data,avatar_data,created_at").order("nome"),
   sb.from("classes").select("*").order("nome"),
   sb.from("enrollments").select("*"),
   sb.from("lessons").select("*").order("data",{ascending:false}),
   sb.from("activities").select("*"),
   sb.from("attendance").select("*"),
-  sb.from("lesson_enrollments").select("*")
+  sb.from("lesson_enrollments").select("*"),
+  sb.from("equipment").select("*").order("nome")
  ]);
  const failures=[
   ["profiles",p],
@@ -694,7 +697,8 @@ async function loadState(){
   ["lessons",l],
   ["activities",a],
   ["attendance",at],
-  ["lesson_enrollments",le]
+  ["lesson_enrollments",le],
+  ["equipment",eq]
  ].filter(([,r])=>r.error);
  if(failures.length){
   const [table,result]=failures[0];
@@ -707,6 +711,7 @@ async function loadState(){
  state.activities=a.data||[];
  state.attendance=at.data||[];
  state.lessonEnrollments=le.data||[];
+ state.equipment=eq.data||[];
  state.myCoordinator=null;
  if(currentUser?.role==="ALUNO"){
    try{
@@ -770,9 +775,9 @@ function renderNavigation(){
  const nav=document.getElementById("nav"),mobileNav=document.getElementById("mobileNav");nav.innerHTML="";if(mobileNav)mobileNav.innerHTML="";
  let items;
  if(currentUser.role==="ALUNO") items=["Dashboard","Aula de hoje","Meu relatório"];
- else if(currentUser.role==="ADMIN") items=["Dashboard","Usuários","Alunos","Turmas","Aulas","Relatórios"];
- else items=["Dashboard","Alunos","Turmas","Aulas","Relatórios"];
- const icons={"Dashboard":"fa-house","Usuários":"fa-users-gear","Alunos":"fa-user-graduate","Turmas":"fa-people-group","Aulas":"fa-chalkboard-user","Relatórios":"fa-file-lines","Aula de hoje":"fa-calendar-day","Meu relatório":"fa-file-signature"};
+ else if(currentUser.role==="ADMIN") items=["Dashboard","Usuários","Alunos","Turmas","Aulas","Relatórios","Equipamentos"];
+ else items=["Dashboard","Alunos","Turmas","Aulas","Relatórios","Equipamentos"];
+ const icons={"Dashboard":"fa-house","Usuários":"fa-users-gear","Alunos":"fa-user-graduate","Turmas":"fa-people-group","Aulas":"fa-chalkboard-user","Relatórios":"fa-file-lines","Equipamentos":"fa-boxes-stacked","Aula de hoje":"fa-calendar-day","Meu relatório":"fa-file-signature"};
  const activate=(item,button)=>{
    nav.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
    mobileNav?.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
@@ -805,7 +810,7 @@ function sideToolAction(page){
 }
 
 async function renderPage(page){
- const allowedPages=currentUser?.role==="ALUNO"?["Dashboard","Aula de hoje","Meu relatório","Meu perfil","Minha conta","Notificações"]:currentUser?.role==="ADMIN"?["Dashboard","Usuários","Alunos","Turmas","Aulas","Relatórios","Meu perfil","Minha conta","Notificações"]:["Dashboard","Alunos","Turmas","Aulas","Relatórios","Meu perfil","Minha conta","Notificações"];
+ const allowedPages=currentUser?.role==="ALUNO"?["Dashboard","Aula de hoje","Meu relatório","Meu perfil","Minha conta","Notificações"]:currentUser?.role==="ADMIN"?["Dashboard","Usuários","Alunos","Turmas","Aulas","Relatórios","Equipamentos","Meu perfil","Minha conta","Notificações"]:["Dashboard","Alunos","Turmas","Aulas","Relatórios","Equipamentos","Meu perfil","Minha conta","Notificações"];
  if(!allowedPages.includes(page))page="Dashboard";
  saveCurrentPage(page);
  if(isReal){try{await loadState()}catch(e){toast("Não foi possível atualizar os dados.")}}
@@ -819,6 +824,7 @@ async function renderPage(page){
  if(page==="Turmas")return classesPage(w);
  if(page==="Aulas")return lessonsPage(w);
  if(page==="Relatórios")return reportsPage(w);
+ if(page==="Equipamentos")return equipmentPage(w);
  if(page==="Aula de hoje")return todayPage(w);
  if(page==="Meu relatório")return studentReportPage(w);
  if(page==="Meu perfil")return profilePage(w);
@@ -1744,6 +1750,19 @@ async function printReport(){
 
 function toggleSide(){const side=document.querySelector(".side");if(!side)return;side.classList.toggle("is-collapsed");const c=side.classList.contains("is-collapsed"),b=document.getElementById("sideCollapseBtn");if(b){b.title=c?"Expandir menu":"Recolher menu";b.innerHTML=`<i class="fa-solid ${c?"fa-chevron-right":"fa-chevron-left"}"></i>`}try{localStorage.setItem("comunicatec_menu_collapsed",c?"1":"0")}catch(e){}}
 function restoreSideState(){if(innerWidth<=700)return;try{if(localStorage.getItem("comunicatec_menu_collapsed")==="1"){const s=document.querySelector(".side"),b=document.getElementById("sideCollapseBtn");s?.classList.add("is-collapsed");if(b){b.title="Expandir menu";b.innerHTML='<i class="fa-solid fa-chevron-right"></i>'}}}catch(e){}}
+function equipmentStatusLabel(status){return status==="EMPRESTADO"?"EMPRESTADO":status==="MANUTENCAO"?"MANUTENÇÃO":"NA AGÊNCIA"}
+function equipmentPage(w){
+ const canManage=["ADMIN","COORDENADOR","INSTRUTOR"].includes(currentUser.role);
+ const rows=state.equipment||[];
+ const html=rows.map(e=>{const status=e.status||"DISPONIVEL";const borrowed=status==="EMPRESTADO";const cls=borrowed?"loaned":status==="MANUTENCAO"?"maintenance":"";return `<article class="equipmentCard"><h3>${esc(e.nome||"Equipamento")}</h3><p><b>Patrimônio:</b> ${esc(e.patrimonio||"Não informado")}</p><p><b>Identificação:</b> ${esc(e.codigo||"—")}</p><p><b>Estado:</b> <span class="equipmentStatus ${cls}">${esc(equipmentStatusLabel(status))}</span></p>${borrowed?`<p><b>Responsável:</b> ${esc(e.responsavel_nome||"Não informado")}</p><p><b>Retirada:</b> ${fmtDate(e.data_emprestimo)}</p><p><b>Previsão de devolução:</b> ${fmtDate(e.data_prevista||"")}</p>`:""}${e.descricao?`<p>${esc(e.descricao)}</p>`:""}${canManage?`<div class="equipmentActions"><button class="tiny" onclick="editEquipment('${e.id}')">EDITAR</button>${borrowed?`<button class="tiny" onclick="returnEquipment('${e.id}')">REGISTRAR DEVOLUÇÃO</button>`:`<button class="tiny" onclick="loanEquipment('${e.id}')">EMITIR CAUTELA</button>`}</div>`:""}</article>`}).join("");
+ w.innerHTML=head("Equipamentos","Controle patrimonial, disponibilidade e empréstimos da agência.",canManage?"CADASTRAR EQUIPAMENTO":"",canManage?"newEquipment()":"")+`<div class="statsGrid" style="margin-bottom:16px"><div class="stat"><small>Na agência</small><strong>${rows.filter(x=>(x.status||"DISPONIVEL")==="DISPONIVEL").length}</strong></div><div class="stat"><small>Emprestados</small><strong>${rows.filter(x=>x.status==="EMPRESTADO").length}</strong></div><div class="stat"><small>Em manutenção</small><strong>${rows.filter(x=>x.status==="MANUTENCAO").length}</strong></div></div><div class="equipmentGrid">${html||`<div class="empty">Nenhum equipamento cadastrado.</div>`}</div>`;
+}
+function newEquipment(){openForm("Cadastrar equipamento",`<div class="formGrid"><div class="formField"><label>NOME DO EQUIPAMENTO</label><input id="eqNome" required></div><div class="formField"><label>NÚMERO DE PATRIMÔNIO</label><input id="eqPatrimonio"></div><div class="formField"><label>CÓDIGO / IDENTIFICAÇÃO</label><input id="eqCodigo"></div><div class="formField"><label>SITUAÇÃO</label><select id="eqStatus"><option value="DISPONIVEL">NA AGÊNCIA</option><option value="MANUTENCAO">EM MANUTENÇÃO</option></select></div><div class="formField" style="grid-column:1/-1"><label>DESCRIÇÃO / OBSERVAÇÕES</label><textarea id="eqDescricao"></textarea></div></div>`,async()=>{const row={nome:document.getElementById("eqNome").value.trim(),patrimonio:document.getElementById("eqPatrimonio").value.trim(),codigo:document.getElementById("eqCodigo").value.trim(),status:document.getElementById("eqStatus").value,descricao:document.getElementById("eqDescricao").value.trim(),criado_por:currentUser.id};if(!row.nome)return toast("Informe o nome do equipamento.");const {error}=await sb.from("equipment").insert(row);if(error)return toast(error.message);closeModal();await loadState();equipmentPage(document.getElementById("workspace"));toast("Equipamento cadastrado.")})}
+function editEquipment(id){const e=state.equipment.find(x=>x.id===id);if(!e)return;openForm("Editar equipamento",`<div class="formGrid"><div class="formField"><label>NOME</label><input id="eqNome" value="${attr(e.nome||"")}"></div><div class="formField"><label>PATRIMÔNIO</label><input id="eqPatrimonio" value="${attr(e.patrimonio||"")}"></div><div class="formField"><label>CÓDIGO</label><input id="eqCodigo" value="${attr(e.codigo||"")}"></div><div class="formField"><label>SITUAÇÃO</label><select id="eqStatus"><option value="DISPONIVEL" ${e.status!=="EMPRESTADO"&&e.status!=="MANUTENCAO"?"selected":""}>NA AGÊNCIA</option><option value="MANUTENCAO" ${e.status==="MANUTENCAO"?"selected":""}>EM MANUTENÇÃO</option></select></div><div class="formField" style="grid-column:1/-1"><label>DESCRIÇÃO</label><textarea id="eqDescricao">${esc(e.descricao||"")}</textarea></div></div>`,async()=>{const {error}=await sb.from("equipment").update({nome:document.getElementById("eqNome").value.trim(),patrimonio:document.getElementById("eqPatrimonio").value.trim(),codigo:document.getElementById("eqCodigo").value.trim(),status:document.getElementById("eqStatus").value,descricao:document.getElementById("eqDescricao").value.trim()}).eq("id",id);if(error)return toast(error.message);closeModal();await loadState();equipmentPage(document.getElementById("workspace"));toast("Equipamento atualizado.")})}
+function loanEquipment(id){const e=state.equipment.find(x=>x.id===id);if(!e)return;openForm("Emitir cautela de empréstimo",`<p><b>Equipamento:</b> ${esc(e.nome)}</p><div class="formGrid"><div class="formField"><label>RESPONSÁVEL PELO EMPRÉSTIMO</label><select id="eqResponsavel"><option value="">Selecione um usuário</option>${state.profiles.filter(p=>p.ativo!==false).sort((a,b)=>(a.nome||"").localeCompare(b.nome||"", "pt-BR")).map(p=>`<option value="${attr(p.id)}">${esc(p.nome)} — ${esc(roleLabel(String(p.perfil).toUpperCase()))}</option>`).join("")}</select></div><div class="formField"><label>DATA DE RETIRADA</label><input id="eqData" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="formField"><label>PREVISÃO DE DEVOLUÇÃO</label><input id="eqPrevista" type="date"></div><div class="formField" style="grid-column:1/-1"><label>OBSERVAÇÕES</label><textarea id="eqObs"></textarea></div></div>`,async()=>{const uid=document.getElementById("eqResponsavel").value,p=state.profiles.find(x=>x.id===uid);if(!p)return toast("Selecione o responsável.");const data={status:"EMPRESTADO",responsavel_id:uid,responsavel_nome:p.nome,data_emprestimo:document.getElementById("eqData").value,data_prevista:document.getElementById("eqPrevista").value||null,observacoes_emprestimo:document.getElementById("eqObs").value.trim()};const {error}=await sb.from("equipment").update(data).eq("id",id).eq("status","DISPONIVEL");if(error)return toast(error.message);const {error:logError}=await sb.from("equipment_movements").insert({equipment_id:id,tipo:"EMPRESTIMO",responsavel_id:uid,responsavel_nome:p.nome,data_movimento:data.data_emprestimo,observacoes:data.observacoes_emprestimo,registrado_por:currentUser.id});if(logError)return toast("Empréstimo atualizado, mas não foi possível registrar o histórico: "+logError.message);closeModal();await loadState();equipmentPage(document.getElementById("workspace"));openModal("Cautela de empréstimo",`<div id="printCautela" style="padding:22px;color:#111;background:white"><h2 style="text-align:center">COMUNICATEC — CAUTELA DE EMPRÉSTIMO</h2><hr><p><b>Equipamento:</b> ${esc(e.nome)}</p><p><b>Patrimônio:</b> ${esc(e.patrimonio||"—")}</p><p><b>Responsável:</b> ${esc(p.nome)}</p><p><b>Data de retirada:</b> ${fmtDate(data.data_emprestimo)}</p><p><b>Previsão de devolução:</b> ${fmtDate(data.data_prevista||"")}</p><p><b>Observações:</b> ${esc(data.observacoes_emprestimo||"—")}</p><br><p>____________________________________<br>Assinatura do responsável</p><p>____________________________________<br>Responsável pela entrega</p></div><button class="btn primary" onclick="printCaution()">IMPRIMIR CAUTELA</button>`);})}
+function printCaution(){const content=document.getElementById("printCautela")?.innerHTML;if(!content)return;const win=window.open("","_blank");if(!win)return toast("Permita pop-ups para imprimir a cautela.");win.document.write(`<html><head><title>Cautela de empréstimo</title><style>body{font-family:Arial;padding:25px;color:#111}p{margin:18px 0}</style></head><body>${content}</body></html>`);win.document.close();win.focus();win.print()}
+async function returnEquipment(id){const e=state.equipment.find(x=>x.id===id);if(!e||!confirm("Confirmar a devolução deste equipamento à agência?"))return;const {error}=await sb.from("equipment").update({status:"DISPONIVEL",responsavel_id:null,responsavel_nome:null,data_emprestimo:null,data_prevista:null,observacoes_emprestimo:null}).eq("id",id).eq("status","EMPRESTADO");if(error)return toast(error.message);const {error:logError}=await sb.from("equipment_movements").insert({equipment_id:id,tipo:"DEVOLUCAO",responsavel_id:e.responsavel_id,responsavel_nome:e.responsavel_nome,data_movimento:new Date().toISOString().slice(0,10),observacoes:"Devolvido à agência",registrado_por:currentUser.id});if(logError)return toast("Devolução registrada, mas houve falha no histórico: "+logError.message);await loadState();equipmentPage(document.getElementById("workspace"));toast("Devolução registrada.")}
+
 function profilePage(w){const initials=currentUser.name.split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"U",photo=currentUser.avatar_data?`<img src="${currentUser.avatar_data}" alt="Foto do perfil">`:initials;w.innerHTML=head("Meu perfil","Visualização dos seus dados no ComunicaTec.","","")+`<div class="profileGrid"><div class="profileInfoCard" style="text-align:center"><div class="accountBigAvatar">${photo}</div><strong style="font-size:15px">${esc(currentUser.name||"Usuário")}</strong><p style="font-size:10px;color:var(--muted);margin:5px 0 0">${esc(roleLabel(currentUser.role))}</p></div><div class="profileInfoCard"><div class="infoRow"><small>Nome</small><strong>${esc(currentUser.name||"—")}</strong></div><div class="infoRow"><small>E-mail</small><strong>${esc(currentUser.email||"—")}</strong></div><div class="infoRow"><small>Telefone</small><strong>${esc(currentUser.telefone||"Não informado")}</strong></div><div class="infoRow"><small>Perfil</small><strong>${esc(roleLabel(currentUser.role))}</strong></div></div></div>`}
 function accountPage(w){const initials=currentUser.name.split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"U",photo=currentUser.avatar_data?`<img src="${currentUser.avatar_data}" alt="Foto do perfil">`:initials;w.innerHTML=head("Minha conta","Edite seus dados pessoais e sua foto de perfil.","","")+`<div class="accountGrid"><div class="accountPhotoCard"><div class="accountBigAvatar">${photo}</div><p style="font-size:10px;color:var(--muted)">Foto de perfil</p><button class="btn secondary" style="margin-top:12px;width:100%" onclick="openProfileModal()">ALTERAR FOTO</button></div><div class="profileInfoCard"><div class="formGrid" style="grid-template-columns:1fr"><div class="formField"><label>NOME</label><input id="accountNome" value="${attr(currentUser.name||"")}"></div><div class="formField"><label>E-MAIL</label><input value="${attr(currentUser.email||"")}" disabled></div><div class="formField"><label>TELEFONE</label><input id="accountTelefone" value="${attr(currentUser.telefone||"")}"></div><div class="formField"><label>PERFIL</label><input value="${attr(roleLabel(currentUser.role))}" disabled></div></div><div class="formActions" style="margin-top:16px"><button class="btn primary" onclick="saveMyAccount()">SALVAR ALTERAÇÕES</button></div></div></div>`}
 async function saveMyAccount(){const nome=(document.getElementById("accountNome")?.value||"").trim(),telefone=(document.getElementById("accountTelefone")?.value||"").trim();if(!nome)return toast("Informe seu nome.");try{const {data,error}=await sb.from("profiles").update({nome,telefone}).eq("id",currentUser.id).select("nome,telefone").single();if(error)throw error;currentUser.name=data.nome||nome;currentUser.telefone=data.telefone||telefone;const p=state.profiles.find(x=>x.id===currentUser.id);if(p)Object.assign(p,{nome:currentUser.name,telefone:currentUser.telefone});document.getElementById("sideUserName").textContent=currentUser.name;document.getElementById("userName").textContent=currentUser.name;toast("Dados atualizados com sucesso.")}catch(e){toast(e?.message||"Não foi possível salvar os dados.")}}
